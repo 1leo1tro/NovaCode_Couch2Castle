@@ -1,0 +1,30 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.page h1 {
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.page p {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
