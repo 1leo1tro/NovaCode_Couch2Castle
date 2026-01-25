@@ -1,7 +1,124 @@
+.filter-section {
+  margin: 2rem 0 2.5rem 0;
+  display: flex;
+  justify-content: center;
+}
+
+.property-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: #181f2a;
+  padding: 1.2rem 2rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+}
+
+.property-filter input,
+.property-filter select {
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #222b36;
+  color: #e0f7fa;
+  font-size: 1rem;
+  outline: none;
+  min-width: 120px;
+  transition: box-shadow 0.2s;
+}
+
+.property-filter input:focus,
+.property-filter select:focus {
+  box-shadow: 0 0 0 2px #00bfae;
+}
+
+.property-info .details {
+  color: #b2dfdb;
+  font-size: 0.98rem;
+  margin-top: 0.3rem;
+}
+.contacts-page {
+  background: #181f2a;
+  color: #e0f7fa;
+  padding: 2.5rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.contacts-page h1 {
+  color: #00bfae;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.contacts-page p {
+  color: #b2dfdb;
+  margin-bottom: 2rem;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.contact-form label {
+  display: flex;
+  flex-direction: column;
+  color: #e0f7fa;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.contact-form input,
+.contact-form textarea {
+  margin-top: 0.4rem;
+  padding: 0.7rem 1rem;
+  border: none;
+  border-radius: 6px;
+  background: #222b36;
+  color: #e0f7fa;
+  font-size: 1rem;
+  outline: none;
+  transition: box-shadow 0.2s;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  box-shadow: 0 0 0 2px #00bfae;
+}
+
+.contact-form button {
+  background: linear-gradient(90deg, #009688 0%, #00bfae 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.9rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.contact-form button:hover {
+  background: linear-gradient(90deg, #00bfae 0%, #009688 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+body {
+  background: #101820;
+  color: #e0f7fa;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
 .app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #101820;
 }
 
 .main {
@@ -12,19 +129,90 @@
   width: 100%;
 }
 
-.page {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.realestate-home .hero {
+  background: linear-gradient(90deg, #009688 0%, #101820 100%);
+  color: #fff;
+  padding: 3rem 2rem 2rem 2rem;
+  border-radius: 16px;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
 }
 
-.page h1 {
-  margin-bottom: 1rem;
-  color: #2c3e50;
-}
-
-.page p {
+.realestate-home .hero h1 {
+  font-size: 2.8rem;
   margin-bottom: 0.5rem;
-  line-height: 1.6;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.realestate-home .hero p {
+  font-size: 1.3rem;
+  color: #b2dfdb;
+}
+
+.featured-section {
+  margin-top: 2rem;
+}
+
+.featured-section h2 {
+  color: #009688;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.property-list {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.property-card {
+  background: #181f2a;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+  overflow: hidden;
+  width: 320px;
+  transition: transform 0.18s, box-shadow 0.18s;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: 0 8px 32px rgba(0, 150, 136, 0.18);
+}
+
+.property-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.property-info {
+  padding: 1.2rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.property-info h3 {
+  color: #00bfae;
+  margin: 0 0 0.2rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.property-info .location {
+  color: #b2dfdb;
+  font-size: 1rem;
+}
+
+.property-info .price {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
 }
