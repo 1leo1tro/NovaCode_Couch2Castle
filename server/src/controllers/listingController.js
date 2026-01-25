@@ -28,7 +28,24 @@ const mockListings = [
 
 // Get all listings
 export const getAllListings = (req, res) => {
-  res.json({ listings: mockListings });
+  const { minPrice, maxPrice, zipCode } = req.query;
+  
+  let filtered = [...mockListings];
+  
+  // Filter by price range
+  if (minPrice) {
+    filtered = filtered.filter(l => l.price >= parseInt(minPrice));
+  }
+  if (maxPrice) {
+    filtered = filtered.filter(l => l.price <= parseInt(maxPrice));
+  }
+  
+  // Filter by ZIP code
+  if (zipCode) {
+    filtered = filtered.filter(l => l.address.includes(zipCode));
+  }
+  
+  res.json({ listings: filtered, count: filtered.length });
 };
 
 // Get single listing by id
