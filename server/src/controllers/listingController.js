@@ -1,3 +1,5 @@
+import Listing from '../models/Listing.js';
+
 // Mock Data
 const mockListings = [
   {
@@ -27,35 +29,48 @@ const mockListings = [
 ];
 
 // Get all listings
-export const getAllListings = (req, res) => {
-  const { minPrice, maxPrice, zipCode } = req.query;
-  
-  let filtered = [...mockListings];
-  
-  // Filter by price range
-  if (minPrice) {
-    filtered = filtered.filter(l => l.price >= parseInt(minPrice));
+export const getAllListings = async (req, res) => {
+  try {
+    const { minPrice, maxPrice, zipCode } = req.query;
+    
+    let query = {};
+    
+    // Filter by price range
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) {
+        query.price.$gte = parseInt(minPrice);
+      }
+      if (maxPrice) {
+        query.price.$lte = parseInt(maxPrice);
+      }
+    }
+    
+    // Filter by ZIP code
+    if (zipCode) {
+      query.zipCode = zipCode;
+    }
+    
+    const filtered = await Listing.find(query);
+    
+    res.json({ listings: filtered, count: filtered.length });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching listings', error: error.message });
   }
-  if (maxPrice) {
-    filtered = filtered.filter(l => l.price <= parseInt(maxPrice));
-  }
-  
-  // Filter by ZIP code
-  if (zipCode) {
-    filtered = filtered.filter(l => l.address.includes(zipCode));
-  }
-  
-  res.json({ listings: filtered, count: filtered.length });
 };
 
 // Get single listing by id
-export const getListingById = (req, res) => {
-  const { id } = req.params;
-  const listing = mockListings.find(l => l.id === parseInt(id));
-  
-  if (!listing) {
-    return res.status(404).json({ message: 'Listing not found' });
+export const getListingById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const listing = await Listing.findById(id);
+    
+    if (!listing) {
+      return res.status(404).json({ message: 'Listing not found' });
+    }
+    
+    res.json({ listing });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching listing', error: error.message });
   }
-  
-  res.json({ listing });
 };
