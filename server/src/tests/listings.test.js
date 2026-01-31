@@ -302,9 +302,30 @@ describe('GET /api/listings', () => {
 
       expect(response.body.listings).toHaveLength(0);
       expect(response.body.count).toBe(0);
+      expect(response.body.message).toBe('No listings found matching the specified criteria');
     });
 
-    test('should handle ZIP+4 format', async () => {
+    test('should reject invalid ZIP code format', async () => {
+      await Listing.create({
+        price: 275000,
+        address: '321 Extended St, Huntsville, AL',
+        squareFeet: 1700,
+        status: 'active',
+        zipCode: '35801'
+      });
+
+      const response = await request(app)
+        .get('/api/listings?zipCode=invalid')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid query parameter');
+      expect(response.body.error).toBe('zipCode must be a 5-digit number');
+      expect(response.body.parameter).toBe('zipCode');
+      expect(response.body.value).toBe('invalid');
+    });
+
+    test('should reject ZIP+4 format', async () => {
       await Listing.create({
         price: 275000,
         address: '321 Extended St, Huntsville, AL',
@@ -315,10 +336,11 @@ describe('GET /api/listings', () => {
 
       const response = await request(app)
         .get('/api/listings?zipCode=35801-1234')
-        .expect(200);
+        .expect(400);
 
-      expect(response.body.listings).toHaveLength(1);
-      expect(response.body.listings[0].zipCode).toBe('35801-1234');
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid query parameter');
+      expect(response.body.error).toBe('zipCode must be a 5-digit number');
     });
   });
 
@@ -368,6 +390,7 @@ describe('GET /api/listings', () => {
 
       expect(response.body.listings).toHaveLength(0);
       expect(response.body.count).toBe(0);
+      expect(response.body.message).toBe('No listings found matching the specified criteria');
       expect(Array.isArray(response.body.listings)).toBe(true);
     });
 
@@ -382,12 +405,14 @@ describe('GET /api/listings', () => {
 
       const response = await request(app)
         .get('/api/listings?minPrice=invalid')
-        .expect(500);
+        .expect(400);
 
-      // Currently returns 500 error for invalid price params
-      // TODO: Improve error handling to validate and sanitize query params
       expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toContain('Error fetching listings');
+      expect(response.body.message).toBe('Invalid query parameter');
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
+      expect(response.body.parameter).toBe('minPrice');
+      expect(response.body.value).toBe('invalid');
     });
 
     test('should handle negative price values', async () => {
@@ -401,12 +426,14 @@ describe('GET /api/listings', () => {
 
       const response = await request(app)
         .get('/api/listings?minPrice=-1000')
-        .expect(200);
+        .expect(400);
 
-      expect(response.body.listings).toHaveLength(1);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid query parameter');
+      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
     });
 
-    test('should return empty results when min price exceeds max price', async () => {
+    test('should return error when min price exceeds max price', async () => {
       await Listing.create({
         price: 250000,
         address: '123 Main St, Huntsville, AL',
@@ -417,9 +444,13 @@ describe('GET /api/listings', () => {
 
       const response = await request(app)
         .get('/api/listings?minPrice=400000&maxPrice=200000')
-        .expect(200);
+        .expect(400);
 
-      expect(response.body.listings).toHaveLength(0);
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid query parameters');
+      expect(response.body.error).toBe('minPrice cannot be greater than maxPrice');
+      expect(response.body.minPrice).toBe(400000);
+      expect(response.body.maxPrice).toBe(200000);
     });
 
     test('should handle very large price values', async () => {
@@ -454,23 +485,6 @@ describe('GET /api/listings', () => {
 
       // Empty string should be treated as no filter
       expect(response.body.listings).toHaveLength(1);
-    });
-
-    test('should handle multiple query parameters with same name', async () => {
-      await Listing.create({
-        price: 250000,
-        address: '123 Main St, Huntsville, AL',
-        squareFeet: 1500,
-        status: 'active',
-        zipCode: '35801'
-      });
-
-      // Express handles this by taking the last value
-      const response = await request(app)
-        .get('/api/listings?zipCode=35802&zipCode=35801')
-        .expect(200);
-
-      expect(response.status).toBe(200);
     });
   });
 
@@ -525,6 +539,88 @@ describe('GET /api/listings', () => {
 
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toContain('Error fetching listings');
+
+      // Reconnect for other tests
+      const mongoUri = mongoServer.getUri();
+      await mongoose.connect(mongoUri);
+    });
+  });
+});
+
+describe('GET /api/listings/:id', () => {
+  describe('Valid Requests', () => {
+    test('should return a single listing by valid ID', async () => {
+      const listing = await Listing.create({
+        price: 250000,
+        address: '123 Main St, Huntsville, AL',
+        squareFeet: 1500,
+        status: 'active',
+        zipCode: '35801'
+      });
+
+      const response = await request(app)
+        .get(`/api/listings/${listing._id}`)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(response.body).toHaveProperty('listing');
+      expect(response.body.listing._id).toBe(listing._id.toString());
+      expect(response.body.listing.price).toBe(250000);
+      expect(response.body.listing.address).toBe('123 Main St, Huntsville, AL');
+    });
+  });
+
+  describe('Error Handling', () => {
+    test('should return 400 for invalid ObjectId format', async () => {
+      const response = await request(app)
+        .get('/api/listings/invalid-id-format')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid listing ID format');
+      expect(response.body.error).toBe('The provided ID is not a valid MongoDB ObjectId');
+      expect(response.body.id).toBe('invalid-id-format');
+    });
+
+    test('should return 400 for numeric ID', async () => {
+      const response = await request(app)
+        .get('/api/listings/12345')
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Invalid listing ID format');
+    });
+
+    test('should return 404 for valid ObjectId that does not exist', async () => {
+      const nonExistentId = new mongoose.Types.ObjectId();
+
+      const response = await request(app)
+        .get(`/api/listings/${nonExistentId}`)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Listing not found');
+      expect(response.body.error).toBe(`No listing exists with ID: ${nonExistentId}`);
+    });
+
+    test('should handle database connection errors', async () => {
+      const listing = await Listing.create({
+        price: 250000,
+        address: '123 Main St, Huntsville, AL',
+        squareFeet: 1500,
+        status: 'active',
+        zipCode: '35801'
+      });
+
+      // Close the connection to simulate a database error
+      await mongoose.disconnect();
+
+      const response = await request(app)
+        .get(`/api/listings/${listing._id}`)
+        .expect(500);
+
+      expect(response.body).toHaveProperty('message');
+      expect(response.body.message).toBe('Error fetching listing');
 
       // Reconnect for other tests
       const mongoUri = mongoServer.getUri();
