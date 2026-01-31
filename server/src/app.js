@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import healthRoutes from './routes/healthRoutes.js';
 import listingRoutes from './routes/listingRoutes.js';
 
 dotenv.config();
@@ -16,9 +15,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use('/api', healthRoutes);
 app.use('/api', listingRoutes);
-
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

@@ -56,6 +56,6 @@ listingSchema.index({ zipCode: 1 });
 listingSchema.index({ status: 1 });
 listingSchema.index({ price: 1 });
 
-const Listing = mongoose.model('Listing', listingSchema);
+const Listing = mongoose.model('Listing', listingSchema, 'Listings');
 
 export default Listing;
