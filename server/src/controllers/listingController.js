@@ -29,6 +29,37 @@ const mockListings = [
   }
 ];
 
+// Create a new listing
+export const createListing = async (req, res) => {
+  try {
+    const listing = await Listing.create(req.body);
+    res.status(201).json({
+      message: 'Listing created successfully',
+      listing
+    });
+  } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        message: 'Validation failed',
+        error: error.message,
+        details: error.errors
+      });
+    }
+    if (error.name === 'MongoNetworkError' || error.name === 'MongooseServerSelectionError') {
+      return res.status(503).json({
+        message: 'Database connection error',
+        error: 'Unable to connect to the database. Please try again later.',
+        type: 'DATABASE_CONNECTION_ERROR'
+      });
+    }
+    res.status(500).json({
+      message: 'Error creating listing',
+      error: error.message,
+      type: error.name
+    });
+  }
+};
+
 // Get all listings
 export const getAllListings = async (req, res) => {
   try {
