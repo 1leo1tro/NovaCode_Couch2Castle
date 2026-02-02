@@ -1,5 +1,7 @@
+// TODO: In the future, fetch listing data from the backend API instead of the static array.
 import { useParams } from 'react-router-dom';
-import { allProperties } from './Home';
+import { useState } from 'react';
+import { allProperties } from './properties';
 import './PropertyDetails.css';
 
 const propertyImages = {
@@ -51,14 +53,25 @@ const PropertyDetails = () => {
   if (!property) return <div className="property-details"><h2>Property not found</h2></div>;
   const images = propertyImages[property.id] || [property.image];
 
+  // Carousel state
+  const [current, setCurrent] = useState(0);
+  const total = images.length;
+  const prevImage = () => setCurrent((c) => (c === 0 ? total - 1 : c - 1));
+  const nextImage = () => setCurrent((c) => (c === total - 1 ? 0 : c + 1));
+
   return (
     <div className="property-details">
       <h1>{property.title}</h1>
-      <div className="property-gallery">
-        {images.map((img, idx) => (
-          <img key={idx} src={img} alt={property.title + ' photo ' + (idx + 1)} />
-        ))}
+      <div className="property-gallery-carousel">
+        <button className="carousel-btn" onClick={prevImage} aria-label="Previous image">&#8592;</button>
+        <img
+          src={images[current]}
+          alt={property.title + ' photo ' + (current + 1)}
+          className="carousel-image"
+        />
+        <button className="carousel-btn" onClick={nextImage} aria-label="Next image">&#8594;</button>
       </div>
+      <div className="carousel-indicator">{current + 1} / {total}</div>
       <div className="property-meta">
         <p><strong>Location:</strong> {property.location}</p>
         <p><strong>Price:</strong> ${property.price.toLocaleString()}</p>
