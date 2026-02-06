@@ -87,12 +87,38 @@ Based on the test suite, the following improvements are recommended:
 4. **Pagination**: Add support for paginating large result sets
 5. **Sorting**: Allow sorting results by price, square footage, or date
 
+## Database Seed Script
+
+A seed script is available to populate the database with diverse test listings for manual or integration testing:
+
+```bash
+cd server
+npm run seed
+```
+
+The script (`src/scripts/seedListings.js`) inserts 25 listings covering:
+
+| Category        | Coverage                                                    |
+|-----------------|-------------------------------------------------------------|
+| Price           | $0 - $5,000,000 (boundary values at tier edges)            |
+| Square footage  | 0 - 10,000 sqft                                            |
+| ZIP codes       | 11 unique codes, including ZIP+4 format                     |
+| Statuses        | active (13), pending (5), inactive (4), sold (3)            |
+| Edge cases      | Zero values, unusual price/sqft ratios, varying image arrays|
+
+The seed script clears all existing listings before inserting, so it is safe to run repeatedly for a consistent baseline.
+
+**Note:** The seed script connects to the live database configured in `server/.env`. It does not affect the in-memory database used by the test suite.
+
 ## Test File Structure
 
 ```
-src/tests/
-├── listings.test.js    # Main test file for GET /api/listings
-└── README.md          # This file
+src/
+├── scripts/
+│   └── seedListings.js     # Database seed script (25 test listings)
+└── tests/
+    ├── listings.test.js     # Main test file for GET /api/listings
+    └── TestingREADME.md     # This file
 ```
 
 ## Notes
@@ -101,3 +127,4 @@ src/tests/
 - Each test runs in isolation with a fresh database
 - The test suite automatically cleans up after itself
 - Tests are compatible with ES modules (Node.js with `type: "module"`)
+- The seed script is excluded from test coverage via `jest.config.js`
