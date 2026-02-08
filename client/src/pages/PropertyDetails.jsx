@@ -1,5 +1,7 @@
-import { useParams } from 'react-router-dom';
-import { allProperties } from './Home';
+import { useEffect, useState } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import { useAuth } from '../context/AuthContext';
 import '../styles/PropertyDetails.css';
 
 const interiorImages = [
@@ -13,23 +15,104 @@ const interiorImages = [
 
 const PropertyDetails = () => {
   const { id } = useParams();
-  const property = allProperties.find((p) => p.id === Number(id));
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProperty = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.get(`/api/listings/${id}`);
+        setProperty(response.data.data);
+      } catch (err) {
+        console.error('Error fetching property:', err);
+        setError(err.response?.data?.message || 'Failed to load property details');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProperty();
+  }, [id]);
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this listing?')) {
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/listings/${id}`);
+      navigate('/listings');
+    } catch (err) {
+      console.error('Error deleting listing:', err);
+      alert(err.response?.data?.message || 'Failed to delete listing');
+    }
+  };
+
+  if (loading) return <div className="property-details-page"><h2>Loading...</h2></div>;
+  if (error) return <div className="property-details-page"><h2>Error: {error}</h2></div>;
   if (!property) return <div className="property-details-page"><h2>Property not found</h2></div>;
 
-  const mainImage = property.image;
-  const gallery = [mainImage, ...interiorImages.map((i) => i.url).filter((url) => url !== mainImage)].slice(0, 6);
+  const gallery = property.images && property.images.length > 0
+    ? [...property.images, ...interiorImages.map((i) => i.url)].slice(0, 6)
+    : interiorImages.map((i) => i.url).slice(0, 6);
 
   return (
     <div className="property-details-page">
+      {isAuthenticated() && (
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'flex-end',
+          marginBottom: '16px'
+        }}>
+          <Link
+            to={`/listings/edit/${property._id}`}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#059669',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}
+          >
+            Edit Listing
+          </Link>
+          <button
+            onClick={handleDelete}
+            style={{
+              padding: '8px 16px',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
+          >
+            Delete Listing
+          </button>
+        </div>
+      )}
+
       <div className="property-details-hero">
         <div className="property-details-main-image">
-          <img src={gallery[0]} alt={property.title} />
-          {property.badge && <span className="property-details-badge">{property.badge}</span>}
+          <img src={gallery[0]} alt={property.address} />
+          {property.status && property.status !== 'active' && (
+            <span className="property-details-badge">{property.status.toUpperCase()}</span>
+          )}
         </div>
         <div className="property-details-gallery-grid">
           {gallery.slice(1, 6).map((img, idx) => (
             <div key={idx} className="property-details-gallery-thumb">
-              <img src={img} alt={`${property.title} - ${interiorImages[idx]?.label || 'Photo'}`} />
+              <img src={img} alt={`${property.address} - ${interiorImages[idx]?.label || 'Photo'}`} />
             </div>
           ))}
         </div>
@@ -37,38 +120,39 @@ const PropertyDetails = () => {
 
       <div className="property-details-content">
         <div className="property-details-main">
-          <h1>{property.title}</h1>
-          <p className="property-details-address">{property.address} • {property.location}</p>
+          <h1>{property.address}</h1>
+          <p className="property-details-address">ZIP Code: {property.zipCode}</p>
 
           <div className="property-details-highlights">
             <span>${property.price.toLocaleString()}</span>
-            <span>{property.beds} bed{property.beds !== 1 ? 's' : ''}</span>
-            <span>{property.baths} bath{property.baths !== 1 ? 's' : ''}</span>
-            <span>{property.sqft.toLocaleString()} sqft</span>
+            <span>{property.squareFeet.toLocaleString()} sqft</span>
+            <span>Status: {property.status}</span>
           </div>
 
           <section className="property-details-description">
             <h2>About this home</h2>
             <p>
-              Welcome to this stunning {property.propertyType} in the heart of {property.location}. This beautifully maintained property
-              features {property.beds} spacious bedrooms and {property.baths} modern bathrooms, perfect for families or professionals.
-              The open-concept living areas flow seamlessly, with plenty of natural light and high-end finishes throughout.
+              Welcome to this property located at {property.address}. This beautifully maintained property
+              offers {property.squareFeet.toLocaleString()} square feet of living space.
+              The property is currently {property.status} and is priced at ${property.price.toLocaleString()}.
             </p>
             <p>
-              The kitchen boasts contemporary appliances and ample counter space for entertaining. Relax in the private backyard
-              or enjoy the nearby amenities. Don&apos;t miss your chance to make this exceptional property your new home.
+              Located in the {property.zipCode} area, this property offers convenient access to local amenities
+              and is perfect for those looking for quality living space. Don&apos;t miss your chance to make
+              this exceptional property your new home.
             </p>
           </section>
 
           <section className="property-details-features">
-            <h2>Key features</h2>
+            <h2>Property Information</h2>
             <ul>
-              <li>Spacious floor plan</li>
-              <li>Modern appliances</li>
-              <li>Natural light</li>
-              <li>Private outdoor space</li>
-              <li>Central location</li>
-              <li>Quality finishes</li>
+              <li>Square Feet: {property.squareFeet.toLocaleString()}</li>
+              <li>ZIP Code: {property.zipCode}</li>
+              <li>Status: {property.status}</li>
+              <li>Price: ${property.price.toLocaleString()}</li>
+              {property.createdBy && (
+                <li>Listed by: {property.createdBy.name || property.createdBy.email}</li>
+              )}
             </ul>
           </section>
         </div>
@@ -86,10 +170,16 @@ const PropertyDetails = () => {
           </div>
 
           <div className="property-details-card property-details-agent">
-            <div className="property-details-agent-avatar">A</div>
+            <div className="property-details-agent-avatar">
+              {property.createdBy?.name?.charAt(0) || 'A'}
+            </div>
             <div>
-              <p className="property-details-agent-name">Listed by Agent</p>
-              <p className="property-details-agent-phone">(555) 123-4567</p>
+              <p className="property-details-agent-name">
+                {property.createdBy?.name || 'Listed by Agent'}
+              </p>
+              <p className="property-details-agent-phone">
+                {property.createdBy?.phone || '(555) 123-4567'}
+              </p>
               <button type="button" className="property-details-agent-btn">Contact Agent</button>
             </div>
           </div>

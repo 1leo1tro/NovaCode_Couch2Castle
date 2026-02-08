@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 function HouseIcon() {
   return (
@@ -9,6 +10,14 @@ function HouseIcon() {
 }
 
 function Navbar() {
+  const { user, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <header className="navbar">
       <nav className="navbar-inner">
@@ -26,9 +35,34 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           <li><Link to="/contacts">Find an agent</Link></li>
           <li><Link to="/contacts">Get help</Link></li>
-          <li>
-            <Link to="/signin" className="navbar-signin-btn">Sign in</Link>
-          </li>
+          {isAuthenticated() ? (
+            <>
+              <li>
+                <span style={{ color: '#666', fontSize: '14px' }}>
+                  {user?.name || user?.email}
+                </span>
+              </li>
+              <li>
+                <button
+                  onClick={handleSignOut}
+                  className="navbar-signin-btn"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 0,
+                    font: 'inherit'
+                  }}
+                >
+                  Sign out
+                </button>
+              </li>
+            </>
+          ) : (
+            <li>
+              <Link to="/signin" className="navbar-signin-btn">Sign in</Link>
+            </li>
+          )}
         </ul>
       </nav>
     </header>
