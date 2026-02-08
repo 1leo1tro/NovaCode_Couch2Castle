@@ -6,15 +6,18 @@ import {
   updateListing,
   deleteListing
 } from '../controllers/listingController.js';
+import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Listing CRUD operations
-router.post('/listings', createListing);
+// Public routes (no authentication required)
 router.get('/listings', getAllListings);
 router.get('/listings/:id', getListingById);
-router.put('/listings/:id', updateListing);
-router.patch('/listings/:id', updateListing); // Support both PUT and PATCH
-router.delete('/listings/:id', deleteListing);
+
+// Protected routes (authentication required)
+router.post('/listings', protect, createListing);
+router.put('/listings/:id', protect, updateListing);
+router.patch('/listings/:id', protect, updateListing); // Support both PUT and PATCH
+router.delete('/listings/:id', protect, deleteListing);
 
 export default router;
