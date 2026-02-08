@@ -15,7 +15,7 @@ function Navbar() {
         <ul className="navbar-links navbar-left">
           <li><Link to="/">Buy</Link></li>
           <li><Link to="/">Rent</Link></li>
-          <li><Link to="/">Sell</Link></li>
+          <li><Link to="/listings">Listings</Link></li>
         </ul>
 
         <Link to="/" className="navbar-brand">
