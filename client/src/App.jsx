@@ -5,6 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Contacts from './pages/Contacts';
 import PropertyDetails from './pages/PropertyDetails';
+import SignIn from './pages/SignIn';
 import Navbar from './components/Navbar';
 import './styles/App.css';
 import './styles/Navbar.css';
@@ -20,6 +21,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/property/:id" element={<PropertyDetails />} />
+            <Route path="/signin" element={<SignIn />} />
           </Routes>
         </main>
       </div>
