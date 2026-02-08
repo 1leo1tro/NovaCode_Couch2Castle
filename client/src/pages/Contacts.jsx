@@ -1,5 +1,3 @@
-import '../styles/App.css';
-
 const Contacts = () => {
   return (
     <div className="contacts-page">
