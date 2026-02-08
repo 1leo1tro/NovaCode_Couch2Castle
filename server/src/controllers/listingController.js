@@ -24,7 +24,17 @@ import {
 // Create a new listing
 export const createListing = async (req, res) => {
   try {
-    const listing = await Listing.create(req.body);
+    // Add agent information (req.agent is set by protect middleware)
+    const listingData = {
+      ...req.body,
+      createdBy: req.agent._id
+    };
+
+    const listing = await Listing.create(listingData);
+
+    // Populate agent information in response
+    await listing.populate('createdBy', 'name email');
+
     res.status(201).json({
       message: 'Listing created successfully',
       listing
@@ -210,15 +220,21 @@ export const updateListing = async (req, res) => {
       );
     }
 
+    // Add agent information (req.agent is set by protect middleware)
+    const updateData = {
+      ...req.body,
+      updatedBy: req.agent._id
+    };
+
     // Update listing with validation
     const updatedListing = await Listing.findByIdAndUpdate(
       id,
-      req.body,
+      updateData,
       {
         new: true, // Return the updated document
         runValidators: true // Run model validators
       }
-    );
+    ).populate('createdBy updatedBy', 'name email');
 
     res.json({
       message: 'Listing updated successfully',
