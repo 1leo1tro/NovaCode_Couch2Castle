@@ -36,3 +36,4 @@ Thumbs.db
 .cache/
 coverage/
 .nyc_output/
+.claude
