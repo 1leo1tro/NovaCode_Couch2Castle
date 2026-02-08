@@ -1,24 +1,86 @@
 .navbar {
-  background: #222;
-  color: #fff;
-  padding: 1rem 2rem;
+  background: var(--color-background);
+  border-bottom: 2px solid var(--color-border);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.navbar ul {
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  gap: 2rem;
+}
+
+.navbar-links {
   list-style: none;
   display: flex;
-  gap: 1.5rem;
+  gap: 1.75rem;
   margin: 0;
   padding: 0;
+  align-items: center;
 }
 
-.navbar a {
-  color: #fff;
+.navbar-left {
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.navbar-right {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.navbar-links a {
+  color: var(--color-foreground);
   text-decoration: none;
+  font-size: 1rem;
   font-weight: 500;
   transition: color 0.2s;
 }
 
-.navbar a:hover {
-  color: #61dafb;
+.navbar-links a:hover {
+  color: var(--color-accent);
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--color-accent);
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.navbar-brand:hover {
+  color: var(--color-accent-dark);
+}
+
+.navbar-house-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex-shrink: 0;
+}
+
+.navbar-signin-btn {
+  background: var(--color-accent) !important;
+  color: white !important;
+  padding: 0.6rem 1.25rem !important;
+  border-radius: 8px;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(15, 82, 128, 0.3);
+}
+
+.navbar-signin-btn:hover {
+  background: var(--color-accent-dark) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(15, 82, 128, 0.4);
 }
