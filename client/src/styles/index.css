@@ -1,13 +1,7 @@
-@import './design-system.css';
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-}
-
-html {
-  scrollbar-gutter: stable;
 }
 
 body {
@@ -16,8 +10,8 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: #f5f5f5;
+  color: #333;
 }
 
 #root {
