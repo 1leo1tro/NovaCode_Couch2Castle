@@ -1,10 +1,53 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 import '../styles/SignIn.css';
 
 const SignIn = () => {
   const [userType, setUserType] = useState(null);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    // Only agent login is currently implemented
+    if (userType !== 'agent') {
+      setError('Regular user login is not yet implemented. Please sign in as an agent.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const result = await login(email, password);
+
+      if (result.success) {
+        // Redirect to listings page after successful login
+        navigate('/listings');
+      }
+    } catch (err) {
+      // Extract error message from response
+      const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUserTypeChange = (type) => {
+    setUserType(type);
+    setError('');
+    setEmail('');
+    setPassword('');
+  };
 
   return (
     <div className="signin-page-wrapper">
@@ -22,7 +65,7 @@ const SignIn = () => {
           <button
             type="button"
             className="signin-option-card"
-            onClick={() => setUserType('agent')}
+            onClick={() => handleUserTypeChange('agent')}
           >
             <div className="signin-option-icon">👤</div>
             <h2>Agent</h2>
@@ -31,7 +74,7 @@ const SignIn = () => {
           <button
             type="button"
             className="signin-option-card"
-            onClick={() => setUserType('user')}
+            onClick={() => handleUserTypeChange('user')}
           >
             <div className="signin-option-icon">🏠</div>
             <h2>Regular User</h2>
@@ -43,21 +86,57 @@ const SignIn = () => {
           <button
             type="button"
             className="signin-back"
-            onClick={() => setUserType(null)}
+            onClick={() => handleUserTypeChange(null)}
           >
             ← Back
           </button>
-          <form className="signin-form" onSubmit={(e) => e.preventDefault()}>
+          <form className="signin-form" onSubmit={handleSubmit}>
             <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
+
+            {error && (
+              <div className="signin-error" style={{
+                color: '#d32f2f',
+                backgroundColor: '#ffebee',
+                padding: '12px',
+                borderRadius: '4px',
+                marginBottom: '16px',
+                fontSize: '14px'
+              }}>
+                {error}
+              </div>
+            )}
+
             <label>
               Email
-              <input type="email" name="email" placeholder="you@example.com" required />
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
             </label>
             <label>
               Password
-              <input type="password" name="password" placeholder="••••••••" required />
+              <input
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
             </label>
-            <button type="submit" className="signin-submit">Sign In</button>
+            <button
+              type="submit"
+              className="signin-submit"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
           </form>
         </div>
       )}

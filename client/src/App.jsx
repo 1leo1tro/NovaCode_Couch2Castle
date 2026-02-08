@@ -1,6 +1,6 @@
 
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-
+import { AuthProvider } from './context/AuthContext';
 
 import Home from './pages/Home';
 import Contacts from './pages/Contacts';
@@ -15,18 +15,20 @@ import './styles/Navbar.css';
 function App() {
   return (
     <Router>
-      <div className="app">
-        <Navbar />
-        <main className="main">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/contacts" element={<Contacts />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/listings" element={<Listings />} />
-          </Routes>
-        </main>
-      </div>
+      <AuthProvider>
+        <div className="app">
+          <Navbar />
+          <main className="main">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/property/:id" element={<PropertyDetails />} />
+              <Route path="/signin" element={<SignIn />} />
+              <Route path="/listings" element={<Listings />} />
+            </Routes>
+          </main>
+        </div>
+      </AuthProvider>
     </Router>
   );
 }
