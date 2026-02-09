@@ -11,6 +11,10 @@ const listingSchema = new mongoose.Schema({
     required: [true, 'Address is required'],
     trim: true
   },
+  description: {
+    type: String,
+    trim: true
+  },
   squareFeet: {
     type: Number,
     required: [true, 'Square footage is required'],

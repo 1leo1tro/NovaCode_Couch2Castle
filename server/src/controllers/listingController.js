@@ -104,6 +104,9 @@ export const getAllListings = async (req, res) => {
       query.zipCode = zipCode;
     }
 
+    // Ensure only active listings are returned to public users
+    query.status = 'active';
+
     // Validate status
     if (status) {
       const statusValidation = validateStatus(status);
