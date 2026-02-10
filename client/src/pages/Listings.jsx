@@ -197,7 +197,7 @@ const Listings = () => {
                 </div>
               </div>
 
-              {isAuthenticated() && user?._id && user._id === listing.createdBy?._id && (
+              {isAuthenticated() && user?._id && listing.createdBy && String(listing.createdBy) === user._id && (
                 <div className="listing-actions">
                   <Link
                     to={`/listings/edit/${listing._id}`}
