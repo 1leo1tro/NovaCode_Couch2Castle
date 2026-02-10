@@ -37,7 +37,7 @@ const EditListing = () => {
     const fetchListing = async () => {
       try {
         const response = await axios.get(`/api/listings/${id}`);
-        const listing = response.data.data;
+        const listing = response.data.listing;
         setFormData({
           address: listing.address || '',
           description: listing.description || '',
