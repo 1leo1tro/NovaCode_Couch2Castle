@@ -37,10 +37,11 @@ const EditListing = () => {
     const fetchListing = async () => {
       try {
         const response = await axios.get(`/api/listings/${id}`);
-        const listing = response.data.data;
+        const listing = response.data.listing;
 
         // Check ownership: only the owning agent may edit
-        if (user?._id && listing.createdBy?._id && user._id !== listing.createdBy._id) {
+        // createdBy is an unpopulated ObjectId, so compare via String()
+        if (user?._id && listing.createdBy && String(listing.createdBy) !== user._id) {
           setFetchError('You do not have permission to edit this listing.');
           return;
         }
