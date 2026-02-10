@@ -16,7 +16,7 @@ const interiorImages = [
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -63,7 +63,7 @@ const PropertyDetails = () => {
 
   return (
     <div className="property-details-page">
-      {isAuthenticated() && (
+      {isAuthenticated() && user?._id && user._id === property.createdBy?._id && (
         <div style={{
           display: 'flex',
           gap: '12px',
