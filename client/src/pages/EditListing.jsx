@@ -8,7 +8,7 @@ import '../styles/CreateListing.css';
 const EditListing = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const [formData, setFormData] = useState({
     address: '',
@@ -24,9 +24,10 @@ const EditListing = () => {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
+  const [success, setSuccess] = useState('');
   const [imageInput, setImageInput] = useState('');
 
-  // Redirect if not authenticated
+  // Redirect unauthenticated users to sign in
   if (!isAuthenticated()) {
     navigate('/signin');
     return null;
@@ -37,6 +38,14 @@ const EditListing = () => {
       try {
         const response = await axios.get(`/api/listings/${id}`);
         const listing = response.data.listing;
+
+        // Check ownership: only the owning agent may edit
+        // createdBy is an unpopulated ObjectId, so compare via String()
+        if (user?._id && listing.createdBy && String(listing.createdBy) !== user._id) {
+          setFetchError('You do not have permission to edit this listing.');
+          return;
+        }
+
         setFormData({
           address: listing.address || '',
           description: listing.description || '',
@@ -124,8 +133,28 @@ const EditListing = () => {
     }
 
     setLoading(true);
-    // TODO: submit edit logic
-    setLoading(false);
+
+    try {
+      await axios.put(`/api/listings/${id}`, {
+        address: formData.address.trim(),
+        description: formData.description.trim(),
+        price: Number(formData.price),
+        squareFeet: Number(formData.squareFeet),
+        zipCode: formData.zipCode.trim(),
+        status: formData.status,
+        images: formData.images
+      });
+
+      setSuccess('Listing updated successfully! Redirecting...');
+      setTimeout(() => {
+        navigate(`/property/${id}`);
+      }, 1500);
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || 'Failed to update listing';
+      setErrors({ submit: errorMessage });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const containerVariants = {
@@ -175,10 +204,10 @@ const EditListing = () => {
           <div className="form-actions">
             <button
               type="button"
-              onClick={() => navigate('/listings')}
+              onClick={() => navigate(`/property/${id}`)}
               className="btn btn-secondary"
             >
-              Back to Listings
+              Back to Listing
             </button>
           </div>
         </div>
@@ -198,6 +227,12 @@ const EditListing = () => {
           <h1>Edit Listing</h1>
           <p>Update the details for this property</p>
         </motion.div>
+
+        {success && (
+          <motion.div className="alert alert-success" variants={itemVariants}>
+            {success}
+          </motion.div>
+        )}
 
         {errors.submit && (
           <motion.div className="alert alert-error" variants={itemVariants}>
