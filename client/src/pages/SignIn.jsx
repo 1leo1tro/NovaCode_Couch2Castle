@@ -102,7 +102,17 @@ const SignIn = () => {
             <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
 
             {success && (
-              <div className="signin-success">
+              <div
+                className="signin-success"
+                style={{
+                  color: '#2e7d32',
+                  backgroundColor: '#e8f5e9',
+                  padding: '12px',
+                  borderRadius: '4px',
+                  marginBottom: '16px',
+                  fontSize: '14px'
+                }}
+              >
                 {success}
               </div>
             )}
