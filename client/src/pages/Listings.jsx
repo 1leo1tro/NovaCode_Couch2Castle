@@ -98,7 +98,7 @@ const Listings = () => {
           <input
             type="text"
             name="keyword"
-            placeholder="City, address, status"
+            placeholder="Address, ZIP code, status"
             value={filters.keyword}
             onChange={handleFilterChange}
             className="listings-search-input"
