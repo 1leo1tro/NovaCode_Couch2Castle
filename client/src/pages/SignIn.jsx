@@ -9,6 +9,7 @@ const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { login } = useAuth();
@@ -17,6 +18,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     // Only agent login is currently implemented
     if (userType !== 'agent') {
@@ -30,8 +32,13 @@ const SignIn = () => {
       const result = await login(email, password);
 
       if (result.success) {
-        // Redirect to listings page after successful login
-        navigate('/listings');
+        const agentName = result.agent?.name || 'Agent';
+        setSuccess(`Welcome back, ${agentName}. Redirecting to listings...`);
+        setTimeout(() => {
+          navigate('/listings');
+        }, 800);
+      } else {
+        setError(result.error || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
       // Extract error message from response
@@ -45,6 +52,7 @@ const SignIn = () => {
   const handleUserTypeChange = (type) => {
     setUserType(type);
     setError('');
+    setSuccess('');
     setEmail('');
     setPassword('');
   };
@@ -93,6 +101,11 @@ const SignIn = () => {
           <form className="signin-form" onSubmit={handleSubmit}>
             <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
 
+            {success && (
+              <div className="signin-success">
+                {success}
+              </div>
+            )}
             {error && (
               <div className="signin-error" style={{
                 color: '#d32f2f',
@@ -138,6 +151,15 @@ const SignIn = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
+          {userType === 'agent' && (
+            <div className="signin-helper">
+              <div className="signin-helper-card">
+                <h3>Need access?</h3>
+                <p>New agents should reach out to verify licensing and unlock the portal.</p>
+                <Link to="/contacts">Contact the team</Link>
+              </div>           
+            </div>
+          )}
         </div>
       )}
 
