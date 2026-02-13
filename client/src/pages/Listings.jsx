@@ -30,7 +30,7 @@ const Listings = () => {
       const addressMatch = listing.address?.toLowerCase().includes(searchTerm);
       const zipMatch = listing.zipCode?.toLowerCase().includes(searchTerm);
       const statusMatch = listing.status?.toLowerCase().includes(searchTerm);
-      pass = pass && (addressMatch || zipMatch || statusMatch);
+      pass = addressMatch || zipMatch || statusMatch;
     }
     if (minPrice && listing.price < Number(minPrice)) pass = false;
     if (maxPrice && listing.price > Number(maxPrice)) pass = false;
