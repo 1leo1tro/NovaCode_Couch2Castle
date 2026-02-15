@@ -15,7 +15,7 @@ const Listings = () => {
     zipCode: '',
   });
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -209,7 +209,7 @@ const Listings = () => {
                 </div>
               </div>
 
-              {isAuthenticated() && (
+              {isAuthenticated() && user?._id && listing.createdBy && String(listing.createdBy) === user._id && (
                 <div className="listing-actions">
                   <Link
                     to={`/listings/edit/${listing._id}`}
