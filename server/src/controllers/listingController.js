@@ -33,7 +33,7 @@ export const createListing = async (req, res) => {
     const listing = await Listing.create(listingData);
 
     // Populate agent information in response
-    await listing.populate('createdBy', 'name email');
+    await listing.populate('createdBy', 'name email phone');
 
     res.status(201).json({
       message: 'Listing created successfully',
@@ -145,7 +145,7 @@ export const getAllListings = async (req, res) => {
 
     // Execute query with pagination and sorting
     const [listings, totalCount] = await Promise.all([
-      Listing.find(query).sort(sortValidation.sort).skip(skip).limit(pageLimit),
+      Listing.find(query).populate('createdBy', 'name phone').sort(sortValidation.sort).skip(skip).limit(pageLimit),
       Listing.countDocuments(query)
     ]);
 
@@ -182,7 +182,7 @@ export const getListingById = async (req, res) => {
       return res.status(400).json(idValidation.error);
     }
 
-    const listing = await Listing.findById(id);
+    const listing = await Listing.findById(id).populate('createdBy', 'name phone');
 
     if (!listing) {
       return res.status(404).json(handleNotFoundError('Listing', id));
@@ -241,7 +241,7 @@ export const updateListing = async (req, res) => {
         new: true, // Return the updated document
         runValidators: true // Run model validators
       }
-    ).populate('createdBy updatedBy', 'name email');
+    ).populate('createdBy updatedBy', 'name email phone');
 
     res.json({
       message: 'Listing updated successfully',
