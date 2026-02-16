@@ -97,6 +97,16 @@
   gap: 4px;
 }
 
+.form-group label .required {
+  color: #dc2626;
+  font-weight: 700;
+  margin-left: 2px;
+}
+
+.form-group.has-error label {
+  color: #dc2626;
+}
+
 .form-group input[type="text"],
 .form-group input[type="number"],
 .form-group input[type="url"],
@@ -169,6 +179,23 @@
 .error-message::before {
   content: '⚠';
   font-size: 14px;
+}
+
+/* Field Info / Character Count */
+.field-info {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 6px;
+}
+
+.char-count {
+  font-size: 12px;
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.form-group.has-error .char-count {
+  color: #dc2626;
 }
 
 /* Image Input Group */

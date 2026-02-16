@@ -20,6 +20,7 @@ const CreateListing = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [imageInput, setImageInput] = useState('');
@@ -30,30 +31,116 @@ const CreateListing = () => {
     return null;
   }
 
+  // Individual field validators
+  const validateAddress = (value) => {
+    if (!value.trim()) {
+      return 'Address is required';
+    }
+    if (value.trim().length < 5) {
+      return 'Address must be at least 5 characters';
+    }
+    if (value.trim().length > 200) {
+      return 'Address must not exceed 200 characters';
+    }
+    return '';
+  };
+
+  const validatePrice = (value) => {
+    if (!value) {
+      return 'Price is required';
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return 'Price must be a valid number';
+    }
+    if (numValue <= 0) {
+      return 'Price must be greater than 0';
+    }
+    if (numValue > 100000000) {
+      return 'Price seems unreasonably high (max $100M)';
+    }
+    return '';
+  };
+
+  const validateSquareFeet = (value) => {
+    if (!value) {
+      return 'Square footage is required';
+    }
+    const numValue = Number(value);
+    if (isNaN(numValue)) {
+      return 'Square footage must be a valid number';
+    }
+    if (numValue <= 0) {
+      return 'Square footage must be greater than 0';
+    }
+    if (numValue < 50) {
+      return 'Square footage seems too small (min 50 sq ft)';
+    }
+    if (numValue > 1000000) {
+      return 'Square footage seems unreasonably high (max 1M sq ft)';
+    }
+    return '';
+  };
+
+  const validateZipCode = (value) => {
+    if (!value.trim()) {
+      return 'ZIP code is required';
+    }
+    if (!/^\d{5}(-\d{4})?$/.test(value.trim())) {
+      return 'ZIP code must be in format: 12345 or 12345-6789';
+    }
+    return '';
+  };
+
+  const validateDescription = (value) => {
+    if (value && value.trim().length > 0 && value.trim().length < 10) {
+      return 'Description should be at least 10 characters if provided';
+    }
+    if (value && value.trim().length > 2000) {
+      return 'Description must not exceed 2000 characters';
+    }
+    return '';
+  };
+
+  const validateImageUrl = (url) => {
+    if (!url.trim()) {
+      return 'Image URL cannot be empty';
+    }
+    try {
+      new URL(url);
+      const isValidImageUrl = 
+        /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(url) ||
+        url.includes('unsplash.com') ||
+        url.includes('cloudinary.com') ||
+        url.includes('imgur.com') ||
+        url.includes('amazonaws.com');
+      
+      if (!isValidImageUrl) {
+        return 'URL should be a valid image link';
+      }
+      return '';
+    } catch {
+      return 'Please enter a valid URL';
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.address.trim()) {
-      newErrors.address = 'Address is required';
-    }
+    const addressError = validateAddress(formData.address);
+    if (addressError) newErrors.address = addressError;
 
-    if (!formData.price) {
-      newErrors.price = 'Price is required';
-    } else if (Number(formData.price) < 0) {
-      newErrors.price = 'Price must be a positive number';
-    }
+    const priceError = validatePrice(formData.price);
+    if (priceError) newErrors.price = priceError;
 
-    if (!formData.squareFeet) {
-      newErrors.squareFeet = 'Square footage is required';
-    } else if (Number(formData.squareFeet) < 0) {
-      newErrors.squareFeet = 'Square footage must be a positive number';
-    }
+    const squareFeetError = validateSquareFeet(formData.squareFeet);
+    if (squareFeetError) newErrors.squareFeet = squareFeetError;
 
-    if (!formData.zipCode.trim()) {
-      newErrors.zipCode = 'ZIP code is required';
-    } else if (!/^\d{5}(-\d{4})?$/.test(formData.zipCode)) {
-      newErrors.zipCode = 'ZIP code must be valid (e.g., 35801 or 35801-1234)';
-    }
+    const zipCodeError = validateZipCode(formData.zipCode);
+    if (zipCodeError) newErrors.zipCode = zipCodeError;
+
+    const descriptionError = validateDescription(formData.description);
+    if (descriptionError) newErrors.description = descriptionError;
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -61,27 +148,98 @@ const CreateListing = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    
     setFormData((prev) => ({
       ...prev,
       [name]: value
     }));
-    // Clear error for this field when user starts typing
-    if (errors[name]) {
+
+    // Mark field as touched
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true
+    }));
+
+    // Real-time validation for touched fields
+    if (touched[name]) {
+      let error = '';
+      switch (name) {
+        case 'address':
+          error = validateAddress(value);
+          break;
+        case 'price':
+          error = validatePrice(value);
+          break;
+        case 'squareFeet':
+          error = validateSquareFeet(value);
+          break;
+        case 'zipCode':
+          error = validateZipCode(value);
+          break;
+        case 'description':
+          error = validateDescription(value);
+          break;
+        default:
+          break;
+      }
+      
       setErrors((prev) => ({
         ...prev,
-        [name]: ''
+        [name]: error
+      }));
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({
+      ...prev,
+      [name]: true
+    }));
+
+    // Validate on blur
+    let error = '';
+    switch (name) {
+      case 'address':
+        error = validateAddress(formData[name]);
+        break;
+      case 'price':
+        error = validatePrice(formData[name]);
+        break;
+      case 'squareFeet':
+        error = validateSquareFeet(formData[name]);
+        break;
+      case 'zipCode':
+        error = validateZipCode(formData[name]);
+        break;
+      case 'description':
+        error = validateDescription(formData[name]);
+        break;
+      default:
+        break;
+    }
+    
+    if (error) {
+      setErrors((prev) => ({
+        ...prev,
+        [name]: error
       }));
     }
   };
 
   const handleAddImage = () => {
-    if (imageInput.trim()) {
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, imageInput.trim()]
-      }));
-      setImageInput('');
+    const error = validateImageUrl(imageInput);
+    if (error) {
+      setErrors((prev) => ({ ...prev, imageInput: error }));
+      return;
     }
+
+    setFormData((prev) => ({
+      ...prev,
+      images: [...prev.images, imageInput.trim()]
+    }));
+    setImageInput('');
+    setErrors((prev) => ({ ...prev, imageInput: '' }));
   };
 
   const handleRemoveImage = (index) => {
@@ -94,11 +252,25 @@ const CreateListing = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Mark all fields as touched
+    setTouched({
+      address: true,
+      price: true,
+      squareFeet: true,
+      zipCode: true,
+      description: true
+    });
+
     if (!validateForm()) {
+      setErrors((prev) => ({ 
+        ...prev, 
+        submit: 'Please fix all validation errors before submitting' 
+      }));
       return;
     }
 
     setLoading(true);
+    setErrors({});
 
     try {
       const response = await axios.post('/api/listings', {
@@ -185,83 +357,119 @@ const CreateListing = () => {
           animate="visible"
         >
           {/* Address Field */}
-          <motion.div className="form-group" variants={itemVariants}>
-            <label htmlFor="address">Address *</label>
+          <motion.div className={`form-group ${errors.address && touched.address ? 'has-error' : ''}`} variants={itemVariants}>
+            <label htmlFor="address">
+              Address <span className="required">*</span>
+            </label>
             <input
               type="text"
               id="address"
               name="address"
               value={formData.address}
               onChange={handleInputChange}
-              placeholder="Enter property address"
-              className={errors.address ? 'input-error' : ''}
+              onBlur={handleBlur}
+              placeholder="123 Main Street, City, State"
+              className={errors.address && touched.address ? 'input-error' : ''}
             />
-            {errors.address && <span className="error-message">{errors.address}</span>}
+            {errors.address && touched.address && (
+              <span className="error-message">{errors.address}</span>
+            )}
           </motion.div>
 
           {/* Price Field */}
-          <motion.div className="form-group" variants={itemVariants}>
-            <label htmlFor="price">Price ($) *</label>
+          <motion.div className={`form-group ${errors.price && touched.price ? 'has-error' : ''}`} variants={itemVariants}>
+            <label htmlFor="price">
+              Price ($) <span className="required">*</span>
+            </label>
             <input
               type="number"
               id="price"
               name="price"
               value={formData.price}
               onChange={handleInputChange}
-              placeholder="Enter price"
+              onBlur={handleBlur}
+              placeholder="250000"
               min="0"
-              className={errors.price ? 'input-error' : ''}
+              step="1000"
+              className={errors.price && touched.price ? 'input-error' : ''}
             />
-            {errors.price && <span className="error-message">{errors.price}</span>}
+            {errors.price && touched.price && (
+              <span className="error-message">{errors.price}</span>
+            )}
           </motion.div>
 
           {/* Square Feet Field */}
-          <motion.div className="form-group" variants={itemVariants}>
-            <label htmlFor="squareFeet">Square Footage *</label>
+          <motion.div className={`form-group ${errors.squareFeet && touched.squareFeet ? 'has-error' : ''}`} variants={itemVariants}>
+            <label htmlFor="squareFeet">
+              Square Feet <span className="required">*</span>
+            </label>
             <input
               type="number"
               id="squareFeet"
               name="squareFeet"
               value={formData.squareFeet}
               onChange={handleInputChange}
-              placeholder="Enter square footage"
+              onBlur={handleBlur}
+              placeholder="2000"
               min="0"
-              className={errors.squareFeet ? 'input-error' : ''}
+              step="50"
+              className={errors.squareFeet && touched.squareFeet ? 'input-error' : ''}
             />
-            {errors.squareFeet && <span className="error-message">{errors.squareFeet}</span>}
+            {errors.squareFeet && touched.squareFeet && (
+              <span className="error-message">{errors.squareFeet}</span>
+            )}
           </motion.div>
 
           {/* ZIP Code Field */}
-          <motion.div className="form-group" variants={itemVariants}>
-            <label htmlFor="zipCode">ZIP Code *</label>
+          <motion.div className={`form-group ${errors.zipCode && touched.zipCode ? 'has-error' : ''}`} variants={itemVariants}>
+            <label htmlFor="zipCode">
+              ZIP Code <span className="required">*</span>
+            </label>
             <input
               type="text"
               id="zipCode"
               name="zipCode"
               value={formData.zipCode}
               onChange={handleInputChange}
-              placeholder="Enter ZIP code (e.g., 35801)"
-              className={errors.zipCode ? 'input-error' : ''}
+              onBlur={handleBlur}
+              placeholder="35801 or 35801-1234"
+              maxLength="10"
+              className={errors.zipCode && touched.zipCode ? 'input-error' : ''}
             />
-            {errors.zipCode && <span className="error-message">{errors.zipCode}</span>}
+            {errors.zipCode && touched.zipCode && (
+              <span className="error-message">{errors.zipCode}</span>
+            )}
           </motion.div>
 
           {/* Description Field */}
-          <motion.div className="form-group form-group-full" variants={itemVariants}>
-            <label htmlFor="description">Description</label>
+          <motion.div className={`form-group form-group-full ${errors.description && touched.description ? 'has-error' : ''}`} variants={itemVariants}>
+            <label htmlFor="description">Description (Optional)</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
-              placeholder="Enter property description"
+              onBlur={handleBlur}
+              placeholder="Enter property description (min 10 characters if provided)"
               rows="5"
+              maxLength="2000"
+              className={errors.description && touched.description ? 'input-error' : ''}
             />
+            <div className="field-info">
+              <span className="char-count">
+                {formData.description.length}/2000 characters
+              </span>
+            </div>
+            {errors.description && touched.description && (
+              <span className="error-message">{errors.description}</span>
+            )}
           </motion.div>
 
           {/* Status Field */}
           <motion.div className="form-group" variants={itemVariants}>
-            <label htmlFor="status">Status</label>
+            <label htmlFor="status">
+              Status <span className="required">*</span>
+            </label>
             <select
               id="status"
               name="status"
@@ -277,20 +485,21 @@ const CreateListing = () => {
 
           {/* Images Section */}
           <motion.div className="form-group form-group-full" variants={itemVariants}>
-            <label htmlFor="imageInput">Images</label>
+            <label htmlFor="imageInput">Property Images (Optional)</label>
             <div className="image-input-group">
               <input
                 type="url"
                 id="imageInput"
                 value={imageInput}
                 onChange={(e) => setImageInput(e.target.value)}
-                placeholder="Paste image URL and click Add"
+                placeholder="Paste image URL (jpg, png, gif, webp)"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
                     handleAddImage();
                   }
                 }}
+                className={errors.imageInput ? 'input-error' : ''}
               />
               <button
                 type="button"
@@ -300,6 +509,9 @@ const CreateListing = () => {
                 Add Image
               </button>
             </div>
+            {errors.imageInput && (
+              <span className="error-message">{errors.imageInput}</span>
+            )}
             {formData.images.length > 0 && (
               <div className="images-list">
                 <p className="images-count">
