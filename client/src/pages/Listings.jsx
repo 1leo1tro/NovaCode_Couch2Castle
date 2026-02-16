@@ -22,28 +22,24 @@ const Listings = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const filteredListings = listings.filter((listing) => {
-    const { keyword, minPrice, maxPrice, zipCode } = filters;
-    let pass = true;
-    const searchTerm = keyword.trim().toLowerCase();
-    if (searchTerm) {
-      const addressMatch = listing.address?.toLowerCase().includes(searchTerm);
-      const zipMatch = listing.zipCode?.toLowerCase().includes(searchTerm);
-      const statusMatch = listing.status?.toLowerCase().includes(searchTerm);
-      pass = addressMatch || zipMatch || statusMatch;
-    }
-    if (minPrice && listing.price < Number(minPrice)) pass = false;
-    if (maxPrice && listing.price > Number(maxPrice)) pass = false;
-    if (zipCode && !listing.zipCode.includes(zipCode)) pass = false;
-    return pass;
-  });
-
+  // Fetch listings with filters as query parameters
   const fetchListings = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get('/api/listings');
-      const listingsData = response.data.listings || response.data.data || [];
+      
+      // Build query string from filter values
+      const params = new URLSearchParams();
+      if (filters.keyword) params.append('keyword', filters.keyword);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.zipCode) params.append('zipCode', filters.zipCode);
+      
+      const queryString = params.toString();
+      const url = `/api/listings${queryString ? `?${queryString}` : ''}`;
+      
+      const response = await axios.get(url);
+      const listingsData = response.data.listings || [];
       setListings(listingsData);
     } catch (err) {
       console.error('Error fetching listings:', err);
@@ -52,6 +48,32 @@ const Listings = () => {
       setLoading(false);
     }
   };
+
+  // Fetch listings when filters change
+  useEffect(() => {
+    fetchListings();
+  }, [filters]);
+
+  // Initial fetch on component mount
+  useEffect(() => {
+    const initialFetch = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await axios.get('/api/listings');
+        const listingsData = response.data.listings || [];
+        setListings(listingsData);
+      } catch (err) {
+        console.error('Error fetching listings:', err);
+        setError(err.response?.data?.message || 'Failed to load listings');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    initialFetch();
+  }, []);
 
   const handleDelete = async (id, e) => {
     e.preventDefault();
@@ -70,10 +92,6 @@ const Listings = () => {
       alert(err.response?.data?.message || 'Failed to delete listing');
     }
   };
-
-  useEffect(() => {
-    fetchListings();
-  }, []);
 
   return (
     <div className="listings-page">
@@ -143,11 +161,15 @@ const Listings = () => {
 
       {loading ? (
         <div className="listings-loading">Loading listings...</div>
-      ) : filteredListings.length === 0 ? (
-        <div className="listings-empty">No listings found.</div>
+      ) : listings.length === 0 ? (
+        <div className="listings-empty">
+          {filters.keyword || filters.minPrice || filters.maxPrice || filters.zipCode
+            ? 'No listings found matching your criteria.'
+            : 'No listings found.'}
+        </div>
       ) : (
         <div className="listings-list">
-          {filteredListings.map((listing) => (
+          {listings.map((listing) => (
             <div key={listing._id} className="listing-card-wrapper">
               <div className="property-card listing-card">
                 <Link
