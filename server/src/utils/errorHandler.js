@@ -61,6 +61,14 @@ export const handleQueryParamError = (parameter, value, expectedFormat) => {
   );
 };
 
+export const handleUnauthorized = (message = 'Not authorized', error = 'Authentication required') => {
+  return createErrorResponse(message, error, { type: 'UNAUTHORIZED' });
+};
+
+export const handleForbidden = (message = 'Forbidden', error = 'You do not have permission to perform this action') => {
+  return createErrorResponse(message, error, { type: 'FORBIDDEN' });
+};
+
 export const isDatabaseConnectionError = (error) => {
   return error.name === 'MongoNetworkError' ||
          error.name === 'MongooseServerSelectionError';

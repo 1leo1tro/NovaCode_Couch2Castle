@@ -1,0 +1,75 @@
+[33m287c939[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mreturn-authorization-errors[m[33m)[m Save current work
+[33m7b9e654[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Merge pull request #18 from 1leo1tro/feature/build-edit-listing-form-ui
+[33m7ab46b3[m Merge pull request #19 from 1leo1tro/feature/prefill-edit-listing-form
+[33m87914de[m Merge pull request #20 from 1leo1tro/feature/update-ui-after-edit
+[33m5d7eb11[m Merge pull request #21 from 1leo1tro/feature/hide-controls-non-owned-listings
+[33maf96f0d[m Merge pull request #22 from 1leo1tro/feature/notify-redirect-unauthorized-users
+[33m03e629b[m Merge pull request #23 from 1leo1tro/fix/listing-display-bugs
+[33mce6190e[m[33m ([m[1;31morigin/feature/update-ui-after-edit[m[33m)[m Merge branch 'main' into feature/update-ui-after-edit
+[33m28e99b7[m[33m ([m[1;31morigin/feature/prefill-edit-listing-form[m[33m)[m Merge branch 'main' into feature/prefill-edit-listing-form
+[33m34e19b4[m[33m ([m[1;31morigin/feature/build-edit-listing-form-ui[m[33m)[m Merge branch 'main' into feature/build-edit-listing-form-ui
+[33ma0810f0[m[33m ([m[1;31morigin/fix/listing-display-bugs[m[33m)[m fix: handle broken image URLs with onError fallback in listing cards
+[33m0d63c08[m fix: add missing EditListing route to main
+[33m12c841a[m fix: use correct response key for getListingById endpoint
+[33mb415602[m[33m ([m[1;31morigin/client-side-validation-for-listing-fields[m[33m)[m Merge pull request #17 from 1leo1tro/build-create-listing-form-ui
+[33m1ee4569[m Merge pull request #16 from 1leo1tro/agent_login_ui
+[33m9d3d815[m[33m ([m[1;31morigin/agent_login_ui[m[33m)[m Update client/src/pages/SignIn.jsx
+[33me0d9a53[m Update client/src/styles/App.css
+[33m0472561[m Update client/src/pages/Listings.jsx
+[33ma478558[m Update client/src/pages/Listings.jsx
+[33ma74eafe[m[33m ([m[1;31morigin/build-create-listing-form-ui[m[33m)[m Added Create Listing form UI
+[33mef5d304[m Build Agent Login UI
+[33m34399f3[m fix: handle broken image URLs with onError fallback in listing cards
+[33meb89f87[m fix: add missing EditListing route to main
+[33m0a50aa4[m fix: use correct response key for getListingById endpoint
+[33mdc7f09d[m fix: use correct response key for listing endpoints
+[33m317bd68[m fix: use correct response key for listing endpoints
+[33mfe46536[m fix: use correct response key for listing endpoints
+[33m1eec190[m[33m ([m[1;31morigin/feature/hide-controls-non-owned-listings[m[33m)[m fix: use correct response key and ownership comparison for listing endpoints
+[33mdb4e9e5[m[33m ([m[1;31morigin/feature/notify-redirect-unauthorized-users[m[33m)[m fix: use correct response key and ownership comparison for listing endpoints
+[33mf5ae1f6[m feat: notify or redirect unauthorized users on listing actions
+[33mf723d39[m feat: hide edit/delete controls for non-owned listings
+[33m78f433c[m feat: update listing view after successful edit
+[33m60ead12[m feat: prefill edit listing form with existing data
+[33m58366ec[m feat: build edit listing form UI
+[33me211612[m Backend supports detailed listing views Public users only see valid listings
+[33m872fc6e[m[33m ([m[1;31morigin/add-response-handler[m[33m, [m[1;32madd-response-handler[m[33m)[m Merge pull request #15 from 1leo1tro/FrontendProtectAgentRoutes
+[33mcd24ba6[m[33m ([m[1;31morigin/FrontendProtectAgentRoutes[m[33m)[m Implement frontend authentication with agent login
+[33m6e6b883[m Move backend documentation to server directory
+[33m2b668bc[m Merge pull request #14 from 1leo1tro/BackendAuthorizationMiddleware
+[33md42d1c5[m[33m ([m[1;31morigin/BackendAuthorizationMiddleware[m[33m)[m Add authorization middleware to protect listing routes
+[33mcd6c919[m Merge pull request #13 from 1leo1tro/AgentBackendAuth
+[33m7ce9d16[m[33m ([m[1;31morigin/AgentBackendAuth[m[33m)[m Add JWT-based authentication system for agents
+[33m743382b[m Merge pull request #12 from 1leo1tro/AddAPIErrorHandling
+[33mbcc4512[m[33m ([m[1;31morigin/AddAPIErrorHandling[m[33m)[m Add comprehensive API error handling for listings endpoints
+[33m1449b39[m updating gitiginore
+[33me4c3bfb[m Reapply "Rework of Frontend display"
+[33mec3c5e3[m Merge pull request #11 from 1leo1tro/revert-10-UIrework
+[33m92fa3a0[m[33m ([m[1;31morigin/revert-10-UIrework[m[33m)[m Revert "Rework of Frontend display"
+[33m0bd7f87[m[33m ([m[1;31morigin/UIrework[m[33m)[m Resolved merge conflicts between UIrework and main
+[33m59bcbdf[m Rework of Frontend display
+[33m25410e9[m Merge pull request #9 from 1leo1tro/database-seed-script
+[33m4b331e4[m Merge pull request #8 from 1leo1tro/frontend
+[33m842ca57[m Update README and add database seed script
+[33m92b5740[m img update 2 (temp)
+[33mc23d487[m Update: Sync property image URLs and details carousel to use new exterior images
+[33m16a1d1f[m Hotfix: Set all property images to Unsplash house photo
+[33m9cac557[m Phase 1, still need to get listing IDs front backend
+[33m61762c0[m Merge pull request #7 from 1leo1tro/Connecting_mongoDB
+[33m5c777ae[m Added connection to database
+[33m0ac7eaa[m Merge pull request #6 from 1leo1tro/listings-API-tests
+[33m4f87dab[m[33m ([m[1;31morigin/listings-API-tests[m[33m)[m Updated test suite to match new error handling behavior (listings.test.js)
+[33m351bf1e[m Merge pull request #5 from 1leo1tro/main
+[33m0b13450[m Merge branch 'listings-API-tests' into main
+[33m739e780[m Merge pull request #4 from 1leo1tro/controller-error-handling
+[33m32b8c90[m Enhance error handling and validation in listing queries
+[33m866a225[m Add Jest testing framework and API tests for listings endpoint
+[33md29f958[m Merge pull request #3 from 1leo1tro/AI_17_Backend_Create_listing_database_Model
+[33m558feb2[m added listing schema, as well as wired it to the existing listingcontroller.js
+[33mf41727e[m Merge pull request #1 from JoshuaTLogue /frontend
+[33m829b70f[m Merge pull request #2 from 1leo1tro/feature/mock-listings-api
+[33mf742de0[m Basic Frontend
+[33ma30991c[m[33m ([m[1;31morigin/feature/mock-listings-api[m[33m)[m Added Query Parameter Filtering
+[33meba8795[m Add listings API with mock data and routes
+[33m965c183[m Update Home page
+[33m5e2388e[m Initial commit: MERN stack starter project

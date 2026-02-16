@@ -9,7 +9,8 @@ import {
   isDatabaseConnectionError,
   isValidationError,
   isDuplicateKeyError,
-  createErrorResponse
+  createErrorResponse,
+  handleForbidden
 } from '../utils/errorHandler.js';
 import {
   validatePriceRange,
@@ -217,6 +218,11 @@ export const updateListing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
 
+    // Ensure the requesting agent is the owner
+    if (!existingListing.createdBy || existingListing.createdBy.toString() !== req.agent._id.toString()) {
+      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to modify this listing'));
+    }
+
     // Validate empty request body
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json(
@@ -275,12 +281,18 @@ export const deleteListing = async (req, res) => {
       return res.status(400).json(idValidation.error);
     }
 
-    // Find and delete listing
-    const deletedListing = await Listing.findByIdAndDelete(id);
-
-    if (!deletedListing) {
+    // Find listing
+    const listingToDelete = await Listing.findById(id);
+    if (!listingToDelete) {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
+
+    // Ensure the requesting agent is the owner
+    if (!listingToDelete.createdBy || listingToDelete.createdBy.toString() !== req.agent._id.toString()) {
+      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to delete this listing'));
+    }
+
+    const deletedListing = await Listing.findByIdAndDelete(id);
 
     res.json({
       message: 'Listing deleted successfully',

@@ -7,7 +7,9 @@ import {
   isDatabaseConnectionError,
   isValidationError,
   isDuplicateKeyError,
-  createErrorResponse
+  createErrorResponse,
+  handleUnauthorized,
+  handleForbidden
 } from '../utils/errorHandler.js';
 
 // Generate JWT token
@@ -96,22 +98,12 @@ export const login = async (req, res) => {
     // Check if agent exists and password is correct
     // Use generic message to not reveal if email exists or password is wrong
     if (!agent || !(await agent.comparePassword(password))) {
-      return res.status(401).json(
-        createErrorResponse(
-          'Invalid credentials',
-          'The email or password you entered is incorrect'
-        )
-      );
+      return res.status(401).json(handleUnauthorized('Invalid credentials', 'The email or password you entered is incorrect'));
     }
 
     // Check if agent account is active
     if (!agent.isActive) {
-      return res.status(403).json(
-        createErrorResponse(
-          'Account disabled',
-          'This agent account has been deactivated. Please contact support.'
-        )
-      );
+      return res.status(403).json(handleForbidden('Account disabled', 'This agent account has been deactivated. Please contact support.'));
     }
 
     // Generate JWT token
