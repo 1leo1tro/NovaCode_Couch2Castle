@@ -10,13 +10,26 @@ Base URL: `http://localhost:5000/api`
 Returns all active property listings.
 
 **Query Parameters:**
+- `keyword` (optional) - Search in address, ZIP code, and status (case-insensitive)
 - `minPrice` (optional) - Filter by minimum price
 - `maxPrice` (optional) - Filter by maximum price  
-- `zipCode` (optional) - Filter by ZIP code in address
+- `zipCode` (optional) - Filter by ZIP code
 
-**Example Request:**
+**Example Requests:**
+
+Filter by price range:
 ```
 GET /api/listings?minPrice=200000&maxPrice=300000
+```
+
+Search by keyword:
+```
+GET /api/listings?keyword=huntsville
+```
+
+Combined filters:
+```
+GET /api/listings?zipCode=35801&minPrice=250000
 ```
 
 **Example Response:**

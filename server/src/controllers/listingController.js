@@ -59,6 +59,7 @@ export const createListing = async (req, res) => {
 export const getAllListings = async (req, res) => {
   try {
     const {
+      keyword,
       minPrice,
       maxPrice,
       minSquareFeet,
@@ -72,6 +73,16 @@ export const getAllListings = async (req, res) => {
     } = req.query;
 
     let query = {};
+
+    // Keyword search (case-insensitive)
+    if (keyword) {
+      const searchRegex = { $regex: keyword, $options: 'i' };
+      query.$or = [
+        { address: searchRegex },
+        { zipCode: searchRegex },
+        { status: searchRegex }
+      ];
+    }
 
     // Validate price range
     if (minPrice || maxPrice) {
@@ -143,17 +154,10 @@ export const getAllListings = async (req, res) => {
     const hasNextPage = currentPage < totalPages;
     const hasPrevPage = currentPage > 1;
 
-    // Return results with pagination metadata
+    // Return results with metadata
     res.json({
       listings,
-      pagination: {
-        currentPage,
-        pageLimit,
-        totalCount,
-        totalPages,
-        hasNextPage,
-        hasPrevPage
-      },
+      count: totalCount,
       message: listings.length === 0 ? 'No listings found matching the specified criteria' : undefined
     });
   } catch (error) {
