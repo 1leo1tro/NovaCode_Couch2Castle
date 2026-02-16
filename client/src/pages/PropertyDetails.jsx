@@ -16,7 +16,7 @@ const interiorImages = [
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -27,7 +27,7 @@ const PropertyDetails = () => {
         setLoading(true);
         setError(null);
         const response = await axios.get(`/api/listings/${id}`);
-        setProperty(response.data.data);
+        setProperty(response.data.listing);
       } catch (err) {
         console.error('Error fetching property:', err);
         setError(err.response?.data?.message || 'Failed to load property details');
@@ -63,7 +63,7 @@ const PropertyDetails = () => {
 
   return (
     <div className="property-details-page">
-      {isAuthenticated() && (
+      {isAuthenticated() && user?._id && property.createdBy && String(property.createdBy) === user._id && (
         <div style={{
           display: 'flex',
           gap: '12px',

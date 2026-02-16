@@ -15,7 +15,7 @@ const Listings = () => {
     zipCode: '',
   });
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -157,7 +157,19 @@ const Listings = () => {
                 >
                   <div className="property-card-image">
                     {listing.images && listing.images.length > 0 ? (
-                      <img src={listing.images[0]} alt={listing.address} />
+                      <>
+                        <img
+                          src={listing.images[0]}
+                          alt={listing.address}
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="listing-image-placeholder" style={{ display: 'none' }}>
+                          No image
+                        </div>
+                      </>
                     ) : (
                       <div className="listing-image-placeholder">
                         No image
@@ -197,7 +209,7 @@ const Listings = () => {
                 </div>
               </div>
 
-              {isAuthenticated() && (
+              {isAuthenticated() && user?._id && listing.createdBy && String(listing.createdBy) === user._id && (
                 <div className="listing-actions">
                   <Link
                     to={`/listings/edit/${listing._id}`}
