@@ -24,6 +24,8 @@ const CreateListing = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [imageInput, setImageInput] = useState('');
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -160,6 +162,11 @@ const CreateListing = () => {
       [name]: true
     }));
 
+    // Clear submit error when user starts editing
+    if (errors.submit) {
+      setErrors((prev) => ({ ...prev, submit: '' }));
+    }
+
     // Real-time validation for touched fields
     if (touched[name]) {
       let error = '';
@@ -266,11 +273,14 @@ const CreateListing = () => {
         ...prev, 
         submit: 'Please fix all validation errors before submitting' 
       }));
+      setShowErrorAlert(true);
       return;
     }
 
     setLoading(true);
     setErrors({});
+    setShowErrorAlert(false);
+    setShowSuccessAlert(false);
 
     try {
       const response = await axios.post('/api/listings', {
@@ -283,15 +293,27 @@ const CreateListing = () => {
         images: formData.images
       });
 
-      setSuccess('Listing created successfully! Redirecting...');
+      setSuccess('✓ Listing created successfully! Redirecting...');
+      setShowSuccessAlert(true);
       setTimeout(() => {
         navigate('/listings');
       }, 1500);
     } catch (err) {
       const errorMessage = err.response?.data?.message || 'Failed to create listing';
       setErrors({ submit: errorMessage });
+      setShowErrorAlert(true);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const dismissAlert = (type) => {
+    if (type === 'error') {
+      setShowErrorAlert(false);
+      setErrors({ submit: '' });
+    } else if (type === 'success') {
+      setShowSuccessAlert(false);
+      setSuccess('');
     }
   };
 
@@ -337,15 +359,47 @@ const CreateListing = () => {
           <p>Add a new property to your portfolio</p>
         </motion.div>
 
-        {success && (
-          <motion.div className="alert alert-success" variants={itemVariants}>
-            {success}
+        {showSuccessAlert && success && (
+          <motion.div 
+            className="alert alert-success" 
+            variants={itemVariants}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <div className="alert-content">
+              <span className="alert-icon">✓</span>
+              <span className="alert-message">{success}</span>
+            </div>
+            <button 
+              className="alert-close"
+              onClick={() => dismissAlert('success')}
+              aria-label="Close success message"
+            >
+              ✕
+            </button>
           </motion.div>
         )}
 
-        {errors.submit && (
-          <motion.div className="alert alert-error" variants={itemVariants}>
-            {errors.submit}
+        {showErrorAlert && errors.submit && (
+          <motion.div 
+            className="alert alert-error" 
+            variants={itemVariants}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <div className="alert-content">
+              <span className="alert-icon">⚠</span>
+              <span className="alert-message">{errors.submit}</span>
+            </div>
+            <button 
+              className="alert-close"
+              onClick={() => dismissAlert('error')}
+              aria-label="Close error message"
+            >
+              ✕
+            </button>
           </motion.div>
         )}
 
