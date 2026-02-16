@@ -390,7 +390,7 @@ const CreateListing = () => {
               onBlur={handleBlur}
               placeholder="250000"
               min="0"
-              step="1000"
+              step="1"
               className={errors.price && touched.price ? 'input-error' : ''}
             />
             {errors.price && touched.price && (
@@ -412,7 +412,7 @@ const CreateListing = () => {
               onBlur={handleBlur}
               placeholder="2000"
               min="0"
-              step="50"
+              step="1"
               className={errors.squareFeet && touched.squareFeet ? 'input-error' : ''}
             />
             {errors.squareFeet && touched.squareFeet && (
