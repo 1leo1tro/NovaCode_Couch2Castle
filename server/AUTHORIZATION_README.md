@@ -322,12 +322,7 @@ curl -X GET http://localhost:5001/api/listings
       "status": "pending"
     }
   ],
-  "pagination": {
-    "currentPage": 1,
-    "pageLimit": 10,
-    "totalCount": 1,
-    "totalPages": 1
-  }
+  "count": 1
 }
 ```
 

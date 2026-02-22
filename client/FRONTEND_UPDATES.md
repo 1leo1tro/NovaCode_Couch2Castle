@@ -252,10 +252,7 @@ Before merging, verify the following:
 
 2. **TypeScript:** TypeScript types are installed but this is still a JavaScript project. Types support VS Code IntelliSense.
 
-3. **No Backend Integration:** Sign-in form currently prevents default submission. Backend integration needed for:
-   - User authentication
-   - Session management
-   - Protected routes
+3. **Backend Integration:** JWT-based authentication is fully integrated. The sign-in form connects to `POST /api/auth/login`, stores the token in localStorage, and protects write routes (create, edit, delete) via the `protect` middleware. See `FRONTEND_AUTH.md` for details.
 
 4. **Image Loading:** Uses Unsplash images with fallback handling. Consider CDN or local asset strategy for production.
 
@@ -274,12 +271,7 @@ Current responsive design considerations:
 
 ## 🎯 Next Steps (Recommendations)
 
-1. **Backend Integration:**
-   - Connect sign-in form to authentication API
-   - Implement JWT/session management
-   - Add protected routes for authenticated users
-
-2. **User Features:**
+1. **User Features:**
    - Implement "Save Favorites" functionality
    - Add user profile page
    - Create agent dashboard
