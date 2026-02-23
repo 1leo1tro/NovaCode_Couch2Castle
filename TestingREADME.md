@@ -80,10 +80,12 @@ npm run test:coverage  # Run with coverage report
 
 ### Backend Test Results
 
-All 28 tests pass:
-- 28 test cases across 9 test suites
-- Covers positive, negative, and edge case scenarios
-- Uses in-memory MongoDB for fast, isolated tests
+All 28 listing tests pass (28 across 9 suites), plus 53 showing tests pass (53 across 3 suites).
+
+| Suite | File | Tests |
+|---|---|---|
+| Listing API | `listings.test.js` | 28 |
+| Showing API | `showings.test.js` | 53 |
 
 ### Notes
 
@@ -92,6 +94,141 @@ All 28 tests pass:
 - The test suite automatically cleans up after itself
 - Tests are compatible with ES modules (`type: "module"` in `server/package.json`)
 - The seed script is excluded from test coverage via `server/jest.config.js`
+- Agent documents are created once per suite (not per test) to avoid repeated bcrypt hashing overhead
+
+---
+
+## Showing Request Tests (API)
+
+**Location:** `server/src/tests/showings.test.js`
+
+### Test Framework
+
+Same stack as listing tests: Jest, Supertest, MongoDB Memory Server.
+
+### Running Tests
+
+```bash
+cd server
+npm test               # Run all tests (listings + showings)
+npm run test:coverage  # Run with coverage report
+```
+
+### Test Coverage
+
+#### 1. POST /api/showings — Create Showing Request (Public)
+
+**Valid Requests**
+- Creates a showing with all required fields → 201
+- Status defaults to `pending` → 201
+- Creates a showing with an optional message → 201
+- Populates listing details (address, zipCode, price) in the response → 201
+- Endpoint is accessible without authentication → 201
+
+**Required Field Validation**
+- Missing `listing` ID → 400
+- Missing `name` → 400
+- Missing `email` → 400
+- Missing `phone` → 400
+- Missing `preferredDate` → 400
+
+**Field Format Validation**
+- Invalid email format → 400
+- Phone number containing letters → 400
+- `preferredDate` set in the past → 400
+- `name` shorter than 2 characters → 400
+- `name` longer than 100 characters → 400
+- `message` exceeding 1000 characters → 400
+
+**Listing Validation**
+- Invalid listing ID format (not a valid ObjectId) → 400
+- Valid ObjectId that does not match any listing → 404
+
+**Response Structure**
+- Response contains all expected fields: `_id`, `listing`, `name`, `email`, `phone`, `preferredDate`, `status`, `createdAt`, `updatedAt`
+
+---
+
+#### 2. GET /api/showings — Fetch Agent's Showing Requests (Protected)
+
+**Authentication**
+- No token → 401
+- Invalid/malformed token → 401
+- Valid JWT token → 200
+
+**Ownership Verification**
+- Returns only showings for listings owned by the authenticated agent
+- Agent with no listings receives an empty list with an explanatory message
+
+**Filtering by Status**
+- `status=pending` returns only pending showings
+- `status=confirmed` returns only confirmed showings
+- `status=cancelled` returns only cancelled showings
+- `status=completed` returns only completed showings
+- Unrecognised status value → 400 with error details
+- No status filter returns all showings across all statuses
+
+**Filtering by Listing ID**
+- `listingId` param returns only showings for that specific listing
+- `listingId` belonging to another agent → 403 Access denied
+- `listingId` with a valid ObjectId that doesn't exist → 404
+- Invalid `listingId` format → 400
+
+**Pagination**
+- `page` and `limit` params return the correct page of results
+- `totalPages` and `count` reflect the full result set
+
+**Response Structure**
+- Top-level shape: `showings`, `count`, `page`, `totalPages`
+- Each showing has listing details populated (address, zipCode, price)
+- Results sorted by `createdAt` descending (newest first)
+
+**Empty Results**
+- Empty result set includes a `message` field: `"No showing requests found"`
+
+---
+
+#### 3. PATCH /api/showings/:id — Approve / Reject Showing (Protected)
+
+**Authentication**
+- No token → 401
+- Invalid token → 401
+
+**Valid Status Updates**
+- Approve a showing (`status: "confirmed"`) → 200
+- Reject a showing (`status: "cancelled"`) → 200
+- Mark a showing as completed → 200
+- Reset a showing back to pending → 200
+
+**Validation**
+- Missing `status` field in request body → 400
+- Unrecognised `status` value (e.g., `"approved"`) → 400 with valid values listed
+- Invalid showing ID format → 400
+- Valid ObjectId that doesn't match any showing → 404
+
+**Authorization — Ownership Verification**
+- Agent cannot update a showing for another agent's listing → 403 Access denied
+- Listing owner can update showing status → 200
+
+**Response Structure**
+- Returns `message: "Showing status updated successfully"` and the updated showing
+- Updated showing includes populated listing details
+
+---
+
+### Showing Test Results
+
+All 53 tests pass:
+- 19 tests for `POST /api/showings`
+- 22 tests for `GET /api/showings`
+- 12 tests for `PATCH /api/showings/:id`
+
+### Showing Test Notes
+
+- Two reusable Agent documents are created once (`beforeAll`) to avoid repeated bcrypt overhead
+- Only showings and listings are cleared between tests; agents persist for the entire suite
+- JWT tokens are generated using the same `JWT_SECRET` that the `protect` middleware reads, so auth flows are tested end-to-end against the real middleware
+- `createdAt` timestamps are explicitly set when seeding showings in the sort-order test, since in-memory DB operations complete within the same millisecond
 
 ---
 
@@ -215,5 +352,6 @@ NovaCode_Couch2Castle/
         ├── scripts/
         │   └── seedListings.js       # Database seed script (25 listings)
         └── tests/
-            └── listings.test.js      # Backend API tests for GET /api/listings
+            ├── listings.test.js      # Backend API tests for GET /api/listings
+            └── showings.test.js      # Backend API tests for showing requests
 ```
