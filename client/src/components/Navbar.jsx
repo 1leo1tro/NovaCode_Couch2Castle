@@ -1,5 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
 
 function HouseIcon() {
   return (
@@ -12,6 +14,35 @@ function HouseIcon() {
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      if (!isAuthenticated()) {
+        setPendingCount(0);
+        return;
+      }
+
+      try {
+        const response = await axios.get('/api/showings/count/pending');
+        setPendingCount(response.data.count || 0);
+      } catch (err) {
+        console.error('Error fetching pending showings count:', err);
+        setPendingCount(0);
+      }
+    };
+
+    fetchPendingCount();
+
+    // Refresh count every 30 seconds if authenticated
+    const interval = isAuthenticated()
+      ? setInterval(fetchPendingCount, 30000)
+      : null;
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAuthenticated]);
 
   const handleSignOut = () => {
     logout();
@@ -35,6 +66,16 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           <li><Link to="/contacts">Find an agent</Link></li>
           <li><Link to="/contacts">Get help</Link></li>
+          {isAuthenticated() && (
+            <li>
+              <Link to="/showings" className="navbar-notifications">
+                <span className="navbar-notifications-icon">🔔</span>
+                {pendingCount > 0 && (
+                  <span className="navbar-notifications-badge">{pendingCount}</span>
+                )}
+              </Link>
+            </li>
+          )}
           {isAuthenticated() ? (
             <>
               <li>

@@ -9,6 +9,7 @@ import SignIn from './pages/SignIn';
 import Listings from './pages/Listings';
 import CreateListing from './pages/CreateListing';
 import EditListing from './pages/EditListing';
+import Showings from './pages/Showings';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
@@ -34,6 +35,11 @@ function App() {
                 </ProtectedRoute>
               } />
               <Route path="/listings/edit/:id" element={<EditListing />} />
+              <Route path="/showings" element={
+                <ProtectedRoute requireAgent={true}>
+                  <Showings />
+                </ProtectedRoute>
+              } />
             </Routes>
           </main>
         </div>
