@@ -275,37 +275,61 @@ GET /api/showings/65f8b3c4a1234567890abcdf
 ---
 
 ### Update Showing Status (Protected)
-**PATCH** `/showings/:id`
+**PATCH** `/showings/:id` or **PATCH** `/showings/:id/status`
 
-Update the status of a showing request. Only the listing owner can update.
+Update the status of a showing request. Only the listing owner (agent) can update.
 
 **Authentication:** Required (Bearer token)
 
 **URL Parameters:**
 - `id` (required) - Showing ID
 
-**Request Body:**
+**Behavior & Notes:**
+- The API accepts both the internal model status values (`pending`, `confirmed`, `completed`, `cancelled`) and agent-facing values `approved`/`rejected`.
+- `approved` is mapped to `confirmed` in the database; `rejected` is mapped to `cancelled`.
+- When approving a showing (i.e. `status` -> `approved` or `confirmed`), the request MUST include a `scheduledDate` (ISO 8601 string) that represents the confirmed date/time for the showing. The `scheduledDate` must be a valid date/time in the future. The API stores this value in the `scheduledAt` field on the `Showing` document.
+- When setting a status other than `confirmed` (e.g. `rejected`/`cancelled`), any existing `scheduledAt` value will be cleared.
+
+**Request Body (approve and schedule):**
 ```json
 {
-  "status": "confirmed"
+  "status": "approved",
+  "scheduledDate": "2026-03-05T14:30:00.000Z"
 }
 ```
 
-**Valid Status Values:**
-- `pending`
-- `confirmed`
-- `completed`
-- `cancelled`
+**Request Body (other status change):**
+```json
+{
+  "status": "rejected"
+}
+```
 
-**Example Response (200 OK):**
+**Valid Status Values (accepted):**
+- `pending`
+- `confirmed` (internal)
+- `completed`
+- `cancelled` (internal)
+- Agent-facing: `approved` (maps to `confirmed`), `rejected` (maps to `cancelled`)
+
+**Example Response (200 OK) — approved and scheduled:**
 ```json
 {
   "message": "Showing status updated successfully",
   "showing": {
     "_id": "65f8b3c4a1234567890abcdf",
     "status": "confirmed",
+    "scheduledAt": "2026-03-05T14:30:00.000Z",
     "updatedAt": "2026-02-15T15:00:00.000Z"
   }
+}
+```
+
+**Error Response (400 Bad Request — missing/invalid scheduledDate):**
+```json
+{
+  "error": "scheduledDate required",
+  "message": "Provide a scheduledDate (ISO string) when approving a showing"
 }
 ```
 

@@ -41,6 +41,18 @@ const showingSchema = new mongoose.Schema({
     default: '',
     maxlength: [1000, 'Message must not exceed 1000 characters']
   },
+  // Date/time confirmed by agent when the showing is approved
+  scheduledAt: {
+    type: Date,
+    default: null,
+    validate: {
+      validator: function(value) {
+        if (!value) return true; // allow null/undefined
+        return value > new Date();
+      },
+      message: 'Scheduled date must be in the future'
+    }
+  },
   status: {
     type: String,
     enum: {

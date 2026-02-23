@@ -240,7 +240,7 @@ export const getShowingById = async (req, res) => {
 export const updateShowingStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    const { status, scheduledDate } = req.body;
     const agentId = req.agent._id;
 
     // Validate ID format
@@ -249,12 +249,22 @@ export const updateShowingStatus = async (req, res) => {
       return res.status(400).json(idValidation.error);
     }
 
-    // Validate status value
+    // Allow front-end to send 'approved'/'rejected' and map to model statuses
+    const inputStatus = status;
+    // Map external statuses to internal model statuses
+    const statusMap = {
+      approved: 'confirmed',
+      rejected: 'cancelled'
+    };
+
+    const internalStatus = statusMap[inputStatus] || inputStatus;
+
+    // Validate status value against model-allowed statuses
     const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
-    if (!status || !validStatuses.includes(status)) {
+    if (!internalStatus || !validStatuses.includes(internalStatus)) {
       return res.status(400).json({
         error: 'Invalid status',
-        message: `Status must be one of: ${validStatuses.join(', ')}`
+        message: `Status must be one of: ${validStatuses.join(', ')} or mapped from approved/rejected`
       });
     }
 
@@ -272,8 +282,31 @@ export const updateShowingStatus = async (req, res) => {
       });
     }
 
-    // Update status
-    showing.status = status;
+    // If approving (confirmed), require a scheduledDate and validate it
+    if (internalStatus === 'confirmed') {
+      if (!scheduledDate) {
+        return res.status(400).json({
+          error: 'scheduledDate required',
+          message: 'Provide a scheduledDate (ISO string) when approving a showing'
+        });
+      }
+
+      const dateObj = new Date(scheduledDate);
+      if (isNaN(dateObj.getTime()) || dateObj <= new Date()) {
+        return res.status(400).json({
+          error: 'Invalid scheduledDate',
+          message: 'scheduledDate must be a valid date/time in the future'
+        });
+      }
+
+      showing.scheduledAt = dateObj;
+    } else {
+      // Clear any previously scheduled date when not confirmed
+      showing.scheduledAt = null;
+    }
+
+    // Update status (use internal mapped status)
+    showing.status = internalStatus;
     showing.updatedAt = Date.now();
     await showing.save();
 

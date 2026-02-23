@@ -19,6 +19,7 @@ router.get('/showings/:id', getShowingById);
 router.get('/showings', protect, getAllShowings);
 router.get('/showings/count/pending', protect, getPendingShowingsCount);
 router.patch('/showings/:id', protect, updateShowingStatus);
+router.patch('/showings/:id/status', protect, updateShowingStatus);
 router.delete('/showings/:id', protect, deleteShowing);
 
 export default router;
