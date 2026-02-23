@@ -304,6 +304,87 @@ export const updateShowingStatus = async (req, res) => {
   }
 };
 
+// Update showing feedback (PROTECTED - agent only, must own the listing)
+export const updateFeedback = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { feedback } = req.body;
+    const agentId = req.agent._id;
+
+    // Validate ID format
+    const idValidation = validateObjectId(id);
+    if (!idValidation.isValid) {
+      return res.status(400).json(idValidation.error);
+    }
+
+    // Validate feedback input
+    if (feedback === undefined) {
+      return res.status(400).json({
+        error: 'Invalid input',
+        message: 'Feedback field is required'
+      });
+    }
+
+    if (typeof feedback !== 'string') {
+      return res.status(400).json({
+        error: 'Invalid input',
+        message: 'Feedback must be a string'
+      });
+    }
+
+    if (feedback.length > 2000) {
+      return res.status(400).json({
+        error: 'Invalid input',
+        message: 'Feedback must not exceed 2000 characters'
+      });
+    }
+
+    // Find showing and verify it exists
+    const showing = await Showing.findById(id).populate('listing');
+    if (!showing) {
+      return res.status(404).json(handleNotFoundError('Showing', id));
+    }
+
+    // Verify agent owns the listing
+    if (String(showing.listing.createdBy) !== String(agentId)) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only add feedback to showings for your own listings'
+      });
+    }
+
+    // Update feedback
+    showing.feedback = feedback.trim();
+    showing.updatedAt = Date.now();
+    await showing.save();
+
+    // Populate for response
+    await showing.populate({
+      path: 'listing',
+      select: 'address zipCode price createdBy',
+      populate: {
+        path: 'createdBy',
+        select: 'name email phone'
+      }
+    });
+
+    res.json({
+      message: 'Showing feedback updated successfully',
+      showing
+    });
+  } catch (error) {
+    if (isValidationError(error)) {
+      return res.status(400).json(handleValidationError(error));
+    }
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error updating showing feedback', error.message, { type: error.name })
+    );
+  }
+};
+
 // Delete showing (PROTECTED - agent only, must own the listing)
 export const deleteShowing = async (req, res) => {
   try {
