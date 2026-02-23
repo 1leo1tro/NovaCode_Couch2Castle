@@ -61,14 +61,7 @@ All errors follow this consistent format:
       "updatedAt": "2024-01-15T10:30:00.000Z"
     }
   ],
-  "pagination": {
-    "currentPage": 1,
-    "pageLimit": 10,
-    "totalCount": 25,
-    "totalPages": 3,
-    "hasNextPage": true,
-    "hasPrevPage": false
-  }
+  "count": 25
 }
 ```
 
@@ -582,13 +575,13 @@ DELETE /api/listings/507f1f77bcf86cd799439011
 
 ```bash
 # Get all listings with filters
-curl "http://localhost:5000/api/listings?minPrice=200000&maxPrice=500000&status=active&page=1&limit=10"
+curl "http://localhost:5001/api/listings?minPrice=200000&maxPrice=500000&status=active&page=1&limit=10"
 
 # Get single listing
-curl "http://localhost:5000/api/listings/507f1f77bcf86cd799439011"
+curl "http://localhost:5001/api/listings/507f1f77bcf86cd799439011"
 
 # Create listing
-curl -X POST "http://localhost:5000/api/listings" \
+curl -X POST "http://localhost:5001/api/listings" \
   -H "Content-Type: application/json" \
   -d '{
     "price": 250000,
@@ -599,7 +592,7 @@ curl -X POST "http://localhost:5000/api/listings" \
   }'
 
 # Update listing
-curl -X PUT "http://localhost:5000/api/listings/507f1f77bcf86cd799439011" \
+curl -X PUT "http://localhost:5001/api/listings/507f1f77bcf86cd799439011" \
   -H "Content-Type: application/json" \
   -d '{
     "price": 275000,
@@ -607,13 +600,13 @@ curl -X PUT "http://localhost:5000/api/listings/507f1f77bcf86cd799439011" \
   }'
 
 # Delete listing
-curl -X DELETE "http://localhost:5000/api/listings/507f1f77bcf86cd799439011"
+curl -X DELETE "http://localhost:5001/api/listings/507f1f77bcf86cd799439011"
 
 # Test error: Invalid ID
-curl "http://localhost:5000/api/listings/invalid-id"
+curl "http://localhost:5001/api/listings/invalid-id"
 
 # Test error: Invalid price
-curl "http://localhost:5000/api/listings?minPrice=invalid"
+curl "http://localhost:5001/api/listings?minPrice=invalid"
 ```
 
 ---

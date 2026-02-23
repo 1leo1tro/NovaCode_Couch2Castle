@@ -63,7 +63,7 @@ npm run test:coverage  # Run with coverage report
 
 #### 7. Edge Cases
 - Empty results when no listings exist
-- Invalid query parameters (returns 500 error)
+- Invalid query parameters (returns 400 error)
 - Negative price values
 - Min price exceeds max price
 - Very large price values
@@ -80,8 +80,8 @@ npm run test:coverage  # Run with coverage report
 
 ### Backend Test Results
 
-All 23 tests pass:
-- 23 test cases across 9 test suites
+All 28 tests pass:
+- 28 test cases across 9 test suites
 - Covers positive, negative, and edge case scenarios
 - Uses in-memory MongoDB for fast, isolated tests
 
