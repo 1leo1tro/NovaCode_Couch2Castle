@@ -116,111 +116,236 @@ GET /api/listings/507f1f77bcf86cd799439011
 
 ---
 
-### Create Listing
-**POST** `/listings`
+## Showing Request Endpoints
 
-Creates a new property listing.
+### Create Showing Request (Public)
+**POST** `/showings`
 
-**Authentication:** Required (Bearer token)
+Submit a tour/showing request for a property listing.
+
+**Authentication:** None required (public endpoint)
 
 **Request Body:**
 ```json
 {
-  "price": 250000,
-  "address": "123 Main St, Huntsville, AL",
-  "description": "Charming 3-bedroom home",
-  "squareFeet": 1500,
-  "zipCode": "35801",
-  "status": "active",
-  "images": ["https://example.com/image1.jpg"]
+  "listing": "65f8b3c4a1234567890abcde",
+  "name": "John Doe",
+  "email": "john@example.com",
+  "phone": "(555) 123-4567",
+  "preferredDate": "2026-03-15T14:00:00.000Z",
+  "message": "I'm interested in viewing this property next week."
 }
 ```
 
-**Required fields:** `price`, `address`, `squareFeet`, `zipCode`
+**Field Requirements:**
+- `listing` (required) - MongoDB ObjectId of the listing
+- `name` (required) - Requester's name (2-100 characters)
+- `email` (required) - Valid email address
+- `phone` (required) - Phone number
+- `preferredDate` (required) - Must be a future date/time
+- `message` (optional) - Additional notes (max 1000 characters)
 
-**Example Response (201):**
+**Example Response (201 Created):**
 ```json
 {
-  "message": "Listing created successfully",
-  "listing": {
-    "_id": "507f1f77bcf86cd799439011",
-    "price": 250000,
-    "address": "123 Main St, Huntsville, AL",
-    "squareFeet": 1500,
-    "status": "active",
-    "zipCode": "35801",
-    "images": ["https://example.com/image1.jpg"],
-    "createdBy": {
-      "_id": "65a1b2c3d4e5f6g7h8i9j0k1",
-      "name": "John Smith",
-      "phone": "2051234567"
+  "message": "Showing request submitted successfully",
+  "showing": {
+    "_id": "65f8b3c4a1234567890abcdf",
+    "listing": {
+      "_id": "65f8b3c4a1234567890abcde",
+      "address": "123 Main St, Huntsville, AL 35801",
+      "zipCode": "35801",
+      "price": 250000,
+      "createdBy": {
+        "_id": "65f8b3c4a1234567890abcaa",
+        "name": "Agent Smith",
+        "email": "agent@example.com",
+        "phone": "(555) 987-6543"
+      }
     },
-    "createdAt": "2024-01-15T10:30:00.000Z",
-    "updatedAt": "2024-01-15T10:30:00.000Z"
-  }
-}
-```
-
----
-
-### Update Listing
-**PUT** `/listings/:id` | **PATCH** `/listings/:id`
-
-Updates an existing listing. Both `PUT` and `PATCH` are supported.
-
-**Authentication:** Required (Bearer token)
-
-**URL Parameters:**
-- `id` (required) - MongoDB ObjectId of the listing
-
-**Request Body:** Any subset of listing fields to update.
-
-**Example Response (200):**
-```json
-{
-  "message": "Listing updated successfully",
-  "listing": {
-    "_id": "507f1f77bcf86cd799439011",
-    "price": 275000,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "phone": "(555) 123-4567",
+    "preferredDate": "2026-03-15T14:00:00.000Z",
+    "message": "I'm interested in viewing this property next week.",
     "status": "pending",
-    "updatedBy": {
-      "_id": "65a1b2c3d4e5f6g7h8i9j0k1",
-      "name": "John Smith"
-    },
-    "updatedAt": "2024-01-15T12:45:00.000Z"
+    "createdAt": "2026-02-15T10:30:00.000Z",
+    "updatedAt": "2026-02-15T10:30:00.000Z"
   }
 }
 ```
 
 ---
 
-### Delete Listing
-**DELETE** `/listings/:id`
+### Get All Showings for Agent (Protected)
+**GET** `/showings`
 
-Deletes a listing by ID.
+Get all showing requests for the authenticated agent's listings.
 
 **Authentication:** Required (Bearer token)
 
-**URL Parameters:**
-- `id` (required) - MongoDB ObjectId of the listing
+**Query Parameters:**
+- `listingId` (optional) - Filter by specific listing ID
+- `status` (optional) - Filter by status: `pending`, `confirmed`, `completed`, `cancelled`
+- `page` (optional) - Page number for pagination (default: 1)
+- `limit` (optional) - Results per page (default: 10)
 
-**Example Response (200):**
+**Example Requests:**
+```
+GET /api/showings
+GET /api/showings?status=pending
+GET /api/showings?listingId=65f8b3c4a1234567890abcde
+GET /api/showings?page=2&limit=20
+```
+
+**Example Response (200 OK):**
 ```json
 {
-  "message": "Listing deleted successfully",
-  "listing": {
-    "_id": "507f1f77bcf86cd799439011",
-    "price": 250000,
-    "address": "123 Main St, Huntsville, AL 35801",
-    "status": "active"
+  "showings": [
+    {
+      "_id": "65f8b3c4a1234567890abcdf",
+      "listing": {
+        "_id": "65f8b3c4a1234567890abcde",
+        "address": "123 Main St, Huntsville, AL 35801",
+        "zipCode": "35801",
+        "price": 250000
+      },
+      "name": "John Doe",
+      "email": "john@example.com",
+      "phone": "(555) 123-4567",
+      "preferredDate": "2026-03-15T14:00:00.000Z",
+      "message": "I'm interested in viewing this property.",
+      "status": "pending",
+      "createdAt": "2026-02-15T10:30:00.000Z"
+    }
+  ],
+  "count": 15,
+  "page": 1,
+  "totalPages": 2
+}
+```
+
+---
+
+### Get Pending Showings Count (Protected)
+**GET** `/showings/count/pending`
+
+Get the count of pending showing requests for the authenticated agent's listings.
+
+**Authentication:** Required (Bearer token)
+
+**Example Response (200 OK):**
+```json
+{
+  "count": 5
+}
+```
+
+---
+
+### Get Showing by ID (Public)
+**GET** `/showings/:id`
+
+Get details of a specific showing request.
+
+**URL Parameters:**
+- `id` (required) - Showing ID
+
+**Example Request:**
+```
+GET /api/showings/65f8b3c4a1234567890abcdf
+```
+
+**Example Response (200 OK):**
+```json
+{
+  "showing": {
+    "_id": "65f8b3c4a1234567890abcdf",
+    "listing": {
+      "_id": "65f8b3c4a1234567890abcde",
+      "address": "123 Main St, Huntsville, AL 35801"
+    },
+    "name": "John Doe",
+    "email": "john@example.com",
+    "status": "pending"
   }
 }
 ```
 
-**Error Response (404):**
+---
+
+### Update Showing Status (Protected)
+**PATCH** `/showings/:id`
+
+Update the status of a showing request. Only the listing owner can update.
+
+**Authentication:** Required (Bearer token)
+
+**URL Parameters:**
+- `id` (required) - Showing ID
+
+**Request Body:**
 ```json
 {
-  "message": "Listing not found",
-  "error": "No listing exists with ID: 507f1f77bcf86cd799439011"
+  "status": "confirmed"
+}
+```
+
+**Valid Status Values:**
+- `pending`
+- `confirmed`
+- `completed`
+- `cancelled`
+
+**Example Response (200 OK):**
+```json
+{
+  "message": "Showing status updated successfully",
+  "showing": {
+    "_id": "65f8b3c4a1234567890abcdf",
+    "status": "confirmed",
+    "updatedAt": "2026-02-15T15:00:00.000Z"
+  }
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "Access denied",
+  "message": "You can only update showings for your own listings"
+}
+```
+
+---
+
+### Delete Showing (Protected)
+**DELETE** `/showings/:id`
+
+Delete a showing request. Only the listing owner can delete.
+
+**Authentication:** Required (Bearer token)
+
+**URL Parameters:**
+- `id` (required) - Showing ID
+
+**Example Response (200 OK):**
+```json
+{
+  "message": "Showing deleted successfully",
+  "showing": {
+    "_id": "65f8b3c4a1234567890abcdf",
+    "listing": "65f8b3c4a1234567890abcde",
+    "name": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
+
+**Error Response (403 Forbidden):**
+```json
+{
+  "error": "Access denied",
+  "message": "You can only delete showings for your own listings"
 }
 ```

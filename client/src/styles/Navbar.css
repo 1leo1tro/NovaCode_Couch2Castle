@@ -84,3 +84,39 @@
   color: white !important;
   box-shadow: 0 4px 12px rgba(15, 82, 128, 0.4);
 }
+
+.navbar-notifications {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  transition: transform 0.2s ease;
+}
+
+.navbar-notifications:hover {
+  transform: scale(1.1);
+}
+
+.navbar-notifications-icon {
+  font-size: 1.5rem;
+  display: inline-block;
+}
+
+.navbar-notifications-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #dc2626;
+  color: white;
+  border-radius: 9999px;
+  min-width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

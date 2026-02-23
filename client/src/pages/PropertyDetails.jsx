@@ -21,6 +21,19 @@ const PropertyDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Tour form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    preferredDate: '',
+    message: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   useEffect(() => {
     const fetchProperty = async () => {
       try {
@@ -38,6 +51,110 @@ const PropertyDetails = () => {
 
     fetchProperty();
   }, [id]);
+
+  const validateTourForm = () => {
+    const errors = {};
+
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    } else if (formData.name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    } else if (formData.name.trim().length > 100) {
+      errors.name = 'Name must not exceed 100 characters';
+    }
+
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      errors.email = 'Please provide a valid email address';
+    }
+
+    // Phone validation
+    if (!formData.phone.trim()) {
+      errors.phone = 'Phone number is required';
+    } else if (!/^[\d\s\-\(\)\+]+$/.test(formData.phone)) {
+      errors.phone = 'Please provide a valid phone number';
+    }
+
+    // Date validation
+    if (!formData.preferredDate) {
+      errors.preferredDate = 'Preferred date is required';
+    } else {
+      const selectedDate = new Date(formData.preferredDate);
+      const now = new Date();
+      if (selectedDate <= now) {
+        errors.preferredDate = 'Preferred date must be in the future';
+      }
+    }
+
+    // Message validation (optional but max length)
+    if (formData.message && formData.message.length > 1000) {
+      errors.message = 'Message must not exceed 1000 characters';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleTourFormChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const handleTourFormSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!validateTourForm()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError('');
+    setSubmitSuccess(false);
+
+    try {
+      await axios.post('/api/showings', {
+        listing: id,
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        preferredDate: new Date(formData.preferredDate).toISOString(),
+        message: formData.message.trim()
+      });
+
+      setSubmitSuccess(true);
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        preferredDate: '',
+        message: ''
+      });
+
+      // Auto-hide success message after 5 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 5000);
+    } catch (err) {
+      console.error('Error submitting showing request:', err);
+      setSubmitError(err.response?.data?.message || 'Failed to submit showing request. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!window.confirm('Are you sure you want to delete this listing?')) {
@@ -160,12 +277,109 @@ const PropertyDetails = () => {
         <aside className="property-details-sidebar">
           <div className="property-details-card">
             <h3>Schedule a Tour</h3>
-            <form className="tour-form" onSubmit={(e) => e.preventDefault()}>
-              <label>Name<input type="text" name="name" placeholder="Your name" required /></label>
-              <label>Email<input type="email" name="email" placeholder="you@example.com" required /></label>
-              <label>Preferred Date<input type="date" name="date" required /></label>
-              <label>Message<textarea name="message" rows="3" placeholder="Any questions or special requests?" /></label>
-              <button type="submit">Request Tour</button>
+
+            {submitSuccess && (
+              <div className="alert alert-success">
+                <div className="alert-content">
+                  <span className="alert-icon">✓</span>
+                  <span className="alert-message">
+                    Tour request submitted successfully! The listing agent will contact you soon.
+                  </span>
+                </div>
+                <button
+                  className="alert-close"
+                  onClick={() => setSubmitSuccess(false)}
+                  aria-label="Close success message"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            {submitError && (
+              <div className="alert alert-error">
+                <div className="alert-content">
+                  <span className="alert-icon">⚠</span>
+                  <span className="alert-message">{submitError}</span>
+                </div>
+                <button
+                  className="alert-close"
+                  onClick={() => setSubmitError('')}
+                  aria-label="Close error message"
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            <form className="tour-form" onSubmit={handleTourFormSubmit}>
+              <label>
+                Name
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleTourFormChange}
+                  placeholder="Your name"
+                  className={formErrors.name ? 'input-error' : ''}
+                />
+                {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+              </label>
+
+              <label>
+                Email
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleTourFormChange}
+                  placeholder="you@example.com"
+                  className={formErrors.email ? 'input-error' : ''}
+                />
+                {formErrors.email && <span className="error-message">{formErrors.email}</span>}
+              </label>
+
+              <label>
+                Phone
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleTourFormChange}
+                  placeholder="(555) 123-4567"
+                  className={formErrors.phone ? 'input-error' : ''}
+                />
+                {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
+              </label>
+
+              <label>
+                Preferred Date
+                <input
+                  type="datetime-local"
+                  name="preferredDate"
+                  value={formData.preferredDate}
+                  onChange={handleTourFormChange}
+                  className={formErrors.preferredDate ? 'input-error' : ''}
+                />
+                {formErrors.preferredDate && <span className="error-message">{formErrors.preferredDate}</span>}
+              </label>
+
+              <label>
+                Message
+                <textarea
+                  name="message"
+                  value={formData.message}
+                  onChange={handleTourFormChange}
+                  rows="3"
+                  placeholder="Any questions or special requests?"
+                  className={formErrors.message ? 'input-error' : ''}
+                />
+                {formErrors.message && <span className="error-message">{formErrors.message}</span>}
+              </label>
+
+              <button type="submit" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Request Tour'}
+              </button>
             </form>
           </div>
 
