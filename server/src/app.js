@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import listingRoutes from './routes/listingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import showingRoutes from './routes/showingRoutes.js';
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 // Routes
 app.use('/api', listingRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api', showingRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });
