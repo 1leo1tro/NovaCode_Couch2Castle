@@ -1,19 +1,54 @@
 import request from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import app from '../app.js';
 import Listing from '../models/Listing.js';
+import Agent from '../models/Agent.js';
 
 let mongoServer;
+// Agents are created once (beforeAll) to avoid repeated bcrypt overhead
+let agent1, agent2;
+let token1, token2;
 
-// Setup: Start in-memory MongoDB before all tests
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const generateToken = (agentId) =>
+  jwt.sign({ id: agentId }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+const createTestAgent = (overrides = {}) =>
+  Agent.create({
+    name: 'Test Agent',
+    email: 'agent@test.com',
+    password: 'password123',
+    isActive: true,
+    ...overrides
+  });
+
+const createTestListing = (agentId, overrides = {}) =>
+  Listing.create({
+    price: 250000,
+    address: '123 Main St, Huntsville, AL',
+    squareFeet: 1500,
+    status: 'active',
+    zipCode: '35801',
+    createdBy: agentId,
+    ...overrides
+  });
+
+// ─── Lifecycle ──────────────────────────────────────────────────────────────
+
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
+  await mongoose.connect(mongoServer.getUri());
+
+  // Create two agents once — bcrypt hashing is expensive so we reuse them
+  agent1 = await createTestAgent({ email: 'agent1@test.com' });
+  agent2 = await createTestAgent({ email: 'agent2@test.com' });
+  token1 = generateToken(agent1._id);
+  token2 = generateToken(agent2._id);
 });
 
-// Cleanup: Close connection and stop MongoDB after all tests
 afterAll(async () => {
   await mongoose.disconnect();
   await mongoServer.stop();
@@ -22,6 +57,110 @@ afterAll(async () => {
 // Clear database before each test
 beforeEach(async () => {
   await Listing.deleteMany({});
+});
+
+// ── Ownership Enforcement Tests ────────────────────────────────────────────
+
+describe('Ownership Enforcement', () => {
+  let listing1; // owned by agent1
+  let listing2; // owned by agent2
+  let updatedListingData;
+
+  beforeEach(async () => {
+    listing1 = await createTestListing(agent1._id);
+    listing2 = await createTestListing(agent2._id);
+    updatedListingData = {
+      price: 300000,
+      address: 'Updated Address, Huntsville, AL',
+      squareFeet: 2000
+    };
+  });
+
+  describe('PUT /api/listings/:id - Update Listing', () => {
+    test('should allow owner to update their own listing', async () => {
+      const response = await request(app)
+        .put(`/api/listings/${listing1._id}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send(updatedListingData)
+        .expect(200);
+
+      expect(response.body.message).toBe('Listing updated successfully');
+      expect(response.body.listing.price).toBe(300000);
+      expect(response.body.listing.address).toBe('Updated Address, Huntsville, AL');
+    });
+
+    test('should deny access to update another agent\'s listing', async () => {
+      const response = await request(app)
+        .put(`/api/listings/${listing2._id}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send(updatedListingData)
+        .expect(403);
+
+      expect(response.body.error).toBe('Access denied');
+      expect(response.body.message).toContain('your own listings');
+    });
+
+    test('should return 400 for invalid listing ID format', async () => {
+      const response = await request(app)
+        .put('/api/listings/not-a-valid-id')
+        .set('Authorization', `Bearer ${token1}`)
+        .send(updatedListingData)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+    });
+
+    test('should return 404 for non-existent listing ID', async () => {
+      const nonExistentId = new mongoose.Types.ObjectId();
+      const response = await request(app)
+        .put(`/api/listings/${nonExistentId}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .send(updatedListingData)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('message');
+    });
+  });
+
+  describe('DELETE /api/listings/:id - Delete Listing', () => {
+    test('should allow owner to delete their own listing', async () => {
+      const response = await request(app)
+        .delete(`/api/listings/${listing1._id}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .expect(200);
+
+      expect(response.body.message).toBe('Listing deleted successfully');
+    });
+
+    test('should deny access to delete another agent\'s listing', async () => {
+      const response = await request(app)
+        .delete(`/api/listings/${listing2._id}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .expect(403);
+
+      expect(response.body.error).toBe('Access denied');
+      expect(response.body.message).toContain('your own listings');
+    });
+
+    test('should return 400 for invalid listing ID format', async () => {
+      const response = await request(app)
+        .delete('/api/listings/not-a-valid-id')
+        .set('Authorization', `Bearer ${token1}`)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('message');
+    });
+
+    test('should return 404 for non-existent listing ID', async () => {
+      const nonExistentId = new mongoose.Types.ObjectId();
+      const response = await request(app)
+        .delete(`/api/listings/${nonExistentId}`)
+        .set('Authorization', `Bearer ${token1}`)
+        .expect(404);
+
+      expect(response.body).toHaveProperty('message');
+    });
+  });
 });
 
 describe('GET /api/listings', () => {
