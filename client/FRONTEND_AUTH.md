@@ -142,14 +142,13 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
 ## Future Enhancements
 
 ### Recommended Next Steps:
-1. **Create/Edit Listing Forms** - Build forms for `/listings/create` and `/listings/edit/:id`
-2. **Agent Dashboard** - Create dedicated dashboard page with analytics
-3. **Token Refresh** - Implement automatic token refresh before expiration
-4. **Error Boundaries** - Add React error boundaries for better error handling
-5. **Loading States** - Improve loading states with skeleton screens
-6. **Regular User Auth** - Implement authentication for regular users
-7. **Favorite Listings** - Allow users to save favorite properties
-8. **Tour Scheduling** - Make tour scheduling form functional
+1. **Agent Dashboard** - Create dedicated dashboard page with analytics
+2. **Token Refresh** - Implement automatic token refresh before expiration
+3. **Error Boundaries** - Add React error boundaries for better error handling
+4. **Loading States** - Improve loading states with skeleton screens
+5. **Regular User Auth** - Implement authentication for regular users
+6. **Favorite Listings** - Allow users to save favorite properties
+7. **Tour Scheduling** - Make tour scheduling form functional
 
 ### Security Improvements:
 1. Move to httpOnly cookies instead of localStorage (prevents XSS attacks)
@@ -174,8 +173,8 @@ axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
    - Verify Create/Edit/Delete buttons ARE visible
 
 3. **Test agent management:**
-   - Click "Create Listing" → Verify navigation (page not yet built)
-   - Click "Edit" on a listing → Verify navigation (page not yet built)
+   - Click "Create Listing" → Verify navigation to `/listings/create`
+   - Click "Edit" on a listing → Verify navigation to `/listings/edit/:id`
    - Click "Delete" on a listing → Verify confirmation and deletion
 
 4. **Test logout:**

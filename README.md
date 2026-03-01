@@ -64,16 +64,27 @@ See [server/src/scripts/seedListings.js](server/src/scripts/seedListings.js) for
 
 ## API Endpoints
 
-| Method | Route               | Description                          |
-|--------|---------------------|--------------------------------------|
-| POST   | `/api/listings`     | Create a new listing                 |
-| GET    | `/api/listings`     | Get all listings (supports filters)  |
-| GET    | `/api/listings/:id` | Get a single listing by ID           |
+| Method | Route               | Auth     | Description                          |
+|--------|---------------------|----------|--------------------------------------|
+| POST   | `/api/listings`     | Required | Create a new listing                 |
+| GET    | `/api/listings`     | Public   | Get all listings (supports filters)  |
+| GET    | `/api/listings/:id` | Public   | Get a single listing by ID           |
+| PUT    | `/api/listings/:id` | Required | Update an existing listing           |
+| PATCH  | `/api/listings/:id` | Required | Partially update an existing listing |
+| DELETE | `/api/listings/:id` | Required | Delete a listing                     |
 
 **Query parameters for `GET /api/listings`:**
+- `keyword` - case-insensitive search across address, ZIP code, and status
 - `minPrice` - minimum price filter
 - `maxPrice` - maximum price filter
-- `zipCode` - filter by 5-digit ZIP code
+- `minSquareFeet` - minimum square footage filter
+- `maxSquareFeet` - maximum square footage filter
+- `zipCode` - filter by ZIP code
+- `status` - filter by status (`active`, `pending`, `sold`, `inactive`); defaults to `active`
+- `page` - page number for pagination (default: 1)
+- `limit` - results per page (default: 10, max: 100)
+- `sortBy` - sort field (`price`, `squareFeet`, `createdAt`, `updatedAt`)
+- `order` - sort direction (`asc`, `desc`)
 
 ## Testing
 
@@ -86,7 +97,7 @@ npm run test:watch    # Watch mode
 npm run test:coverage # Coverage report
 ```
 
-See [server/src/tests/TestingREADME.md](server/src/tests/TestingREADME.md) for detailed test documentation.
+See [TestingREADME.md](TestingREADME.md) for detailed test documentation.
 
 ## Ports
 
