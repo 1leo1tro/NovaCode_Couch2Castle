@@ -299,7 +299,17 @@ const CreateListing = () => {
         navigate('/listings');
       }, 1500);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to create listing';
+      // Handle authorization errors gracefully
+      let errorMessage = 'Failed to create listing';
+      
+      if (err.response?.status === 403) {
+        errorMessage = 'You do not have permission to create listings. Please ensure you are signed in as an agent.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      
       setErrors({ submit: errorMessage });
       setShowErrorAlert(true);
     } finally {

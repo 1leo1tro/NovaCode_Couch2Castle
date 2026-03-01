@@ -150,7 +150,17 @@ const EditListing = () => {
         navigate(`/property/${id}`);
       }, 1500);
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Failed to update listing';
+      // Handle authorization errors gracefully
+      let errorMessage = 'Failed to update listing';
+      
+      if (err.response?.status === 403) {
+        errorMessage = 'You can only edit listings you created. You do not have permission to modify this listing.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      
       setErrors({ submit: errorMessage });
     } finally {
       setLoading(false);

@@ -32,6 +32,41 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Setup axios response interceptor for handling authorization errors
+  useEffect(() => {
+    const responseInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        // Handle 401 Unauthorized - token expired, invalid, or missing
+        if (error.response?.status === 401) {
+          console.warn('⚠️ Unauthorized (401): Token invalid or expired');
+          
+          // Clear authentication state
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          
+          // Redirect to signin
+          window.location.href = '/signin';
+        }
+
+        // Handle 403 Forbidden - user lacks permission for this resource
+        if (error.response?.status === 403) {
+          console.warn('⚠️ Forbidden (403): Access denied to this resource');
+        }
+
+        return Promise.reject(error);
+      }
+    );
+
+    // Cleanup: Remove interceptor when component unmounts
+    return () => {
+      axios.interceptors.response.eject(responseInterceptor);
+    };
+  }, []);
+
   // Login function
   const login = async (email, password) => {
     try {

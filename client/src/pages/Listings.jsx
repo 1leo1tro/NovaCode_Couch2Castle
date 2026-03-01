@@ -89,7 +89,16 @@ const Listings = () => {
       await fetchListings();
     } catch (err) {
       console.error('Error deleting listing:', err);
-      alert(err.response?.data?.message || 'Failed to delete listing');
+      // Handle authorization errors gracefully
+      let errorMessage = 'Failed to delete listing';
+      if (err.response?.status === 403) {
+        errorMessage = 'You can only delete listings that you created. You do not have permission to delete this listing.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      alert(errorMessage);
     }
   };
 
