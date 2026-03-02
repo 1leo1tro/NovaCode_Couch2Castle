@@ -217,6 +217,14 @@ export const updateListing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
 
+    // Verify agent owns the listing
+    if (String(existingListing.createdBy) !== String(req.agent._id)) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only update your own listings'
+      });
+    }
+
     // Validate empty request body
     if (!req.body || Object.keys(req.body).length === 0) {
       return res.status(400).json(
@@ -275,12 +283,22 @@ export const deleteListing = async (req, res) => {
       return res.status(400).json(idValidation.error);
     }
 
-    // Find and delete listing
-    const deletedListing = await Listing.findByIdAndDelete(id);
-
-    if (!deletedListing) {
+    // Check if listing exists
+    const existingListing = await Listing.findById(id);
+    if (!existingListing) {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
+
+    // Verify agent owns the listing
+    if (String(existingListing.createdBy) !== String(req.agent._id)) {
+      return res.status(403).json({
+        error: 'Access denied',
+        message: 'You can only delete your own listings'
+      });
+    }
+
+    // Find and delete listing
+    const deletedListing = await Listing.findByIdAndDelete(id);
 
     res.json({
       message: 'Listing deleted successfully',

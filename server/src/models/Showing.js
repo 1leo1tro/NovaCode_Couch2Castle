@@ -61,15 +61,13 @@ const showingSchema = new mongoose.Schema({
 });
 
 // Update the updatedAt timestamp before saving
-showingSchema.pre('save', function(next) {
+showingSchema.pre('save', function() {
   this.updatedAt = Date.now();
-  next();
 });
 
 // Update the updatedAt timestamp before updating
-showingSchema.pre('findOneAndUpdate', function(next) {
+showingSchema.pre('findOneAndUpdate', function() {
   this.set({ updatedAt: Date.now() });
-  next();
 });
 
 // Index for faster queries

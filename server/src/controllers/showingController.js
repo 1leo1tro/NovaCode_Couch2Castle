@@ -1,5 +1,6 @@
 import Showing from '../models/Showing.js';
 import Listing from '../models/Listing.js';
+import Notification from '../models/Notification.js';
 import {
   handleValidationError,
   handleDatabaseError,
@@ -37,6 +38,21 @@ export const createShowing = async (req, res) => {
       preferredDate,
       message: message || ''
     });
+
+    // Create in-app notification for the listing agent
+    if (listingExists.createdBy) {
+      try {
+        await Notification.create({
+          recipient: listingExists.createdBy,
+          type: 'showing_request',
+          message: `New showing request from ${name} for ${listingExists.address}`,
+          relatedShowing: showing._id,
+          relatedListing: listing
+        });
+      } catch (notifError) {
+        console.error('Failed to create notification:', notifError.message);
+      }
+    }
 
     // Populate listing and agent information for response
     await showing.populate({
