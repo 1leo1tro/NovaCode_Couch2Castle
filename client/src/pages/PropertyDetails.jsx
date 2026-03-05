@@ -150,7 +150,16 @@ const PropertyDetails = () => {
       }, 5000);
     } catch (err) {
       console.error('Error submitting showing request:', err);
-      setSubmitError(err.response?.data?.message || 'Failed to submit showing request. Please try again.');
+      // Handle authorization errors gracefully
+      let errorMessage = 'Failed to submit showing request. Please try again.';
+      if (err.response?.status === 403) {
+        errorMessage = 'You do not have permission to request a tour of this property. Please ensure you are signed in.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      setSubmitError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -166,7 +175,16 @@ const PropertyDetails = () => {
       navigate('/listings');
     } catch (err) {
       console.error('Error deleting listing:', err);
-      alert(err.response?.data?.message || 'Failed to delete listing');
+      // Handle authorization errors gracefully
+      let errorMessage = 'Failed to delete listing';
+      if (err.response?.status === 403) {
+        errorMessage = 'You can only delete listings you created. You do not have permission to delete this listing.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      alert(errorMessage);
     }
   };
 
