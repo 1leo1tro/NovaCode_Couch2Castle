@@ -5,6 +5,7 @@ import {
   getPendingShowingsCount,
   getShowingById,
   updateShowingStatus,
+  updateFeedback,
   deleteShowing
 } from '../controllers/showingController.js';
 import { protect } from '../middleware/auth.js';
@@ -19,6 +20,7 @@ router.get('/showings/:id', getShowingById);
 router.get('/showings', protect, getAllShowings);
 router.get('/showings/count/pending', protect, getPendingShowingsCount);
 router.patch('/showings/:id', protect, updateShowingStatus);
+router.patch('/showings/:id/feedback', protect, updateFeedback);
 router.delete('/showings/:id', protect, deleteShowing);
 
 export default router;

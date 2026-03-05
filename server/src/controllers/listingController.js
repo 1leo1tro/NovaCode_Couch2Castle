@@ -9,7 +9,8 @@ import {
   isDatabaseConnectionError,
   isValidationError,
   isDuplicateKeyError,
-  createErrorResponse
+  createErrorResponse,
+  handleForbidden
 } from '../utils/errorHandler.js';
 import {
   validatePriceRange,
@@ -217,12 +218,9 @@ export const updateListing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
 
-    // Verify agent owns the listing
-    if (String(existingListing.createdBy) !== String(req.agent._id)) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only update your own listings'
-      });
+    // Ensure the requesting agent is the owner
+    if (!existingListing.createdBy || existingListing.createdBy.toString() !== req.agent._id.toString()) {
+      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to modify this listing'));
     }
 
     // Validate empty request body
@@ -297,7 +295,17 @@ export const deleteListing = async (req, res) => {
       });
     }
 
-    // Find and delete listing
+    // Find listing
+    const listingToDelete = await Listing.findById(id);
+    if (!listingToDelete) {
+      return res.status(404).json(handleNotFoundError('Listing', id));
+    }
+
+    // Ensure the requesting agent is the owner
+    if (!listingToDelete.createdBy || listingToDelete.createdBy.toString() !== req.agent._id.toString()) {
+      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to delete this listing'));
+    }
+
     const deletedListing = await Listing.findByIdAndDelete(id);
 
     res.json({

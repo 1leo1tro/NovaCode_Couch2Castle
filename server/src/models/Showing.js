@@ -49,6 +49,11 @@ const showingSchema = new mongoose.Schema({
     },
     default: 'pending'
   },
+  feedback: {
+    type: String,
+    default: '',
+    maxlength: [2000, 'Feedback must not exceed 2000 characters']
+  },
   createdAt: {
     type: Date,
     default: Date.now,
