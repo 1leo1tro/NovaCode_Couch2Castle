@@ -19,16 +19,12 @@ export const protect = async (req, res, next) => {
       req.agent = await Agent.findById(decoded.id).select('-password');
 
       if (!req.agent) {
-        return res.status(401).json(
-          handleUnauthorized('Not authorized', 'Agent not found')
-        );
+        return res.status(401).json(handleUnauthorized('Not authorized', 'Agent not found'));
       }
 
       // Check if agent is active
       if (!req.agent.isActive) {
-        return res.status(403).json(
-          handleForbidden('Account disabled', 'This agent account has been deactivated')
-        );
+        return res.status(403).json(handleForbidden('Account disabled', 'This agent account has been deactivated'));
       }
 
       next();
@@ -55,9 +51,7 @@ export const protect = async (req, res, next) => {
 // Middleware to check if agent is active (optional additional check)
 export const checkActive = (req, res, next) => {
   if (!req.agent.isActive) {
-    return res.status(403).json(
-      handleForbidden('Account disabled', 'This agent account has been deactivated')
-    );
+    return res.status(403).json(handleForbidden('Account disabled', 'This agent account has been deactivated'));
   }
   next();
 };
