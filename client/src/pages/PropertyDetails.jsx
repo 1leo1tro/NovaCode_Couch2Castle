@@ -18,6 +18,7 @@ const PropertyDetails = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
   const [property, setProperty] = useState(null);
+  const [showingCount, setShowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -41,6 +42,7 @@ const PropertyDetails = () => {
         setError(null);
         const response = await axios.get(`/api/listings/${id}`);
         setProperty(response.data.listing);
+        setShowingCount(response.data.showingCount ?? 0);
       } catch (err) {
         console.error('Error fetching property:', err);
         setError(err.response?.data?.message || 'Failed to load property details');
@@ -262,6 +264,7 @@ const PropertyDetails = () => {
             <span>${property.price.toLocaleString()}</span>
             <span>{property.squareFeet.toLocaleString()} sqft</span>
             <span>Status: {property.status}</span>
+            <span>{(property.viewCount ?? 0).toLocaleString()} views</span>
           </div>
 
           <section className="property-details-description">
@@ -285,6 +288,7 @@ const PropertyDetails = () => {
               <li>ZIP Code: {property.zipCode}</li>
               <li>Status: {property.status}</li>
               <li>Price: ${property.price.toLocaleString()}</li>
+              <li>Total Showings: {showingCount.toLocaleString()}</li>
               {property.createdBy && (
                 <li>Listed by: {property.createdBy.name || property.createdBy.email}</li>
               )}
