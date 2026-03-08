@@ -51,6 +51,11 @@ const listingSchema = new mongoose.Schema({
       message: 'ZIP code must be a valid US ZIP code format (e.g., 35801 or 35801-1234)'
     }
   },
+  viewCount: {
+    type: Number,
+    default: 0,
+    min: [0, 'View count cannot be negative']
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Agent',

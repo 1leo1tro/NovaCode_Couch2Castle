@@ -1,4 +1,5 @@
 import Listing from '../models/Listing.js';
+import Showing from '../models/Showing.js';
 import mongoose from 'mongoose';
 import {
   handleValidationError,
@@ -183,13 +184,21 @@ export const getListingById = async (req, res) => {
       return res.status(400).json(idValidation.error);
     }
 
-    const listing = await Listing.findById(id).populate('createdBy', 'name phone');
+    // Atomically increment viewCount and count showings in parallel
+    const [listing, showingCount] = await Promise.all([
+      Listing.findByIdAndUpdate(
+        id,
+        { $inc: { viewCount: 1 } },
+        { new: true }
+      ).populate('createdBy', 'name phone'),
+      Showing.countDocuments({ listing: id })
+    ]);
 
     if (!listing) {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
 
-    res.json({ listing });
+    res.json({ listing, showingCount });
   } catch (error) {
     if (isDatabaseConnectionError(error)) {
       return res.status(503).json(handleDatabaseError());
