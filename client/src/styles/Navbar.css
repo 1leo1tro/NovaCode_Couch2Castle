@@ -41,11 +41,38 @@
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
+  position: relative;
+  padding-bottom: 4px;
   transition: color 0.2s;
+}
+
+.navbar-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--color-accent);
+  border-radius: 1px;
+  transition: width 0.3s ease;
 }
 
 .navbar-links a:hover {
   color: var(--color-accent);
+}
+
+.navbar-links a:hover::after {
+  width: 100%;
+}
+
+.navbar-links a.nav-active {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.navbar-links a.nav-active::after {
+  width: 100%;
 }
 
 .navbar-brand {
@@ -77,46 +104,89 @@
   border-radius: 8px;
   font-weight: 600 !important;
   box-shadow: 0 2px 8px rgba(15, 82, 128, 0.3);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s !important;
+}
+
+.navbar-signin-btn::after {
+  display: none !important;
 }
 
 .navbar-signin-btn:hover {
   background: var(--color-accent-dark) !important;
   color: white !important;
   box-shadow: 0 4px 12px rgba(15, 82, 128, 0.4);
+  transform: translateY(-1px);
 }
 
-.navbar-notifications {
-  position: relative;
+.navbar-signin-active {
+  background: var(--color-accent-dark) !important;
+  box-shadow: 0 0 0 3px rgba(15, 82, 128, 0.3), 0 4px 12px rgba(15, 82, 128, 0.4) !important;
+  transform: scale(0.96);
+}
+
+/* Agent showings link */
+.navbar-showings-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  transition: transform 0.2s ease;
+  gap: 0.4rem;
 }
 
-.navbar-notifications:hover {
-  transform: scale(1.1);
-}
-
-.navbar-notifications-icon {
-  font-size: 1.5rem;
-  display: inline-block;
-}
-
-.navbar-notifications-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
+.navbar-showings-badge {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  font-size: 0.75rem;
+  font-weight: 700;
   background: #dc2626;
   color: white;
   border-radius: 9999px;
-  min-width: 18px;
-  height: 18px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Agent profile in navbar */
+.navbar-agent-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.navbar-agent-badge {
   font-size: 0.75rem;
   font-weight: 700;
-  padding: 0 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-accent);
+  background: rgba(15, 82, 128, 0.1);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.navbar-agent-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+/* Sign out button — matches sign-in button theme */
+.navbar-signout-btn {
+  background: var(--color-accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.6rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(15, 82, 128, 0.3);
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.navbar-signout-btn:hover {
+  background: var(--color-accent-dark);
+  box-shadow: 0 4px 12px rgba(15, 82, 128, 0.4);
+  transform: translateY(-1px);
 }

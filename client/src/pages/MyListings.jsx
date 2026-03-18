@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import ListingSearchBar from '../components/ListingSearchBar';
 import '../styles/App.css';
 
-const Listings = () => {
+const MyListings = () => {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +20,7 @@ const Listings = () => {
     maxSquareFeet: '',
   });
 
-  const { isAuthenticated, user } = useAuth();
+  const { user } = useAuth();
 
   const handleFilterChange = (name, value) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
@@ -44,7 +44,15 @@ const Listings = () => {
       const url = `/api/listings${queryString ? `?${queryString}` : ''}`;
 
       const response = await axios.get(url);
-      setListings(response.data.listings || []);
+      const allListings = response.data.listings || [];
+      // Filter to only this agent's listings
+      const userId = user?._id || user?.id;
+      const mine = allListings.filter((l) => {
+        if (!l.createdBy || !userId) return false;
+        const createdById = typeof l.createdBy === 'object' ? l.createdBy._id : l.createdBy;
+        return String(createdById) === String(userId);
+      });
+      setListings(mine);
     } catch (err) {
       console.error('Error fetching listings:', err);
       setError(err.response?.data?.message || 'Failed to load listings');
@@ -57,15 +65,42 @@ const Listings = () => {
     fetchListings();
   }, [filters]);
 
+  const handleDelete = async (id, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!window.confirm('Are you sure you want to delete this listing?')) return;
+
+    try {
+      await axios.delete(`/api/listings/${id}`);
+      await fetchListings();
+    } catch (err) {
+      console.error('Error deleting listing:', err);
+      let errorMessage = 'Failed to delete listing';
+      if (err.response?.status === 403) {
+        errorMessage = 'You do not have permission to delete this listing.';
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.data?.error) {
+        errorMessage = err.response.data.error;
+      }
+      alert(errorMessage);
+    }
+  };
+
   return (
     <div className="listings-page">
       <div className="listings-header">
-        <h1>All Listings</h1>
+        <h1>My Listings</h1>
+        <Link to="/listings/create" className="listings-create-btn">
+          + Create Listing
+        </Link>
       </div>
 
       <ListingSearchBar
         filters={filters}
         onFilterChange={handleFilterChange}
+        placeholder="Search your listings..."
       />
 
       {error && (
@@ -73,12 +108,12 @@ const Listings = () => {
       )}
 
       {loading ? (
-        <div className="listings-loading">Loading listings...</div>
+        <div className="listings-loading">Loading your listings...</div>
       ) : listings.length === 0 ? (
         <div className="listings-empty">
           {Object.values(filters).some(Boolean)
             ? 'No listings found matching your criteria.'
-            : 'No listings found.'}
+            : 'You have no listings yet. Create your first one!'}
         </div>
       ) : (
         <motion.div
@@ -146,7 +181,7 @@ const Listings = () => {
                     to={`/property/${listing._id}`}
                     className="schedule-tour-btn"
                   >
-                    Schedule a Tour
+                    View Details
                   </Link>
                   <div className="property-agent">
                     <div className="property-agent-avatar">
@@ -162,6 +197,22 @@ const Listings = () => {
                     </div>
                   </div>
                 </div>
+
+                <div className="listing-actions">
+                  <Link
+                    to={`/listings/edit/${listing._id}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="listing-action listing-action-edit"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    onClick={(e) => handleDelete(listing._id, e)}
+                    className="listing-action listing-action-delete"
+                  >
+                    Delete
+                  </button>
+                </div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -171,4 +222,4 @@ const Listings = () => {
   );
 };
 
-export default Listings;
+export default MyListings;

@@ -7,9 +7,11 @@ import Contacts from './pages/Contacts';
 import PropertyDetails from './pages/PropertyDetails';
 import SignIn from './pages/SignIn';
 import Listings from './pages/Listings';
+import MyListings from './pages/MyListings';
 import CreateListing from './pages/CreateListing';
 import EditListing from './pages/EditListing';
 import Showings from './pages/Showings';
+import Help from './pages/Help';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
@@ -26,9 +28,15 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/contacts" element={<Contacts />} />
+              <Route path="/help" element={<Help />} />
               <Route path="/property/:id" element={<PropertyDetails />} />
               <Route path="/signin" element={<SignIn />} />
               <Route path="/listings" element={<Listings />} />
+              <Route path="/listings/mine" element={
+                <ProtectedRoute requireAgent={true}>
+                  <MyListings />
+                </ProtectedRoute>
+              } />
               <Route path="/listings/create" element={
                 <ProtectedRoute requireAgent={true}>
                   <CreateListing />
