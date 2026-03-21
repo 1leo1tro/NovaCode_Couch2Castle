@@ -5,6 +5,7 @@ import listingRoutes from './routes/listingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import showingRoutes from './routes/showingRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api', listingRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', showingRoutes);
 app.use('/api', notificationRoutes);
+app.use('/api', reportRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

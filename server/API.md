@@ -349,3 +349,78 @@ Delete a showing request. Only the listing owner can delete.
   "message": "You can only delete showings for your own listings"
 }
 ```
+
+---
+
+## Reports Endpoints
+
+### Get Open Listings Report (Protected)
+**GET** `/reports/open`
+
+Returns active and pending listings aggregated by agent.
+
+**Authentication:** Required (Bearer token)
+
+**Example Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "agent": {
+        "_id": "65a1b2c3d4e5f6g7h8i9j0k1",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "count": 4,
+      "totalValue": 900000
+    }
+  ],
+  "summary": {
+    "totalAgents": 2,
+    "totalListings": 7,
+    "totalValue": 1650000
+  }
+}
+```
+
+---
+
+### Get Closed Listings Report (Protected)
+**GET** `/reports/closed`
+
+Returns sold listings aggregated by agent, including count, total value, average sale price, and average days on market (time from `createdAt` to `updatedAt`).
+
+**Authentication:** Required (Bearer token)
+
+**Example Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "agent": {
+        "_id": "65a1b2c3d4e5f6g7h8i9j0k1",
+        "name": "Jane Smith",
+        "email": "jane@example.com"
+      },
+      "count": 3,
+      "totalValue": 750000,
+      "avgSalePrice": 250000,
+      "avgDaysOnMarket": 42.5
+    }
+  ],
+  "summary": {
+    "totalAgents": 2,
+    "totalListings": 5,
+    "totalValue": 1250000,
+    "avgSalePrice": 250000,
+    "avgDaysOnMarket": 38.2
+  }
+}
+```
+
+**Notes:**
+- Results sorted by `totalValue` descending
+- `avgDaysOnMarket` is computed from each listing's `createdAt` to `updatedAt`
+- Listings with no associated agent are included with `agent: {}`
