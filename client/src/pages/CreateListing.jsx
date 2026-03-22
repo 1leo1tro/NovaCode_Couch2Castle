@@ -296,7 +296,7 @@ const CreateListing = () => {
       setSuccess('✓ Listing created successfully! Redirecting...');
       setShowSuccessAlert(true);
       setTimeout(() => {
-        navigate('/listings');
+        navigate('/listings/mine');
       }, 1500);
     } catch (err) {
       // Handle authorization errors gracefully
