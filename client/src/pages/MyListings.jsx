@@ -62,8 +62,12 @@ const MyListings = () => {
   };
 
   useEffect(() => {
-    fetchListings();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchListings();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters, user]);
 
   const handleDelete = async (id, e) => {
     e.preventDefault();

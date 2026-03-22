@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/App.css';
 
 const numericFields = new Set(['minPrice', 'maxPrice', 'minSquareFeet', 'maxSquareFeet']);
+const commaFormattedFields = new Set(['minPrice', 'maxPrice']);
 
 const formatWithCommas = (value) => {
   const digits = value.replace(/\D/g, '');
@@ -24,8 +25,6 @@ const filterFields = [
       { value: 'sold', label: 'Sold' },
     ],
   },
-  { name: 'minSquareFeet', type: 'text', placeholder: 'Min sqft', inputMode: 'numeric' },
-  { name: 'maxSquareFeet', type: 'text', placeholder: 'Max sqft', inputMode: 'numeric' },
 ];
 
 export default function ListingSearchBar({ filters, onFilterChange, onSearch, placeholder }) {
@@ -122,13 +121,38 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, pl
                     type={field.type}
                     name={field.name}
                     placeholder={field.placeholder}
-                    value={numericFields.has(field.name) ? formatWithCommas(filters[field.name] || '') : (filters[field.name] || '')}
+                    value={commaFormattedFields.has(field.name)
+                      ? formatWithCommas(filters[field.name] || '')
+                      : (filters[field.name] || '')}
                     onChange={handleChange}
                     inputMode={field.inputMode}
                     className="listings-filter-input"
                   />
                 )
               )}
+
+              <div className="listings-filter-row">
+                <input
+                  type="number"
+                  name="minSquareFeet"
+                  placeholder="Min sqft"
+                  value={filters.minSquareFeet || ''}
+                  onChange={handleChange}
+                  inputMode="numeric"
+                  min="0"
+                  className="listings-filter-input"
+                />
+                <input
+                  type="number"
+                  name="maxSquareFeet"
+                  placeholder="Max sqft"
+                  value={filters.maxSquareFeet || ''}
+                  onChange={handleChange}
+                  inputMode="numeric"
+                  min="0"
+                  className="listings-filter-input"
+                />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

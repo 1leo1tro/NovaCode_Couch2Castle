@@ -54,8 +54,12 @@ const Listings = () => {
   };
 
   useEffect(() => {
-    fetchListings();
-  }, []);
+    const timer = setTimeout(() => {
+      fetchListings();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [filters]);
 
   return (
     <div className="listings-page">

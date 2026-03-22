@@ -450,6 +450,12 @@ body {
   cursor: pointer;
 }
 
+.listings-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .listings-filter-input:focus,
 .listings-filter-select:focus {
   border-color: var(--color-accent);
@@ -481,6 +487,10 @@ body {
   .listings-filter-select {
     max-width: none;
     min-width: 120px;
+  }
+
+  .listings-filter-row {
+    width: 100%;
   }
 }
 
