@@ -322,22 +322,22 @@
   cursor: not-allowed;
 }
 
-.btn-confirm {
+.btn-approve {
   background: #10b981;
   color: white;
 }
 
-.btn-confirm:hover:not(:disabled) {
+.btn-approve:hover:not(:disabled) {
   background: #059669;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 }
 
-.btn-cancel {
+.btn-reject {
   background: #ef4444;
   color: white;
 }
 
-.btn-cancel:hover:not(:disabled) {
+.btn-reject:hover:not(:disabled) {
   background: #dc2626;
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
 }
