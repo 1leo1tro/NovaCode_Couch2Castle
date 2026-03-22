@@ -117,10 +117,10 @@ export const getAllListings = async (req, res) => {
       query.zipCode = zipCode;
     }
 
-    // Ensure only active listings are returned to public users
-    query.status = 'active';
+    // Default: show all listings except inactive
+    query.status = { $ne: 'inactive' };
 
-    // Validate status
+    // Validate status filter if provided
     if (status) {
       const statusValidation = validateStatus(status);
       if (!statusValidation.isValid) {

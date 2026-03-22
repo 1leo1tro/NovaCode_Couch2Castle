@@ -55,7 +55,7 @@ const Listings = () => {
 
   useEffect(() => {
     fetchListings();
-  }, [filters]);
+  }, []);
 
   return (
     <div className="listings-page">
@@ -66,6 +66,7 @@ const Listings = () => {
       <ListingSearchBar
         filters={filters}
         onFilterChange={handleFilterChange}
+        onSearch={fetchListings}
       />
 
       {error && (
@@ -129,7 +130,7 @@ const Listings = () => {
                           No image
                         </div>
                       )}
-                      {listing.status && listing.status !== 'active' && (
+                      {listing.status && (
                         <span className="property-badge">{listing.status}</span>
                       )}
                     </div>

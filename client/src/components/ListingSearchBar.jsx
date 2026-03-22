@@ -2,9 +2,17 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/App.css';
 
+const numericFields = new Set(['minPrice', 'maxPrice', 'minSquareFeet', 'maxSquareFeet']);
+
+const formatWithCommas = (value) => {
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return '';
+  return Number(digits).toLocaleString('en-US');
+};
+
 const filterFields = [
-  { name: 'minPrice', type: 'number', placeholder: 'Min $', min: '0' },
-  { name: 'maxPrice', type: 'number', placeholder: 'Max $', min: '0' },
+  { name: 'minPrice', type: 'text', placeholder: 'Min $', inputMode: 'numeric' },
+  { name: 'maxPrice', type: 'text', placeholder: 'Max $', inputMode: 'numeric' },
   { name: 'zipCode', type: 'text', placeholder: 'ZIP Code' },
   {
     name: 'status',
@@ -16,11 +24,11 @@ const filterFields = [
       { value: 'sold', label: 'Sold' },
     ],
   },
-  { name: 'minSquareFeet', type: 'number', placeholder: 'Min sqft', min: '0' },
-  { name: 'maxSquareFeet', type: 'number', placeholder: 'Max sqft', min: '0' },
+  { name: 'minSquareFeet', type: 'text', placeholder: 'Min sqft', inputMode: 'numeric' },
+  { name: 'maxSquareFeet', type: 'text', placeholder: 'Max sqft', inputMode: 'numeric' },
 ];
 
-export default function ListingSearchBar({ filters, onFilterChange, placeholder }) {
+export default function ListingSearchBar({ filters, onFilterChange, onSearch, placeholder }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const ref = useRef(null);
 
@@ -36,7 +44,12 @@ export default function ListingSearchBar({ filters, onFilterChange, placeholder 
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    onFilterChange(name, value);
+    if (numericFields.has(name)) {
+      const digits = value.replace(/\D/g, '');
+      onFilterChange(name, digits);
+    } else {
+      onFilterChange(name, value);
+    }
   };
 
   const activeFilterCount = filterFields
@@ -46,7 +59,7 @@ export default function ListingSearchBar({ filters, onFilterChange, placeholder 
   return (
     <div className="listings-search" ref={ref}>
       <div className={`listings-search-row ${filtersOpen ? 'filters-open' : ''}`}>
-        <form className="listings-search-bar" onSubmit={(e) => e.preventDefault()}>
+        <form className="listings-search-bar" onSubmit={(e) => { e.preventDefault(); onSearch?.(); }}>
           <svg className="listings-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" />
             <path d="m21 21-4.35-4.35" />
@@ -109,9 +122,9 @@ export default function ListingSearchBar({ filters, onFilterChange, placeholder 
                     type={field.type}
                     name={field.name}
                     placeholder={field.placeholder}
-                    value={filters[field.name] || ''}
+                    value={numericFields.has(field.name) ? formatWithCommas(filters[field.name] || '') : (filters[field.name] || '')}
                     onChange={handleChange}
-                    min={field.min}
+                    inputMode={field.inputMode}
                     className="listings-filter-input"
                   />
                 )

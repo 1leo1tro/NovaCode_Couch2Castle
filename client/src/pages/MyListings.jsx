@@ -63,7 +63,7 @@ const MyListings = () => {
 
   useEffect(() => {
     fetchListings();
-  }, [filters]);
+  }, []);
 
   const handleDelete = async (id, e) => {
     e.preventDefault();
@@ -100,6 +100,7 @@ const MyListings = () => {
       <ListingSearchBar
         filters={filters}
         onFilterChange={handleFilterChange}
+        onSearch={fetchListings}
         placeholder="Search your listings..."
       />
 
