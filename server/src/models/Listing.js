@@ -65,9 +65,32 @@ const listingSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Agent',
     required: false
+  },
+  closingDate: {
+    type: Date,
+    required: false
+  },
+  finalSalePrice: {
+    type: Number,
+    required: false,
+    min: [0, 'Final sale price must be a positive number']
+  },
+  daysOnMarket: {
+    type: Number,
+    required: false
   }
 }, {
   timestamps: true // Adds createdAt and updatedAt fields
+});
+
+// Auto-calculate daysOnMarket from createdAt when closingDate is set
+listingSchema.pre('save', function() {
+  if (this.closingDate) {
+    const closing = new Date(this.closingDate);
+    const created = new Date(this.createdAt);
+    const diffMs = closing.getTime() - created.getTime();
+    this.daysOnMarket = Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+  }
 });
 
 // Index for common queries
