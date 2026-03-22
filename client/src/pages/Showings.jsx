@@ -262,18 +262,18 @@ const Showings = () => {
                             <button
                               onClick={() => handleStatusUpdate(showing._id, 'confirmed')}
                               disabled={updatingStatus === showing._id}
-                              className="btn-action btn-confirm"
-                              title="Confirm showing"
+                              className="btn-action btn-approve"
+                              title="Approve showing request"
                             >
-                              ✓ Confirm
+                              Approve
                             </button>
                             <button
                               onClick={() => handleStatusUpdate(showing._id, 'cancelled')}
                               disabled={updatingStatus === showing._id}
-                              className="btn-action btn-cancel"
-                              title="Cancel showing"
+                              className="btn-action btn-reject"
+                              title="Reject showing request"
                             >
-                              ✗ Cancel
+                              Reject
                             </button>
                           </>
                         )}
@@ -284,7 +284,7 @@ const Showings = () => {
                             className="btn-action btn-complete"
                             title="Mark as completed"
                           >
-                            ✓ Complete
+                            Complete
                           </button>
                         )}
                         <button
@@ -292,7 +292,7 @@ const Showings = () => {
                           className="btn-action btn-delete"
                           title="Delete showing"
                         >
-                          🗑
+                          Delete
                         </button>
                       </div>
                     </td>
