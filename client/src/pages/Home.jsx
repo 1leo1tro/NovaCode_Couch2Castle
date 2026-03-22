@@ -553,7 +553,7 @@ const Home = () => {
                 >
                   <div className="property-card">
                     <Link
-                      to={`/property/${property.id}`}
+                      to="/listings"
                       className="property-card-link"
                       style={{ textDecoration: 'none' }}
                     >
@@ -580,7 +580,7 @@ const Home = () => {
                       </div>
                     </Link>
                     <Link
-                      to={`/property/${property.id}`}
+                      to="/listings"
                       className="schedule-tour-btn"
                     >
                       Schedule a Tour

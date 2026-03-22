@@ -1,0 +1,128 @@
+.help-page {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+}
+
+.help-hero {
+  text-align: center;
+  padding: 2.5rem 0 2rem;
+}
+
+.help-hero h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0 0 0.5rem;
+}
+
+.help-hero p {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.help-section {
+  margin-bottom: 2rem;
+}
+
+.help-section h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--color-accent);
+  display: inline-block;
+}
+
+.help-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.help-accordion-item {
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.help-accordion-item.open {
+  border-color: var(--color-accent);
+  box-shadow: 0 2px 12px rgba(15, 82, 128, 0.08);
+}
+
+.help-accordion-toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-foreground);
+  background: var(--color-background);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.help-accordion-toggle:hover {
+  background: var(--color-secondary);
+}
+
+.help-accordion-icon {
+  font-size: 1.3rem;
+  font-weight: 300;
+  color: var(--color-accent);
+  flex-shrink: 0;
+  margin-left: 1rem;
+  display: inline-block;
+}
+
+.help-accordion-body {
+  overflow: hidden;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.help-accordion-body-inner {
+  padding: 0 1.25rem 1rem;
+}
+
+.help-cta {
+  text-align: center;
+  margin-top: 2.5rem;
+  padding: 2rem;
+  background: var(--color-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+}
+
+.help-cta p {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--color-foreground);
+}
+
+.help-cta-btn {
+  display: inline-block;
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  background: var(--color-accent);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+
+.help-cta-btn:hover {
+  background: var(--color-accent-dark);
+  box-shadow: 0 4px 12px rgba(15, 82, 128, 0.3);
+}

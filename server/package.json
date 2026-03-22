@@ -11,7 +11,8 @@
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "seed": "node src/scripts/seedListings.js",
-    "seed:agents": "node src/scripts/seedAgents.js"
+    "seed:agents": "node src/scripts/seedAgents.js",
+    "seed:showings": "node src/scripts/seedShowings.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -14,7 +14,13 @@ function HouseIcon() {
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
+
+  const isActive = (path) => {
+    if (path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(path);
+  };
 
   useEffect(() => {
     const fetchPendingCount = async () => {
@@ -53,9 +59,11 @@ function Navbar() {
     <header className="navbar">
       <nav className="navbar-inner">
         <ul className="navbar-links navbar-left">
-          <li><Link to="/">Buy</Link></li>
-          <li><Link to="/">Rent</Link></li>
-          <li><Link to="/listings">Listings</Link></li>
+          <li><Link to="/" className={isActive('/') ? 'nav-active' : ''}>Home</Link></li>
+          <li><Link to="/listings" className={location.pathname === '/listings' ? 'nav-active' : ''}>Listings</Link></li>
+          {isAuthenticated() && (
+            <li><Link to="/listings/mine" className={location.pathname !== '/listings' && isActive('/listings') ? 'nav-active' : ''}>My Listings</Link></li>
+          )}
         </ul>
 
         <Link to="/" className="navbar-brand">
@@ -64,45 +72,34 @@ function Navbar() {
         </Link>
 
         <ul className="navbar-links navbar-right">
-          <li><Link to="/contacts">Find an agent</Link></li>
-          <li><Link to="/contacts">Get help</Link></li>
-          {isAuthenticated() && (
-            <li>
-              <Link to="/showings" className="navbar-notifications">
-                <span className="navbar-notifications-icon">🔔</span>
-                {pendingCount > 0 && (
-                  <span className="navbar-notifications-badge">{pendingCount}</span>
-                )}
-              </Link>
-            </li>
-          )}
           {isAuthenticated() ? (
             <>
               <li>
-                <span style={{ color: '#666', fontSize: '14px' }}>
-                  {user?.name || user?.email}
-                </span>
+                <Link to="/showings" className={`navbar-showings-link ${isActive('/showings') ? 'nav-active' : ''}`}>
+                  Showings
+                  {pendingCount > 0 && (
+                    <span className="navbar-showings-badge">{pendingCount}</span>
+                  )}
+                </Link>
+              </li>
+              <li className="navbar-agent-profile">
+                <span className="navbar-agent-badge">Agent</span>
+                <span className="navbar-agent-name">{user?.name || user?.email}</span>
               </li>
               <li>
-                <button
-                  onClick={handleSignOut}
-                  className="navbar-signin-btn"
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: 0,
-                    font: 'inherit'
-                  }}
-                >
+                <button onClick={handleSignOut} className="navbar-signout-btn">
                   Sign out
                 </button>
               </li>
             </>
           ) : (
-            <li>
-              <Link to="/signin" className="navbar-signin-btn">Sign in</Link>
-            </li>
+            <>
+              <li><Link to="/contacts" className={isActive('/contacts') ? 'nav-active' : ''}>Find an agent</Link></li>
+              <li><Link to="/help" className={isActive('/help') ? 'nav-active' : ''}>Get help</Link></li>
+              <li>
+                <Link to="/signin" className={`navbar-signin-btn ${isActive('/signin') ? 'navbar-signin-active' : ''}`}>Sign in</Link>
+              </li>
+            </>
           )}
         </ul>
       </nav>
