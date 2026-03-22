@@ -10,10 +10,25 @@ const Showings = () => {
   const [error, setError] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [updatingStatus, setUpdatingStatus] = useState(null);
+  const [feedbackById, setFeedbackById] = useState({});
+  const [savingFeedbackById, setSavingFeedbackById] = useState({});
+  const [feedbackStatusById, setFeedbackStatusById] = useState({});
 
   useEffect(() => {
     fetchShowings();
   }, [isAuthenticated, filterStatus]);
+
+  useEffect(() => {
+    setFeedbackById((previousFeedback) => {
+      const nextFeedback = {};
+
+      showings.forEach((showing) => {
+        nextFeedback[showing._id] = previousFeedback[showing._id] ?? showing.feedback ?? '';
+      });
+
+      return nextFeedback;
+    });
+  }, [showings]);
 
   const fetchShowings = async () => {
     if (!isAuthenticated()) {
@@ -89,6 +104,79 @@ const Showings = () => {
     } catch (err) {
       console.error('Error deleting showing:', err);
       alert(err.response?.data?.message || 'Failed to delete showing');
+    }
+  };
+
+  const handleFeedbackChange = (showingId, value) => {
+    setFeedbackById((previous) => ({
+      ...previous,
+      [showingId]: value
+    }));
+
+    setFeedbackStatusById((previous) => ({
+      ...previous,
+      [showingId]: null
+    }));
+  };
+
+  const handleSaveFeedback = async (showingId) => {
+    try {
+      setSavingFeedbackById((previous) => ({
+        ...previous,
+        [showingId]: true
+      }));
+
+      setFeedbackStatusById((previous) => ({
+        ...previous,
+        [showingId]: null
+      }));
+
+      const token = localStorage.getItem('token');
+      const feedback = feedbackById[showingId] ?? '';
+
+      const response = await axios.patch(
+        `/api/showings/${showingId}/feedback`,
+        { feedback },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      const savedFeedback = response.data?.showing?.feedback ?? feedback;
+
+      setFeedbackById((previous) => ({
+        ...previous,
+        [showingId]: savedFeedback
+      }));
+
+      setShowings((previousShowings) =>
+        previousShowings.map((showing) =>
+          showing._id === showingId
+            ? { ...showing, feedback: savedFeedback }
+            : showing
+        )
+      );
+
+      setFeedbackStatusById((previous) => ({
+        ...previous,
+        [showingId]: { type: 'saved', message: 'Saved' }
+      }));
+    } catch (err) {
+      console.error('Error updating showing feedback:', err);
+      setFeedbackStatusById((previous) => ({
+        ...previous,
+        [showingId]: {
+          type: 'error',
+          message: err.response?.data?.message || 'Failed to save feedback'
+        }
+      }));
+    } finally {
+      setSavingFeedbackById((previous) => ({
+        ...previous,
+        [showingId]: false
+      }));
     }
   };
 
@@ -207,6 +295,7 @@ const Showings = () => {
                   <th>Property Address</th>
                   <th>Scheduled Date & Time</th>
                   <th>Status</th>
+                  <th>Feedback</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -257,6 +346,34 @@ const Showings = () => {
                       <span className={getStatusBadgeClass(showing.status)}>
                         {showing.status.charAt(0).toUpperCase() + showing.status.slice(1)}
                       </span>
+                    </td>
+                    <td>
+                      <div className="feedback-cell">
+                        <textarea
+                          className="feedback-textarea"
+                          value={feedbackById[showing._id] ?? ''}
+                          onChange={(e) => handleFeedbackChange(showing._id, e.target.value)}
+                          rows={3}
+                          placeholder="Add feedback for this showing"
+                        />
+                        <div className="feedback-actions">
+                          <button
+                            onClick={() => handleSaveFeedback(showing._id)}
+                            disabled={Boolean(savingFeedbackById[showing._id])}
+                            className="btn-action btn-feedback-save"
+                            title="Save feedback"
+                          >
+                            {savingFeedbackById[showing._id] ? 'Saving...' : 'Save'}
+                          </button>
+                          {feedbackStatusById[showing._id]?.message && (
+                            <span
+                              className={`feedback-status feedback-status-${feedbackStatusById[showing._id].type}`}
+                            >
+                              {feedbackStatusById[showing._id].message}
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     </td>
                     <td>
                       <div className="actions-cell">
