@@ -263,8 +263,22 @@
 
 /* Date Info */
 .date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
   color: var(--color-foreground);
   white-space: nowrap;
+}
+
+.confirmed-date-label {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #d1fae5;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  width: fit-content;
 }
 
 /* Status Badges */

@@ -205,7 +205,7 @@ const Showings = () => {
                   <th>Requester</th>
                   <th>Contact</th>
                   <th>Property Address</th>
-                  <th>Preferred Date & Time</th>
+                  <th>Scheduled Date & Time</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -248,6 +248,9 @@ const Showings = () => {
                     <td>
                       <div className="date-info">
                         {formatDate(showing.preferredDate)}
+                        {(showing.status === 'confirmed' || showing.status === 'completed') && (
+                          <span className="confirmed-date-label">Confirmed</span>
+                        )}
                       </div>
                     </td>
                     <td>
