@@ -279,6 +279,69 @@ export const updateListing = async (req, res) => {
   }
 };
 
+// Mark a listing as sold
+export const markAsSold = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { closingDate, finalSalePrice } = req.body;
+
+    // Validate MongoDB ObjectId format
+    const idValidation = validateObjectId(id);
+    if (!idValidation.isValid) {
+      return res.status(400).json(idValidation.error);
+    }
+
+    // Check if listing exists
+    const existingListing = await Listing.findById(id);
+    if (!existingListing) {
+      return res.status(404).json(handleNotFoundError('Listing', id));
+    }
+
+    // Ensure the requesting agent is the owner
+    if (!existingListing.createdBy || existingListing.createdBy.toString() !== req.agent._id.toString()) {
+      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to modify this listing'));
+    }
+
+    // Check if already sold
+    if (existingListing.status === 'sold') {
+      return res.status(400).json(
+        createErrorResponse('Already sold', 'This listing has already been marked as sold')
+      );
+    }
+
+    // Set sold fields
+    existingListing.status = 'sold';
+    if (closingDate) {
+      existingListing.closingDate = closingDate;
+    }
+    if (finalSalePrice !== undefined) {
+      existingListing.finalSalePrice = finalSalePrice;
+    }
+    existingListing.updatedBy = req.agent._id;
+
+    // Save triggers the pre-save hook to compute daysOnMarket
+    await existingListing.save();
+
+    // Populate agent info for response
+    await existingListing.populate('createdBy updatedBy', 'name email phone');
+
+    res.json({
+      message: 'Listing marked as sold',
+      listing: existingListing
+    });
+  } catch (error) {
+    if (isValidationError(error)) {
+      return res.status(400).json(handleValidationError(error));
+    }
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error marking listing as sold', error.message, { type: error.name })
+    );
+  }
+};
+
 // Delete a listing
 export const deleteListing = async (req, res) => {
   try {
