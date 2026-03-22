@@ -4,6 +4,7 @@ import {
   getAllListings,
   getListingById,
   updateListing,
+  markAsSold,
   deleteListing
 } from '../controllers/listingController.js';
 import { protect } from '../middleware/auth.js';
@@ -18,6 +19,7 @@ router.get('/listings/:id', getListingById);
 router.post('/listings', protect, createListing);
 router.put('/listings/:id', protect, updateListing);
 router.patch('/listings/:id', protect, updateListing); // Support both PUT and PATCH
+router.patch('/listings/:id/sold', protect, markAsSold);
 router.delete('/listings/:id', protect, deleteListing);
 
 export default router;
