@@ -47,6 +47,11 @@ const agentSchema = new mongoose.Schema({
     sparse: true, // Allow multiple null values but unique non-null values
     unique: true
   },
+  role: {
+    type: String,
+    enum: ['agent', 'manager', 'admin'],
+    default: 'agent'
+  },
   isActive: {
     type: Boolean,
     default: true
@@ -87,6 +92,7 @@ agentSchema.methods.toPublicJSON = function() {
     email: this.email,
     phone: this.phone,
     licenseNumber: this.licenseNumber,
+    role: this.role,
     isActive: this.isActive,
     createdAt: this.createdAt
   };

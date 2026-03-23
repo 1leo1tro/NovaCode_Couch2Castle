@@ -55,3 +55,20 @@ export const checkActive = (req, res, next) => {
   }
   next();
 };
+
+// Middleware to authorize by role
+export const authorize = (...roles) => (req, res, next) => {
+  if (!req.agent) {
+    return res.status(401).json(handleUnauthorized('Not authorized', 'Authentication required'));
+  }
+
+  const agentRole = req.agent.role || 'agent';
+
+  if (!roles.includes(agentRole)) {
+    return res.status(403).json(
+      handleForbidden('Forbidden', 'You do not have permission to access this resource')
+    );
+  }
+
+  next();
+};
