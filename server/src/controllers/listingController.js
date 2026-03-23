@@ -23,6 +23,21 @@ import {
   validateSort
 } from '../utils/validators.js';
 
+const isListingOwner = (listing, agentId) => {
+  if (!listing?.createdBy || !agentId) {
+    return false;
+  }
+
+  return listing.createdBy.toString() === agentId.toString();
+};
+
+const handleListingOwnershipError = (action) =>
+  createErrorResponse(
+    `You can only ${action} your own listings`,
+    'Access denied',
+    { type: 'FORBIDDEN' }
+  );
+
 // Create a new listing
 export const createListing = async (req, res) => {
   try {
@@ -228,8 +243,8 @@ export const updateListing = async (req, res) => {
     }
 
     // Ensure the requesting agent is the owner
-    if (!existingListing.createdBy || existingListing.createdBy.toString() !== req.agent._id.toString()) {
-      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to modify this listing'));
+    if (!isListingOwner(existingListing, req.agent._id)) {
+      return res.status(403).json(handleListingOwnershipError('update'));
     }
 
     // Validate empty request body
@@ -359,23 +374,9 @@ export const deleteListing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', id));
     }
 
-    // Verify agent owns the listing
-    if (String(existingListing.createdBy) !== String(req.agent._id)) {
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'You can only delete your own listings'
-      });
-    }
-
-    // Find listing
-    const listingToDelete = await Listing.findById(id);
-    if (!listingToDelete) {
-      return res.status(404).json(handleNotFoundError('Listing', id));
-    }
-
     // Ensure the requesting agent is the owner
-    if (!listingToDelete.createdBy || listingToDelete.createdBy.toString() !== req.agent._id.toString()) {
-      return res.status(403).json(handleForbidden('Not authorized', 'Not authorized to delete this listing'));
+    if (!isListingOwner(existingListing, req.agent._id)) {
+      return res.status(403).json(handleListingOwnershipError('delete'));
     }
 
     const deletedListing = await Listing.findByIdAndDelete(id);

@@ -2,9 +2,15 @@ import request from 'supertest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import mongoose from 'mongoose';
 import jwt from 'jsonwebtoken';
+import { jest } from '@jest/globals';
 import app from '../app.js';
 import Listing from '../models/Listing.js';
 import Agent from '../models/Agent.js';
+
+// Set test JWT secret before any auth middleware runs
+process.env.JWT_SECRET = 'test-jwt-secret-listings-suite';
+
+jest.setTimeout(30000);
 
 let mongoServer;
 // Agents are created once (beforeAll) to avoid repeated bcrypt overhead
