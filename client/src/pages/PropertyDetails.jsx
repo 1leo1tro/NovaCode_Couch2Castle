@@ -35,22 +35,31 @@ const PropertyDetails = () => {
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const response = await axios.get(`/api/listings/${id}`);
-        setProperty(response.data.listing);
-        setShowingCount(response.data.showingCount ?? 0);
-      } catch (err) {
-        console.error('Error fetching property:', err);
-        setError(err.response?.data?.message || 'Failed to load property details');
-      } finally {
-        setLoading(false);
-      }
-    };
+  const [showSoldForm, setShowSoldForm] = useState(false);
+  const [soldFormData, setSoldFormData] = useState({
+    closingDate: '',
+    finalSalePrice: ''
+  });
+  const [soldSubmitting, setSoldSubmitting] = useState(false);
+  const [soldError, setSoldError] = useState('');
+  const [soldSuccess, setSoldSuccess] = useState('');
 
+  const fetchProperty = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`/api/listings/${id}`);
+      setProperty(response.data.listing);
+      setShowingCount(response.data.showingCount ?? 0);
+    } catch (err) {
+      console.error('Error fetching property:', err);
+      setError(err.response?.data?.message || 'Failed to load property details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchProperty();
   }, [id]);
 
@@ -190,9 +199,60 @@ const PropertyDetails = () => {
     }
   };
 
+  const handleSoldFormChange = (e) => {
+    const { name, value } = e.target;
+    setSoldFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleMarkAsSold = async (e) => {
+    e.preventDefault();
+
+    if (!soldFormData.closingDate || !soldFormData.finalSalePrice) {
+      setSoldError('Closing date and final sale price are required.');
+      return;
+    }
+
+    const parsedPrice = Number(soldFormData.finalSalePrice);
+    if (!Number.isFinite(parsedPrice) || parsedPrice < 0) {
+      setSoldError('Final sale price must be a valid non-negative number.');
+      return;
+    }
+
+    setSoldSubmitting(true);
+    setSoldError('');
+    setSoldSuccess('');
+
+    try {
+      await axios.patch(`/api/listings/${id}/sold`, {
+        closingDate: new Date(`${soldFormData.closingDate}T00:00:00`).toISOString(),
+        finalSalePrice: parsedPrice
+      });
+
+      await fetchProperty();
+      setSoldSuccess('Listing marked as sold successfully.');
+      setShowSoldForm(false);
+    } catch (err) {
+      console.error('Error marking listing as sold:', err);
+      setSoldError(err.response?.data?.message || err.response?.data?.error || 'Failed to mark listing as sold.');
+    } finally {
+      setSoldSubmitting(false);
+    }
+  };
+
   if (loading) return <div className="property-details-page"><h2>Loading...</h2></div>;
   if (error) return <div className="property-details-page"><h2>Error: {error}</h2></div>;
   if (!property) return <div className="property-details-page"><h2>Property not found</h2></div>;
+
+  const ownerId = property.createdBy && typeof property.createdBy === 'object'
+    ? (property.createdBy._id || property.createdBy.id)
+    : property.createdBy;
+  const currentAgentId = user?._id || user?.id;
+  const isOwner = Boolean(isAuthenticated() && currentAgentId && ownerId && String(ownerId) === String(currentAgentId));
+  const canMarkAsSold = isOwner && ['active', 'pending'].includes(property.status);
+  const isSold = property.status === 'sold';
 
   const gallery = property.images && property.images.length > 0
     ? [...property.images, ...interiorImages.map((i) => i.url)].slice(0, 6)
@@ -200,13 +260,37 @@ const PropertyDetails = () => {
 
   return (
     <div className="property-details-page">
-      {isAuthenticated() && user?._id && property.createdBy && String(property.createdBy) === user._id && (
+      {isOwner && (
         <div style={{
           display: 'flex',
           gap: '12px',
           justifyContent: 'flex-end',
+          alignItems: 'center',
+          flexWrap: 'wrap',
           marginBottom: '16px'
         }}>
+          {canMarkAsSold && (
+            <button
+              type="button"
+              onClick={() => {
+                setShowSoldForm((prev) => !prev);
+                setSoldError('');
+                setSoldSuccess('');
+              }}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#1d4ed8',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: '500',
+                cursor: 'pointer'
+              }}
+            >
+              {showSoldForm ? 'Cancel' : 'Mark as Sold'}
+            </button>
+          )}
           <Link
             to={`/listings/edit/${property._id}`}
             style={{
@@ -236,6 +320,41 @@ const PropertyDetails = () => {
           >
             Delete Listing
           </button>
+
+          {soldSuccess && <p className="sold-form-success">{soldSuccess}</p>}
+          {soldError && <p className="sold-form-error">{soldError}</p>}
+
+          {canMarkAsSold && showSoldForm && (
+            <form className="sold-inline-form" onSubmit={handleMarkAsSold}>
+              <label>
+                Closing Date
+                <input
+                  type="date"
+                  name="closingDate"
+                  value={soldFormData.closingDate}
+                  onChange={handleSoldFormChange}
+                  required
+                />
+              </label>
+
+              <label>
+                Final Sale Price
+                <input
+                  type="number"
+                  name="finalSalePrice"
+                  value={soldFormData.finalSalePrice}
+                  onChange={handleSoldFormChange}
+                  min="0"
+                  step="0.01"
+                  required
+                />
+              </label>
+
+              <button type="submit" disabled={soldSubmitting}>
+                {soldSubmitting ? 'Saving...' : 'Confirm Sale'}
+              </button>
+            </form>
+          )}
         </div>
       )}
 
@@ -289,6 +408,15 @@ const PropertyDetails = () => {
               <li>Status: {property.status}</li>
               <li>Price: ${property.price.toLocaleString()}</li>
               <li>Total Showings: {showingCount.toLocaleString()}</li>
+              {isSold && property.finalSalePrice !== undefined && property.finalSalePrice !== null && (
+                <li>Final Sale Price: ${Number(property.finalSalePrice).toLocaleString()}</li>
+              )}
+              {isSold && property.closingDate && (
+                <li>Closing Date: {new Date(property.closingDate).toLocaleDateString()}</li>
+              )}
+              {isSold && property.daysOnMarket !== undefined && property.daysOnMarket !== null && (
+                <li>Days on Market: {property.daysOnMarket.toLocaleString()}</li>
+              )}
               {property.createdBy && (
                 <li>Listed by: {property.createdBy.name || property.createdBy.email}</li>
               )}
