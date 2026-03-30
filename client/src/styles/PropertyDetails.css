@@ -394,3 +394,62 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.sold-inline-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.85rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-secondary);
+}
+
+.sold-inline-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  color: var(--color-foreground);
+}
+
+.sold-inline-form input {
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  padding: 0.55rem 0.75rem;
+}
+
+.sold-inline-form button {
+  align-self: end;
+  border: none;
+  border-radius: 6px;
+  padding: 0.65rem 1rem;
+  background: #1d4ed8;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sold-inline-form button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.sold-form-success,
+.sold-form-error {
+  margin: 0;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.sold-form-success {
+  color: #166534;
+}
+
+.sold-form-error {
+  color: #b91c1c;
+}
