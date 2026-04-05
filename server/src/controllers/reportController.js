@@ -1,4 +1,5 @@
 import Listing from '../models/Listing.js';
+import Showing from '../models/Showing.js';
 import { isDatabaseConnectionError, handleDatabaseError } from '../utils/errorHandler.js';
 
 const MS_PER_DAY = 86400000;
@@ -171,6 +172,55 @@ export const getClosedListingsReport = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to generate closed listings report',
+      error: error.message,
+    });
+  }
+};
+
+/**
+ * @desc    Get detailed list of open listings
+ * @route   GET /api/reports/open-listings
+ * @access  Protected
+ */
+export const getOpenListingsDetails = async (req, res) => {
+  try {
+    const listings = await Listing.find({
+      status: { $in: ['active', 'pending'] },
+    }).populate('createdBy', 'name email');
+
+    const listingsWithDetails = await Promise.all(
+      listings.map(async (listing) => {
+        const showingCount = await Showing.countDocuments({ listing: listing._id });
+
+        const daysOnMarket = Math.floor((Date.now() - listing.createdAt.getTime()) / MS_PER_DAY);
+
+        return {
+          _id: listing._id,
+          address: listing.address,
+          price: listing.price,
+          daysOnMarket,
+          showingCount,
+          agent: listing.createdBy ? {
+            name: listing.createdBy.name,
+            email: listing.createdBy.email,
+          } : null,
+          status: listing.status,
+          createdAt: listing.createdAt,
+        };
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: listingsWithDetails,
+    });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get open listings details',
       error: error.message,
     });
   }

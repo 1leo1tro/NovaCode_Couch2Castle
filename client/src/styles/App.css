@@ -698,6 +698,106 @@ body {
   min-height: 320px;
 }
 
+/* Manager Reports Page */
+.manager-reports-page {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.reports-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.reports-header h1 {
+  color: var(--color-accent);
+  margin-bottom: 0.5rem;
+  font-size: 2.5rem;
+  font-weight: 600;
+}
+
+.reports-header p {
+  color: var(--color-muted);
+  font-size: 1.1rem;
+}
+
+.reports-table-container {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-background);
+}
+
+.reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.reports-table thead {
+  background: var(--color-background);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.reports-table th {
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.reports-table tbody tr {
+  border-bottom: 1px solid var(--color-border);
+  transition: background 0.2s;
+}
+
+.reports-table tbody tr:hover {
+  background: var(--color-background);
+}
+
+.reports-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.reports-table td {
+  padding: 1rem 0.75rem;
+  vertical-align: top;
+  color: var(--color-foreground);
+}
+
+.agent-email {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-active {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.status-pending {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
 .property-card {
   background: var(--color-background);
   border-radius: 12px;

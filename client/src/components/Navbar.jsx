@@ -74,6 +74,9 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           {isAuthenticated() ? (
             <>
+              {user?.role === 'manager' && (
+                <li><Link to="/reports/open-listings" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
+              )}
               <li>
                 <Link to="/showings" className={`navbar-showings-link ${isActive('/showings') ? 'nav-active' : ''}`}>
                   Showings

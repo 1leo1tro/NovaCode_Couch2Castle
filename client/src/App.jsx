@@ -12,6 +12,7 @@ import CreateListing from './pages/CreateListing';
 import EditListing from './pages/EditListing';
 import Showings from './pages/Showings';
 import Help from './pages/Help';
+import ManagerReports from './pages/ManagerReports';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
@@ -46,6 +47,11 @@ function App() {
               <Route path="/showings" element={
                 <ProtectedRoute requireAgent={true}>
                   <Showings />
+                </ProtectedRoute>
+              } />
+              <Route path="/reports/open-listings" element={
+                <ProtectedRoute requireRole="manager">
+                  <ManagerReports />
                 </ProtectedRoute>
               } />
             </Routes>
