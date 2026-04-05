@@ -383,7 +383,9 @@ const PropertyDetails = () => {
             <span>${property.price.toLocaleString()}</span>
             <span>{property.squareFeet.toLocaleString()} sqft</span>
             <span>Status: {property.status}</span>
-            <span>{(property.viewCount ?? 0).toLocaleString()} views</span>
+            {isAuthenticated() && isOwner && (
+              <span>{(property.viewCount ?? 0).toLocaleString()} views</span>
+            )}
           </div>
 
           <section className="property-details-description">
@@ -407,7 +409,9 @@ const PropertyDetails = () => {
               <li>ZIP Code: {property.zipCode}</li>
               <li>Status: {property.status}</li>
               <li>Price: ${property.price.toLocaleString()}</li>
-              <li>Total Showings: {showingCount.toLocaleString()}</li>
+              {isAuthenticated() && isOwner && (
+                <li>Total Showings: {showingCount.toLocaleString()}</li>
+              )}
               {isSold && property.finalSalePrice !== undefined && property.finalSalePrice !== null && (
                 <li>Final Sale Price: ${Number(property.finalSalePrice).toLocaleString()}</li>
               )}
