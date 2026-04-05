@@ -12,7 +12,7 @@ function HouseIcon() {
 }
 
 function Navbar() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { user, isAuthenticated, logout, mockUser, mockLogout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
@@ -55,6 +55,11 @@ function Navbar() {
     navigate('/');
   };
 
+  const handleMockSignOut = () => {
+    mockLogout();
+    navigate('/');
+  };
+
   return (
     <header className="navbar">
       <nav className="navbar-inner">
@@ -82,12 +87,27 @@ function Navbar() {
                   )}
                 </Link>
               </li>
+              <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
               <li className="navbar-agent-profile">
                 <span className="navbar-agent-badge">Agent</span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>
               </li>
               <li>
                 <button onClick={handleSignOut} className="navbar-signout-btn">
+                  Sign out
+                </button>
+              </li>
+            </>
+          ) : mockUser ? (
+            <>
+              <li><Link to="/contacts" className={isActive('/contacts') ? 'nav-active' : ''}>Find an agent</Link></li>
+              <li><Link to="/help" className={isActive('/help') ? 'nav-active' : ''}>Get help</Link></li>
+              <li className="navbar-agent-profile">
+                <span className="navbar-agent-badge">User</span>
+                <span className="navbar-agent-name">{mockUser.name}</span>
+              </li>
+              <li>
+                <button onClick={handleMockSignOut} className="navbar-signout-btn">
                   Sign out
                 </button>
               </li>
