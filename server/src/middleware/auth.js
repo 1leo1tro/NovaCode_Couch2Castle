@@ -48,6 +48,29 @@ export const protect = async (req, res, next) => {
   }
 };
 
+// Middleware to check if agent has one of the allowed roles
+export const restrictTo = (...roles) => (req, res, next) => {
+  if (!req.agent || !req.agent.role) {
+    return res.status(401).json(
+      createErrorResponse(
+        'Not authorized',
+        'Agent information is required to perform this action'
+      )
+    );
+  }
+
+  if (!roles.includes(req.agent.role)) {
+    return res.status(403).json(
+      createErrorResponse(
+        'Access denied',
+        'You do not have permission to access this resource'
+      )
+    );
+  }
+
+  next();
+};
+
 // Middleware to check if agent is active (optional additional check)
 export const checkActive = (req, res, next) => {
   if (!req.agent.isActive) {

@@ -22,6 +22,7 @@ const seedAgents = async () => {
         password: 'password123', // Will be hashed automatically
         phone: '2051234567',
         licenseNumber: 'AL-RE-12345',
+        role: 'manager',
         isActive: true
       },
       {

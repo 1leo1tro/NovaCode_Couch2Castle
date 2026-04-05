@@ -13,9 +13,9 @@ import {
 } from '../utils/errorHandler.js';
 
 // Generate JWT token
-const generateToken = (agentId) => {
+const generateToken = (agentId, role) => {
   return jwt.sign(
-    { id: agentId },
+    { id: agentId, role },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
   );
@@ -50,7 +50,7 @@ export const register = async (req, res) => {
     });
 
     // Generate JWT token
-    const token = generateToken(agent._id);
+    const token = generateToken(agent._id, agent.role);
 
     // Return success response with token and agent data
     res.status(201).json({
@@ -107,7 +107,7 @@ export const login = async (req, res) => {
     }
 
     // Generate JWT token
-    const token = generateToken(agent._id);
+    const token = generateToken(agent._id, agent.role);
 
     // Return success response with token and agent data
     res.json({
