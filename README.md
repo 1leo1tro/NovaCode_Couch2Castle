@@ -21,16 +21,20 @@ cd client && npm install && cd ..
 cd server && npm install && cd ..
 ```
 
-4. Set up environment:
+3. Set up environment:
    - Copy `server/.env.example` to `server/.env`
    - Set `MONGO_URI` to your MongoDB connection string
 
 ### Running the Project
 
-**Run both frontend and backend:**
+**Run both frontend and backend simultaneously using `concurrently`:**
 ```bash
 npm run dev
 ```
+
+This command starts:
+- Frontend on port 5173 (React/Vite)
+- Backend on port 5001 (Node.js/Express)
 
 **Run individually:**
 ```bash
@@ -62,6 +66,13 @@ See [server/src/scripts/seedListings.js](server/src/scripts/seedListings.js) for
 - **Database**: MongoDB (Atlas or local)
 - **Testing**: Jest, Supertest, MongoDB Memory Server
 
+## API Documentation
+
+For detailed API documentation, see:
+- [API Endpoints](server/API.md) - Comprehensive endpoint descriptions and usage examples.
+- [Authentication API](server/AUTH_API_DOCUMENTATION.md) - Sign up, login, logout, and token management.
+- [Showings API](server/GET_SHOWINGS_ENDPOINT.md) - Schedule and manage viewings.
+
 ## API Endpoints
 
 | Method | Route               | Auth     | Description                          |
@@ -85,6 +96,47 @@ See [server/src/scripts/seedListings.js](server/src/scripts/seedListings.js) for
 - `limit` - results per page (default: 10, max: 100)
 - `sortBy` - sort field (`price`, `squareFeet`, `createdAt`, `updatedAt`)
 - `order` - sort direction (`asc`, `desc`)
+
+## Authentication
+
+To manage user accounts and access protected routes:
+
+| Method | Route               | Auth     | Description                          |
+|--------|---------------------|----------|--------------------------------------|
+| POST   | `/api/auth/signup`  | Public   | Register a new account                |
+| POST   | `/api/auth/login`    | Public   | Log in and receive an auth token      |
+| POST   | `/api/auth/logout`   | Required | Log out and clear the auth token      |
+| GET    | `/api/auth/me`       | Required | Get current user data                 |
+
+## Showings
+
+Manage viewings for properties:
+
+| Method | Route               | Auth     | Description                          |
+|--------|---------------------|----------|--------------------------------------|
+| POST   | `/api/showings`      | Required | Schedule a new viewing                |
+| GET    | `/api/showings`      | Public   | Get all scheduled viewings           |
+| GET    | `/api/showings/:id`  | Public   | Get details for a specific viewing    |
+| PUT    | `/api/showings/:id`  | Required | Update an existing viewing           |
+| DELETE | `/api/showings/:id`  | Required | Cancel a viewing                     |
+
+## Notifications
+
+View and manage alerts and messages:
+
+| Method | Route               | Auth     | Description                          |
+|--------|---------------------|----------|--------------------------------------|
+| GET    | `/api/notifications` | Public   | Get all notifications                |
+| POST   | `/api/notifications/read` | Required | Mark a notification as read          |
+
+## Frontend Routing
+
+Key pages in the application:
+- `/listings`: View and search for properties.
+- `/showings`: Schedule or manage viewings.
+- `/contacts`: Communicate with agents or clients.
+- `/help`: Access support resources.
+- `/signin` and `/signup`: Authenticate as a user.
 
 ## Testing
 
