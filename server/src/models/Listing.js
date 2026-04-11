@@ -78,6 +78,24 @@ const listingSchema = new mongoose.Schema({
   daysOnMarket: {
     type: Number,
     required: false
+  },
+  tags: {
+    type: [String],
+    default: [],
+    validate: [
+      {
+        validator: function(tags) {
+          return tags.length <= 20;
+        },
+        message: 'A listing may have at most 20 tags'
+      },
+      {
+        validator: function(tags) {
+          return tags.every(tag => tag.length <= 50);
+        },
+        message: 'Each tag must be 50 characters or fewer'
+      }
+    ]
   }
 }, {
   timestamps: true // Adds createdAt and updatedAt fields
