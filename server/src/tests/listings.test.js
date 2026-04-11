@@ -368,9 +368,7 @@ describe('GET /api/listings', () => {
   });
 
   describe('Square Footage Filtering', () => {
-    // Note: Current implementation doesn't support square footage filtering
-    // These tests document expected behavior for future implementation
-    test('should support square footage filtering (future feature)', async () => {
+    beforeEach(async () => {
       await Listing.create([
         {
           price: 200000,
@@ -387,18 +385,45 @@ describe('GET /api/listings', () => {
           zipCode: '35802'
         }
       ]);
+    });
 
-      // This will currently return all listings since filtering isn't implemented
+    test('should filter by minimum square footage', async () => {
       const response = await request(app)
         .get('/api/listings?minSquareFeet=2000')
         .expect(200);
 
-      // For now, just verify the endpoint works
-      expect(response.body.listings).toHaveLength(2);
+      expect(response.body.listings).toHaveLength(1);
+      expect(response.body.listings[0].squareFeet).toBeGreaterThanOrEqual(2000);
+    });
 
-      // TODO: Update this test when square footage filtering is implemented
-      // expect(response.body.listings).toHaveLength(1);
-      // expect(response.body.listings[0].squareFeet).toBeGreaterThanOrEqual(2000);
+    test('should filter by maximum square footage', async () => {
+      const response = await request(app)
+        .get('/api/listings?maxSquareFeet=1500')
+        .expect(200);
+
+      expect(response.body.listings).toHaveLength(1);
+      expect(response.body.listings[0].squareFeet).toBeLessThanOrEqual(1500);
+    });
+
+    test('should filter by square footage range', async () => {
+      const response = await request(app)
+        .get('/api/listings?minSquareFeet=900&maxSquareFeet=2600')
+        .expect(200);
+
+      expect(response.body.listings).toHaveLength(2);
+      response.body.listings.forEach(listing => {
+        expect(listing.squareFeet).toBeGreaterThanOrEqual(900);
+        expect(listing.squareFeet).toBeLessThanOrEqual(2600);
+      });
+    });
+
+    test('should return 400 when minSquareFeet exceeds maxSquareFeet', async () => {
+      const response = await request(app)
+        .get('/api/listings?minSquareFeet=3000&maxSquareFeet=1000')
+        .expect(400);
+
+      expect(response.body.message).toBe('Invalid query parameters');
+      expect(response.body.error).toBe('minSquareFeet cannot be greater than maxSquareFeet');
     });
   });
 
@@ -466,8 +491,8 @@ describe('GET /api/listings', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
       expect(response.body.error).toBe('zipCode must be a 5-digit number');
-      expect(response.body.parameter).toBe('zipCode');
-      expect(response.body.value).toBe('invalid');
+      expect(response.body.details.parameter).toBe('zipCode');
+      expect(response.body.details.value).toBe('invalid');
     });
 
     test('should reject ZIP+4 format', async () => {
@@ -555,9 +580,9 @@ describe('GET /api/listings', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
-      expect(response.body.parameter).toBe('minPrice');
-      expect(response.body.value).toBe('invalid');
+      expect(response.body.error).toBe('minPrice must be a valid number');
+      expect(response.body.details.parameter).toBe('minPrice');
+      expect(response.body.details.value).toBe('invalid');
     });
 
     test('should handle negative price values', async () => {
@@ -575,7 +600,7 @@ describe('GET /api/listings', () => {
 
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
-      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
+      expect(response.body.error).toBe('minPrice must be at least 0');
     });
 
     test('should return error when min price exceeds max price', async () => {
@@ -722,7 +747,7 @@ describe('GET /api/listings/:id', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toBe('Invalid listing ID format');
+      expect(response.body.message).toBe('Invalid ID format');
       expect(response.body.error).toBe('The provided ID is not a valid MongoDB ObjectId');
       expect(response.body.id).toBe('invalid-id-format');
     });
@@ -733,7 +758,7 @@ describe('GET /api/listings/:id', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toBe('Invalid listing ID format');
+      expect(response.body.message).toBe('Invalid ID format');
     });
 
     test('should return 404 for valid ObjectId that does not exist', async () => {
