@@ -615,6 +615,54 @@ Delete an open house event. Only the listing owner can delete.
 
 ---
 
+### Update Listing Tags (Admin Only)
+**PATCH** `/listings/:id/tags`
+
+Set or replace the tags array on a listing. The entire tags array is replaced on each call.
+
+**Authentication:** Required (Bearer token, `admin` role)
+
+**URL Parameters:**
+- `id` (required) - MongoDB ObjectId of the listing
+
+**Request Body:**
+```json
+{
+  "tags": ["pool", "garage", "new construction"]
+}
+```
+
+**Field Requirements:**
+- `tags` (required) - Array of strings; max 20 tags, each tag max 50 characters; pass `[]` to clear all tags
+
+**Example Response (200 OK):**
+```json
+{
+  "message": "Listing tags updated successfully",
+  "listing": {
+    "_id": "507f1f77bcf86cd799439011",
+    "price": 250000,
+    "address": "123 Main St, Huntsville, AL 35801",
+    "tags": ["pool", "garage", "new construction"],
+    "updatedBy": {
+      "_id": "65a1b2c3d4e5f6g7h8i9j0k1",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "phone": "2051234567"
+    },
+    "updatedAt": "2026-04-09T12:00:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+- `400` — `tags` is not an array, exceeds 20 items, or contains an empty/oversized tag
+- `401` — No or invalid token
+- `403` — Authenticated user is not an admin
+- `404` — Listing not found
+
+---
+
 ## Agent Endpoints
 
 ### Update Agent Availability (Protected)

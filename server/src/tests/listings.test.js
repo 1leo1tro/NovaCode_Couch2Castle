@@ -773,3 +773,133 @@ describe('GET /api/listings/:id', () => {
     });
   });
 });
+
+// ── PATCH /api/listings/:id/tags ─────────────────────────────────────────────
+
+describe('PATCH /api/listings/:id/tags', () => {
+  let listing;
+  let adminAgent, adminToken;
+
+  beforeAll(async () => {
+    adminAgent = await Agent.create({
+      name: 'Admin Agent',
+      email: 'admin@test.com',
+      password: 'password123',
+      isActive: true,
+      role: 'admin'
+    });
+    adminToken = generateToken(adminAgent._id);
+  });
+
+  beforeEach(async () => {
+    listing = await createTestListing(agent1._id);
+  });
+
+  test('should allow admin to set tags on a listing', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool', 'garage', 'new construction'] })
+      .expect(200);
+
+    expect(response.body.message).toBe('Listing tags updated successfully');
+    expect(response.body.listing.tags).toEqual(['pool', 'garage', 'new construction']);
+  });
+
+  test('should replace existing tags entirely', async () => {
+    await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool', 'garage'] })
+      .expect(200);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['waterfront'] })
+      .expect(200);
+
+    expect(response.body.listing.tags).toEqual(['waterfront']);
+  });
+
+  test('should allow clearing tags with an empty array', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: [] })
+      .expect(200);
+
+    expect(response.body.listing.tags).toEqual([]);
+  });
+
+  test('should reject more than 20 tags', async () => {
+    const tags = Array.from({ length: 21 }, (_, i) => `tag${i}`);
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should reject a tag exceeding 50 characters', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['a'.repeat(51)] })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should reject a non-array tags value', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: 'pool' })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 403 for a non-admin agent', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ tags: ['pool'] })
+      .expect(403);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 401 without a token', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .send({ tags: ['pool'] })
+      .expect(401);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 404 for a non-existent listing', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app)
+      .patch(`/api/listings/${nonExistentId}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool'] })
+      .expect(404);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 400 for an invalid listing ID', async () => {
+    const response = await request(app)
+      .patch('/api/listings/bad-id/tags')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool'] })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+});

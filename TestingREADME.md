@@ -78,13 +78,23 @@ npm run test:coverage  # Run with coverage report
 - Database connection errors
 - Server errors return appropriate status codes
 
-### Backend Test Results
+#### 10. Tags (PATCH /api/listings/:id/tags)
+- Admin can set tags on a listing
+- Tags array is fully replaced on each call
+- Clearing tags with an empty array
+- Rejects more than 20 tags (400)
+- Rejects any tag exceeding 50 characters (400)
+- Rejects a non-array `tags` value (400)
+- Non-admin agent receives 403
+- Unauthenticated request receives 401
+- Non-existent listing ID returns 404
+- Invalid listing ID format returns 400
 
-All 28 listing tests pass (28 across 9 suites), plus 53 showing tests pass (53 across 3 suites).
+### Backend Test Results
 
 | Suite | File | Tests |
 |---|---|---|
-| Listing API | `listings.test.js` | 28 |
+| Listing API | `listings.test.js` | 46 |
 | Showing API | `showings.test.js` | 53 |
 
 ### Notes
