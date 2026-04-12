@@ -13,6 +13,8 @@ const interiorImages = [
   { url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80', label: 'Interior view' },
 ];
 
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -22,7 +24,12 @@ const PropertyDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Open houses and availability
+  const [openHouses, setOpenHouses] = useState([]);
+  const [agentAvailability, setAgentAvailability] = useState([]);
+
   // Tour form state
+  const [showTourForm, setShowTourForm] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -62,6 +69,23 @@ const PropertyDetails = () => {
   useEffect(() => {
     fetchProperty();
   }, [id]);
+
+  // Fetch open houses and agent availability once property is loaded
+  useEffect(() => {
+    if (!property) return;
+
+    const agentId = property.createdBy?._id || property.createdBy?.id || property.createdBy;
+
+    axios.get(`/api/open-houses/public?listingId=${id}`)
+      .then(res => setOpenHouses(res.data.openHouses || []))
+      .catch(() => setOpenHouses([]));
+
+    if (agentId) {
+      axios.get(`/api/agents/${agentId}/availability`)
+        .then(res => setAgentAvailability(res.data.availabilitySlots || []))
+        .catch(() => setAgentAvailability([]));
+    }
+  }, [property, id]);
 
   const validateTourForm = () => {
     const errors = {};
@@ -426,115 +450,188 @@ const PropertyDetails = () => {
               )}
             </ul>
           </section>
+
+          {openHouses.length > 0 && (
+            <section className="property-details-open-houses">
+              <h2>Upcoming Open Houses</h2>
+              <ul className="open-house-list">
+                {openHouses.map((oh) => (
+                  <li key={oh._id} className="open-house-item">
+                    <span className="open-house-date">
+                      {new Date(oh.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                    </span>
+                    <span className="open-house-time">{oh.startTime} – {oh.endTime}</span>
+                    {oh.notes && <span className="open-house-notes">{oh.notes}</span>}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {agentAvailability.length > 0 && (
+            <section className="property-details-availability">
+              <h2>Agent Availability</h2>
+              <ul className="availability-list">
+                {agentAvailability
+                  .slice()
+                  .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
+                  .map((slot, idx) => (
+                    <li key={idx} className="availability-item">
+                      <span className="availability-day">{DAY_NAMES[slot.dayOfWeek]}</span>
+                      <span className="availability-time">{slot.startTime} – {slot.endTime}</span>
+                    </li>
+                  ))}
+              </ul>
+            </section>
+          )}
         </div>
 
         <aside className="property-details-sidebar">
           <div className="property-details-card">
-            <h3>Schedule a Tour</h3>
+            <h3>Request a Custom Time</h3>
 
-            {submitSuccess && (
-              <div className="alert alert-success">
-                <div className="alert-content">
-                  <span className="alert-icon">✓</span>
-                  <span className="alert-message">
-                    Tour request submitted successfully! The listing agent will contact you soon.
-                  </span>
-                </div>
+            {isAuthenticated() ? (
+              <>
+                {!showTourForm && !submitSuccess && (
+                  <button
+                    type="button"
+                    className="tour-request-btn"
+                    onClick={() => setShowTourForm(true)}
+                  >
+                    Request a Showing
+                  </button>
+                )}
+
+                {submitSuccess && (
+                  <div className="alert alert-success">
+                    <div className="alert-content">
+                      <span className="alert-icon">✓</span>
+                      <span className="alert-message">
+                        Tour request submitted! The listing agent will contact you soon.
+                      </span>
+                    </div>
+                    <button
+                      className="alert-close"
+                      onClick={() => { setSubmitSuccess(false); setShowTourForm(false); }}
+                      aria-label="Close success message"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {submitError && (
+                  <div className="alert alert-error">
+                    <div className="alert-content">
+                      <span className="alert-icon">⚠</span>
+                      <span className="alert-message">{submitError}</span>
+                    </div>
+                    <button
+                      className="alert-close"
+                      onClick={() => setSubmitError('')}
+                      aria-label="Close error message"
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
+
+                {showTourForm && !submitSuccess && (
+                  <form className="tour-form" onSubmit={handleTourFormSubmit}>
+                    <label>
+                      Name
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleTourFormChange}
+                        placeholder="Your name"
+                        className={formErrors.name ? 'input-error' : ''}
+                      />
+                      {formErrors.name && <span className="error-message">{formErrors.name}</span>}
+                    </label>
+
+                    <label>
+                      Email
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleTourFormChange}
+                        placeholder="you@example.com"
+                        className={formErrors.email ? 'input-error' : ''}
+                      />
+                      {formErrors.email && <span className="error-message">{formErrors.email}</span>}
+                    </label>
+
+                    <label>
+                      Phone
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleTourFormChange}
+                        placeholder="(555) 123-4567"
+                        className={formErrors.phone ? 'input-error' : ''}
+                      />
+                      {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
+                    </label>
+
+                    <label>
+                      Preferred Date &amp; Time
+                      <input
+                        type="datetime-local"
+                        name="preferredDate"
+                        value={formData.preferredDate}
+                        onChange={handleTourFormChange}
+                        className={formErrors.preferredDate ? 'input-error' : ''}
+                      />
+                      {formErrors.preferredDate && <span className="error-message">{formErrors.preferredDate}</span>}
+                    </label>
+
+                    <label>
+                      Message
+                      <textarea
+                        name="message"
+                        value={formData.message}
+                        onChange={handleTourFormChange}
+                        rows="3"
+                        placeholder="Any questions or special requests?"
+                        className={formErrors.message ? 'input-error' : ''}
+                      />
+                      {formErrors.message && <span className="error-message">{formErrors.message}</span>}
+                    </label>
+
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button type="submit" disabled={submitting}>
+                        {submitting ? 'Submitting...' : 'Submit Request'}
+                      </button>
+                      <button
+                        type="button"
+                        className="tour-cancel-btn"
+                        onClick={() => { setShowTourForm(false); setSubmitError(''); }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </>
+            ) : (
+              <div className="tour-signin-gate">
                 <button
-                  className="alert-close"
-                  onClick={() => setSubmitSuccess(false)}
-                  aria-label="Close success message"
+                  type="button"
+                  className="tour-request-btn tour-request-btn--disabled"
+                  disabled
+                  title="Sign in to request a showing"
                 >
-                  ×
+                  Request a Showing
                 </button>
+                <p className="tour-signin-hint">
+                  <Link to="/signin">Sign in</Link> to request a showing for this property.
+                </p>
               </div>
             )}
-
-            {submitError && (
-              <div className="alert alert-error">
-                <div className="alert-content">
-                  <span className="alert-icon">⚠</span>
-                  <span className="alert-message">{submitError}</span>
-                </div>
-                <button
-                  className="alert-close"
-                  onClick={() => setSubmitError('')}
-                  aria-label="Close error message"
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            <form className="tour-form" onSubmit={handleTourFormSubmit}>
-              <label>
-                Name
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleTourFormChange}
-                  placeholder="Your name"
-                  className={formErrors.name ? 'input-error' : ''}
-                />
-                {formErrors.name && <span className="error-message">{formErrors.name}</span>}
-              </label>
-
-              <label>
-                Email
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleTourFormChange}
-                  placeholder="you@example.com"
-                  className={formErrors.email ? 'input-error' : ''}
-                />
-                {formErrors.email && <span className="error-message">{formErrors.email}</span>}
-              </label>
-
-              <label>
-                Phone
-                <input
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleTourFormChange}
-                  placeholder="(555) 123-4567"
-                  className={formErrors.phone ? 'input-error' : ''}
-                />
-                {formErrors.phone && <span className="error-message">{formErrors.phone}</span>}
-              </label>
-
-              <label>
-                Preferred Date
-                <input
-                  type="datetime-local"
-                  name="preferredDate"
-                  value={formData.preferredDate}
-                  onChange={handleTourFormChange}
-                  className={formErrors.preferredDate ? 'input-error' : ''}
-                />
-                {formErrors.preferredDate && <span className="error-message">{formErrors.preferredDate}</span>}
-              </label>
-
-              <label>
-                Message
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={handleTourFormChange}
-                  rows="3"
-                  placeholder="Any questions or special requests?"
-                  className={formErrors.message ? 'input-error' : ''}
-                />
-                {formErrors.message && <span className="error-message">{formErrors.message}</span>}
-              </label>
-
-              <button type="submit" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Request Tour'}
-              </button>
-            </form>
           </div>
 
           <div className="property-details-card property-details-agent">

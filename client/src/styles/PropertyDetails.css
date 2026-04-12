@@ -453,3 +453,124 @@
 .sold-form-error {
   color: #b91c1c;
 }
+
+/* Open houses section */
+.property-details-open-houses,
+.property-details-availability {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.property-details-open-houses h2,
+.property-details-availability h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin-bottom: 0.75rem;
+}
+
+.open-house-list,
+.availability-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.open-house-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  align-items: baseline;
+  padding: 0.6rem 0.85rem;
+  background: var(--color-surface, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.open-house-date {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.open-house-time {
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.open-house-notes {
+  width: 100%;
+  font-size: 0.88rem;
+  color: var(--color-muted);
+}
+
+.availability-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.45rem 0.85rem;
+  background: var(--color-surface, #f8f9fa);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.availability-day {
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.availability-time {
+  color: var(--color-muted);
+  font-size: 0.93rem;
+}
+
+/* Custom time request button and gate */
+.tour-request-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+}
+
+.tour-request-btn--disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.tour-cancel-btn {
+  flex: 1;
+  padding: 0.65rem 1rem;
+  background: transparent;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.tour-signin-gate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tour-signin-hint {
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.tour-signin-hint a {
+  color: var(--color-accent);
+  text-decoration: underline;
+}

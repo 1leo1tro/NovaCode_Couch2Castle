@@ -1,0 +1,165 @@
+.scheduling-section {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.scheduling-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.scheduling-section h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  margin: 0;
+}
+
+.scheduling-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.scheduling-add-btn {
+  padding: 0.5rem 1.1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scheduling-add-btn:hover {
+  opacity: 0.9;
+}
+
+.scheduling-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.scheduling-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+}
+
+.scheduling-form input,
+.scheduling-form select,
+.scheduling-form textarea {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+}
+
+.scheduling-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.scheduling-submit-btn {
+  align-self: flex-start;
+  padding: 0.6rem 1.5rem;
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.scheduling-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.scheduling-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+
+.scheduling-table th {
+  text-align: left;
+  padding: 0.6rem 0.85rem;
+  background: var(--color-background);
+  font-weight: 600;
+  color: var(--color-muted);
+  border-bottom: 2px solid var(--color-border);
+}
+
+.scheduling-table td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-foreground);
+}
+
+.scheduling-table tr:last-child td {
+  border-bottom: none;
+}
+
+.scheduling-loading,
+.scheduling-empty {
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+}
+
+.scheduling-form-error {
+  color: #b91c1c;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.scheduling-form-success {
+  color: #166534;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Availability slot rows */
+.availability-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.availability-slot-row select,
+.availability-slot-row input[type="time"] {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 0.93rem;
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+}
+
+.availability-slot-row select {
+  min-width: 130px;
+}
+
+.slot-dash {
+  color: var(--color-muted);
+  font-weight: 600;
+}
