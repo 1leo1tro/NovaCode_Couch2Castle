@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import PropertyMap from '../components/PropertyMap';
 import '../styles/PropertyDetails.css';
 
 const interiorImages = [
@@ -23,6 +24,7 @@ const PropertyDetails = () => {
   const [showingCount, setShowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [mapCoordinates, setMapCoordinates] = useState(null);
 
   // Open houses and availability
   const [openHouses, setOpenHouses] = useState([]);
@@ -86,6 +88,31 @@ const PropertyDetails = () => {
         .catch(() => setAgentAvailability([]));
     }
   }, [property, id]);
+
+  // Resolve coordinates for the map — use stored coords if available,
+  // otherwise geocode the address on the fly so old listings show a map too
+  useEffect(() => {
+    if (!property) return;
+
+    if (property.location?.coordinates?.length === 2) {
+      setMapCoordinates(property.location.coordinates);
+      return;
+    }
+
+    const token = import.meta.env.VITE_MAPBOX_TOKEN;
+    if (!token || !property.address) return;
+
+    const encoded = encodeURIComponent(property.address);
+    fetch(
+      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encoded}.json?access_token=${token}&country=us&types=address&limit=1`
+    )
+      .then(r => r.json())
+      .then(data => {
+        const coords = data.features?.[0]?.geometry?.coordinates;
+        if (coords) setMapCoordinates(coords);
+      })
+      .catch(() => {});
+  }, [property]);
 
   const validateTourForm = () => {
     const errors = {};
@@ -484,6 +511,11 @@ const PropertyDetails = () => {
               </ul>
             </section>
           )}
+
+          <PropertyMap
+            coordinates={mapCoordinates}
+            address={property.address}
+          />
         </div>
 
         <aside className="property-details-sidebar">

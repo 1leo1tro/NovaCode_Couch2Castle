@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import AddressAutocomplete from '../components/AddressAutocomplete';
 import '../styles/CreateListing.css';
 
 const EditListing = () => {
@@ -19,6 +20,9 @@ const EditListing = () => {
     status: 'active',
     images: []
   });
+
+  const [addressCoordinates, setAddressCoordinates] = useState(null);
+  const [addressVerified, setAddressVerified] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -55,6 +59,13 @@ const EditListing = () => {
           status: listing.status || 'active',
           images: listing.images || []
         });
+
+        // Treat the existing address as already verified so agents
+        // don't have to re-geocode just to save other fields
+        setAddressVerified(true);
+        if (listing.location?.coordinates?.length) {
+          setAddressCoordinates(listing.location.coordinates);
+        }
       } catch (err) {
         setFetchError(err.response?.data?.message || 'Failed to load listing');
       } finally {
@@ -65,11 +76,29 @@ const EditListing = () => {
     fetchListing();
   }, [id]);
 
+  const handleAddressSelect = ({ address, zipCode, coordinates }) => {
+    if (address) {
+      setFormData(prev => ({
+        ...prev,
+        address,
+        zipCode: zipCode || prev.zipCode
+      }));
+      setAddressCoordinates(coordinates);
+      setAddressVerified(true);
+      setErrors(prev => ({ ...prev, address: '' }));
+    } else {
+      setAddressVerified(false);
+      setAddressCoordinates(null);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
 
     if (!formData.address.trim()) {
       newErrors.address = 'Address is required';
+    } else if (!addressVerified) {
+      newErrors.address = 'Select a verified address from the dropdown';
     }
 
     if (!formData.price) {
@@ -135,7 +164,7 @@ const EditListing = () => {
     setLoading(true);
 
     try {
-      await axios.put(`/api/listings/${id}`, {
+      const payload = {
         address: formData.address.trim(),
         description: formData.description.trim(),
         price: Number(formData.price),
@@ -143,7 +172,16 @@ const EditListing = () => {
         zipCode: formData.zipCode.trim(),
         status: formData.status,
         images: formData.images
-      });
+      };
+
+      if (addressCoordinates) {
+        payload.location = {
+          type: 'Point',
+          coordinates: addressCoordinates
+        };
+      }
+
+      await axios.put(`/api/listings/${id}`, payload);
 
       setSuccess('Listing updated successfully! Redirecting...');
       setTimeout(() => {
@@ -260,16 +298,12 @@ const EditListing = () => {
           {/* Address Field */}
           <motion.div className="form-group" variants={itemVariants}>
             <label htmlFor="address">Address *</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
+            <AddressAutocomplete
               value={formData.address}
-              onChange={handleInputChange}
-              placeholder="Enter property address"
-              className={errors.address ? 'input-error' : ''}
+              onChange={handleAddressSelect}
+              error={errors.address}
+              verified={addressVerified}
             />
-            {errors.address && <span className="error-message">{errors.address}</span>}
           </motion.div>
 
           {/* Price Field */}
