@@ -1,5 +1,6 @@
 /* Real Estate Design System - Professional */
 :root {
+  /* Light mode (default) */
   --color-background: #FFFFFF;
   --color-foreground: #1a1a1a;
   --color-accent: #0f5280;
@@ -7,4 +8,42 @@
   --color-secondary: #f8fafc;
   --color-border: #e2e8f0;
   --color-muted: #64748b;
+  
+  /* Additional light mode colors */
+  --color-surface: #f5f7fa;
+  --color-card-background: #ffffff;
+  --color-input-background: #ffffff;
+  --color-input-border: #cbd5e1;
+  --color-placeholder: #94a3b8;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #dc2626;
+  --color-info: #3b82f6;
+  
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+}
+
+/* Dark mode */
+[data-theme="dark"] {
+  --color-background: #0f172a;
+  --color-foreground: #f1f5f9;
+  --color-accent: #3b82f6;
+  --color-accent-dark: #1e40af;
+  --color-secondary: #1e293b;
+  --color-border: #334155;
+  --color-muted: #94a3b8;
+  
+  /* Additional dark mode colors */
+  --color-surface: #1e293b;
+  --color-card-background: #1e293b;
+  --color-input-background: #0f172a;
+  --color-input-border: #475569;
+  --color-placeholder: #64748b;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #60a5fa;
 }

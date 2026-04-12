@@ -8,6 +8,7 @@
 
 html {
   scrollbar-gutter: stable;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 body {
@@ -18,6 +19,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-background);
   color: var(--color-foreground);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 #root {
