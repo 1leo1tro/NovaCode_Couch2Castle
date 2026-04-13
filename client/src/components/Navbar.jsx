@@ -1,7 +1,10 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useBookmarks } from '../context/BookmarkContext';
+import { useShowingNotifications } from '../context/ShowingNotificationsContext';
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 function HouseIcon() {
@@ -40,6 +43,9 @@ function SunIcon() {
 function Navbar() {
   const { user, isAuthenticated, logout, mockUser, mockLogout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
+  const { bookmarks } = useBookmarks();
+  const { unseenCount } = useShowingNotifications();
+  const signedIn = isAuthenticated() || !!mockUser;
   const navigate = useNavigate();
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
@@ -96,6 +102,60 @@ function Navbar() {
           {isAuthenticated() && (
             <li><Link to="/listings/mine" className={location.pathname !== '/listings' && isActive('/listings') ? 'nav-active' : ''}>My Listings</Link></li>
           )}
+          {!isAuthenticated() && (
+            <li className="navbar-bookmark-item">
+              {mockUser ? (
+                <Link to="/my-showings" className={isActive('/my-showings') ? 'nav-active' : ''}>
+                  My Showings
+                  <AnimatePresence>
+                    {unseenCount > 0 && (
+                      <motion.span
+                        key={unseenCount}
+                        className="navbar-bookmark-badge"
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                      >
+                        {unseenCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </Link>
+              ) : (
+                <span className="navbar-bookmark-link navbar-bookmark-link--disabled">
+                  My Showings
+                  <span className="navbar-bookmark-tooltip">Sign in to view your showings</span>
+                </span>
+              )}
+            </li>
+          )}
+          <li className="navbar-bookmark-item">
+            {signedIn ? (
+              <Link to="/bookmarks" className={`navbar-bookmark-link${isActive('/bookmarks') ? ' nav-active' : ''}`}>
+                Bookmarks
+                <AnimatePresence>
+                  {bookmarks.length > 0 && (
+                    <motion.span
+                      key={bookmarks.length}
+                      className="navbar-bookmark-badge"
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0, opacity: 0 }}
+                      transition={{ type: 'spring', stiffness: 500, damping: 22 }}
+                    >
+                      {bookmarks.length}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            ) : (
+              <span className="navbar-bookmark-link navbar-bookmark-link--disabled">
+                Bookmarks
+                <span className="navbar-bookmark-tooltip">Sign in to save listings</span>
+              </span>
+            )}
+          </li>
         </ul>
 
         <Link to="/" className="navbar-brand">
@@ -106,6 +166,7 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           {isAuthenticated() ? (
             <>
+              <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
               <li>
                 <Link to="/showings" className={`navbar-showings-link ${isActive('/showings') ? 'nav-active' : ''}`}>
                   Showings
@@ -114,7 +175,6 @@ function Navbar() {
                   )}
                 </Link>
               </li>
-              <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
               <li><Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''}>Scheduling</Link></li>
               <li className="navbar-agent-profile">
                 <span className="navbar-agent-badge">Agent</span>

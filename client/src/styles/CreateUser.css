@@ -1,0 +1,19 @@
+.create-user-page {
+  max-width: 520px;
+}
+
+.create-user-form {
+  gap: 1.1rem;
+}
+
+.create-user-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 480px) {
+  .create-user-name-row {
+    grid-template-columns: 1fr;
+  }
+}
