@@ -14,6 +14,8 @@ import EditListing from './pages/EditListing';
 import Showings from './pages/Showings';
 import Help from './pages/Help';
 import Reports from './pages/Reports';
+import Scheduling from './pages/Scheduling';
+import CreateUser from './pages/CreateUser';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
@@ -34,6 +36,7 @@ function App() {
                 <Route path="/help" element={<Help />} />
                 <Route path="/property/:id" element={<PropertyDetails />} />
                 <Route path="/signin" element={<SignIn />} />
+                <Route path="/create-user" element={<CreateUser />} />
                 <Route path="/listings" element={<Listings />} />
                 <Route path="/listings/mine" element={
                   <ProtectedRoute requireAgent={true}>
@@ -54,6 +57,11 @@ function App() {
                 <Route path="/reports" element={
                   <ProtectedRoute requireAgent={true}>
                     <Reports />
+                  </ProtectedRoute>
+                } />
+                <Route path="/scheduling" element={
+                  <ProtectedRoute requireAgent={true}>
+                    <Scheduling />
                   </ProtectedRoute>
                 } />
               </Routes>

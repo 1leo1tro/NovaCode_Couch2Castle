@@ -115,6 +115,7 @@ function Navbar() {
                 </Link>
               </li>
               <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
+              <li><Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''}>Scheduling</Link></li>
               <li className="navbar-agent-profile">
                 <span className="navbar-agent-badge">Agent</span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>

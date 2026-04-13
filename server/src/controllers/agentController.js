@@ -108,6 +108,33 @@ export const updateAgentAvailability = async (req, res) => {
   }
 };
 
+// Public: Get any agent's availability slots by agent ID (no auth required)
+export const getAgentAvailabilityById = async (req, res) => {
+  try {
+    const { agentId } = req.params;
+
+    const agent = await Agent.findById(agentId).select('availabilitySlots name');
+
+    if (!agent) {
+      return res.status(404).json(
+        createErrorResponse('Agent not found', 'No agent found with the provided ID')
+      );
+    }
+
+    res.json({
+      availabilitySlots: agent.availabilitySlots || []
+    });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+
+    res.status(500).json(
+      createErrorResponse('Error fetching availability slots', error.message, { type: error.name })
+    );
+  }
+};
+
 // Get agent's availability slots
 export const getAgentAvailability = async (req, res) => {
   try {

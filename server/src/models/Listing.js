@@ -79,6 +79,17 @@ const listingSchema = new mongoose.Schema({
     type: Number,
     required: false
   },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: {
+      type: [Number], // [longitude, latitude]
+      default: undefined
+    }
+  },
   tags: {
     type: [String],
     default: [],
@@ -164,6 +175,7 @@ listingSchema.pre('findOneAndUpdate', async function() {
 listingSchema.index({ zipCode: 1 });
 listingSchema.index({ status: 1 });
 listingSchema.index({ price: 1 });
+listingSchema.index({ location: '2dsphere' }, { sparse: true });
 
 const Listing = mongoose.model('Listing', listingSchema, 'Listings');
 

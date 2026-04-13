@@ -19,6 +19,40 @@ const isListingOwner = (listing, agentId) => {
   return listing.createdBy.toString() === agentId.toString();
 };
 
+// Public: Get upcoming open houses for a specific listing (no auth required)
+export const getPublicOpenHousesByListing = async (req, res) => {
+  try {
+    const { listingId } = req.query;
+
+    if (!listingId) {
+      return res.status(400).json(
+        createErrorResponse('Missing parameter', 'listingId query parameter is required')
+      );
+    }
+
+    const idValidation = validateObjectId(listingId);
+    if (!idValidation.isValid) {
+      return res.status(400).json(idValidation.error);
+    }
+
+    const openHouses = await OpenHouse.find({
+      listing: listingId,
+      date: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+    })
+      .populate('agentId', 'name email phone')
+      .sort({ date: 1, startTime: 1 });
+
+    res.json({ openHouses });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error fetching open houses', error.message, { type: error.name })
+    );
+  }
+};
+
 // Create a new open house
 export const createOpenHouse = async (req, res) => {
   try {

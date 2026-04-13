@@ -2,6 +2,7 @@ import express from 'express';
 import {
   createOpenHouse,
   getAllOpenHouses,
+  getPublicOpenHousesByListing,
   getOpenHouseById,
   updateOpenHouse,
   deleteOpenHouse
@@ -9,6 +10,9 @@ import {
 import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Public route - fetch open houses for a listing (no auth required)
+router.get('/open-houses/public', getPublicOpenHousesByListing);
 
 // Protected routes (authentication required - agent only)
 router.post('/open-houses', protect, createOpenHouse);
