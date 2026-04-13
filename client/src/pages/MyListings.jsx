@@ -20,6 +20,12 @@ const MyListings = () => {
     maxSquareFeet: '',
   });
 
+  // Sold modal state
+  const [soldModalId, setSoldModalId] = useState(null);
+  const [soldForm, setSoldForm] = useState({ closingDate: '', finalSalePrice: '' });
+  const [soldSubmitting, setSoldSubmitting] = useState(false);
+  const [soldError, setSoldError] = useState('');
+
   const { user } = useAuth();
 
   const handleFilterChange = (name, value) => {
@@ -32,6 +38,7 @@ const MyListings = () => {
       setError(null);
 
       const params = new URLSearchParams();
+      params.append('limit', '100');
       if (filters.keyword) params.append('keyword', filters.keyword);
       if (filters.minPrice) params.append('minPrice', filters.minPrice);
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
@@ -45,7 +52,6 @@ const MyListings = () => {
 
       const response = await axios.get(url);
       const allListings = response.data.listings || [];
-      // Filter to only this agent's listings
       const userId = user?._id || user?.id;
       const mine = allListings.filter((l) => {
         if (!l.createdBy || !userId) return false;
@@ -62,38 +68,63 @@ const MyListings = () => {
   };
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      fetchListings();
-    }, 300);
-
+    const timer = setTimeout(() => { fetchListings(); }, 300);
     return () => clearTimeout(timer);
   }, [filters, user]);
 
-  const handleDelete = async (id, e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
+  const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this listing?')) return;
-
     try {
       await axios.delete(`/api/listings/${id}`);
       await fetchListings();
     } catch (err) {
       console.error('Error deleting listing:', err);
-      let errorMessage = 'Failed to delete listing';
-      if (err.response?.status === 403) {
-        errorMessage = 'You do not have permission to delete this listing.';
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      }
-      alert(errorMessage);
+      let msg = 'Failed to delete listing';
+      if (err.response?.status === 403) msg = 'You do not have permission to delete this listing.';
+      else if (err.response?.data?.message) msg = err.response.data.message;
+      alert(msg);
+    }
+  };
+
+  const openSoldModal = (id) => {
+    setSoldModalId(id);
+    setSoldForm({ closingDate: '', finalSalePrice: '' });
+    setSoldError('');
+  };
+
+  const closeSoldModal = () => {
+    setSoldModalId(null);
+    setSoldError('');
+  };
+
+  const handleMarkAsSold = async (e) => {
+    e.preventDefault();
+    if (!soldForm.closingDate || !soldForm.finalSalePrice) {
+      setSoldError('Closing date and final sale price are required.');
+      return;
+    }
+    const parsedPrice = Number(soldForm.finalSalePrice);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      setSoldError('Final sale price must be a valid number.');
+      return;
+    }
+    setSoldSubmitting(true);
+    setSoldError('');
+    try {
+      await axios.patch(`/api/listings/${soldModalId}/sold`, {
+        closingDate: new Date(`${soldForm.closingDate}T00:00:00`).toISOString(),
+        finalSalePrice: parsedPrice,
+      });
+      closeSoldModal();
+      await fetchListings();
+    } catch (err) {
+      setSoldError(err.response?.data?.message || err.response?.data?.error || 'Failed to mark as sold.');
+      setSoldSubmitting(false);
     }
   };
 
   return (
-    <div className="listings-page">
+    <div className="my-listings-page">
       <div className="listings-header">
         <h1>My Listings</h1>
         <Link to="/listings/create" className="listings-create-btn">
@@ -108,9 +139,7 @@ const MyListings = () => {
         placeholder="Search your listings..."
       />
 
-      {error && (
-        <div className="listings-error">{error}</div>
-      )}
+      {error && <div className="listings-error">{error}</div>}
 
       {loading ? (
         <div className="listings-loading">Loading your listings...</div>
@@ -129,100 +158,141 @@ const MyListings = () => {
           transition={{ duration: 0.2 }}
         >
           <AnimatePresence mode="wait">
-            {listings.map((listing, index) => (
-              <motion.div
-                key={listing._id}
-                layout
-                initial={{ opacity: 0, y: 24, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{
-                  duration: 0.35,
-                  delay: index * 0.03,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                className="listing-card-wrapper"
-              >
-                <div className="property-card listing-card">
-                  <Link
-                    to={`/property/${listing._id}`}
-                    className="property-card-link"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    <div className="property-card-image">
-                      {listing.images && listing.images.length > 0 ? (
-                        <>
-                          <img
-                            src={listing.images[0]}
-                            alt={listing.address}
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                          <div className="listing-image-placeholder" style={{ display: 'none' }}>
-                            No image
-                          </div>
-                        </>
-                      ) : (
-                        <div className="listing-image-placeholder">
-                          No image
-                        </div>
+            {listings.map((listing, index) => {
+              const canSell = ['active', 'pending'].includes(listing.status);
+              return (
+                <motion.div
+                  key={listing._id}
+                  layout
+                  initial={{ opacity: 0, y: 24, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.35, delay: index * 0.03, ease: [0.25, 0.46, 0.45, 0.94] }}
+                  className="listing-card-wrapper"
+                >
+                  <div className="property-card listing-card">
+                    <Link
+                      to={`/property/${listing._id}`}
+                      className="property-card-link"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <div className="property-card-image">
+                        {listing.images && listing.images.length > 0 ? (
+                          <>
+                            <img
+                              src={listing.images[0]}
+                              alt={listing.address}
+                              onError={(e) => {
+                                e.target.style.display = 'none';
+                                e.target.nextSibling.style.display = 'flex';
+                              }}
+                            />
+                            <div className="listing-image-placeholder" style={{ display: 'none' }}>No image</div>
+                          </>
+                        ) : (
+                          <div className="listing-image-placeholder">No image</div>
+                        )}
+                        {listing.status && listing.status !== 'active' && (
+                          <span className="property-badge">{listing.status}</span>
+                        )}
+                      </div>
+                      <div className="property-info listing-info">
+                        <span className="property-type">Listing</span>
+                        <h3>{listing.address}</h3>
+                        <p className="location">ZIP: {listing.zipCode}</p>
+                        <p className="price">${listing.price.toLocaleString()}</p>
+                        <p className="details">{listing.squareFeet} sqft · {listing.status}</p>
+                      </div>
+                    </Link>
+
+                    {/* Action bar */}
+                    <div className="my-listing-actions">
+                      {canSell && (
+                        <button
+                          className="my-listing-btn my-listing-btn--sold"
+                          onClick={() => openSoldModal(listing._id)}
+                        >
+                          Mark as Sold
+                        </button>
                       )}
-                      {listing.status && listing.status !== 'active' && (
-                        <span className="property-badge">{listing.status}</span>
-                      )}
-                    </div>
-                    <div className="property-info listing-info">
-                      <span className="property-type">Listing</span>
-                      <h3>{listing.address}</h3>
-                      <p className="location">ZIP: {listing.zipCode}</p>
-                      <p className="price">${listing.price.toLocaleString()}</p>
-                      <p className="details">{listing.squareFeet} sqft</p>
-                      <p className="details">Status: {listing.status}</p>
-                    </div>
-                  </Link>
-                  <Link
-                    to={`/property/${listing._id}`}
-                    className="schedule-tour-btn"
-                  >
-                    View Details
-                  </Link>
-                  <div className="property-agent">
-                    <div className="property-agent-avatar">
-                      {listing.createdBy?.name?.charAt(0) || 'A'}
-                    </div>
-                    <div>
-                      <p className="property-agent-name">
-                        {listing.createdBy?.name || 'Listed by Agent'}
-                      </p>
-                      <p className="property-agent-phone">
-                        {listing.createdBy?.phone || '(555) 123-4567'}
-                      </p>
+                      <Link
+                        to={`/listings/edit/${listing._id}`}
+                        className="my-listing-btn my-listing-btn--edit"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        className="my-listing-btn my-listing-btn--delete"
+                        onClick={() => handleDelete(listing._id)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                </div>
-
-                <div className="listing-actions">
-                  <Link
-                    to={`/listings/edit/${listing._id}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="listing-action listing-action-edit"
-                  >
-                    Edit
-                  </Link>
-                  <button
-                    onClick={(e) => handleDelete(listing._id, e)}
-                    className="listing-action listing-action-delete"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </motion.div>
       )}
+
+      {/* Mark as Sold modal */}
+      <AnimatePresence>
+        {soldModalId && (
+          <motion.div
+            className="sold-modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeSoldModal}
+          >
+            <motion.div
+              className="sold-modal"
+              initial={{ opacity: 0, scale: 0.93, y: 24 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.93, y: 24 }}
+              transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="sold-modal-title">Mark as Sold</h2>
+              <p className="sold-modal-subtitle">Enter the closing details to finalize this listing.</p>
+              <form onSubmit={handleMarkAsSold} className="sold-modal-form">
+                <label>
+                  Closing Date
+                  <input
+                    type="date"
+                    value={soldForm.closingDate}
+                    onChange={(e) => setSoldForm((p) => ({ ...p, closingDate: e.target.value }))}
+                    required
+                  />
+                </label>
+                <label>
+                  Final Sale Price
+                  <input
+                    type="number"
+                    placeholder="e.g. 485000"
+                    value={soldForm.finalSalePrice}
+                    onChange={(e) => setSoldForm((p) => ({ ...p, finalSalePrice: e.target.value }))}
+                    min="0"
+                    step="1"
+                    required
+                  />
+                </label>
+                {soldError && <p className="sold-modal-error">{soldError}</p>}
+                <div className="sold-modal-actions">
+                  <button type="button" className="sold-modal-cancel" onClick={closeSoldModal}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="sold-modal-confirm" disabled={soldSubmitting}>
+                    {soldSubmitting ? 'Saving…' : 'Confirm Sale'}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

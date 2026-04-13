@@ -19,7 +19,8 @@ const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frid
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, mockUser } = useAuth();
+  const canRequest = isAuthenticated() || !!mockUser;
   const [property, setProperty] = useState(null);
   const [showingCount, setShowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -33,8 +34,8 @@ const PropertyDetails = () => {
   // Tour form state
   const [showTourForm, setShowTourForm] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: mockUser?.name || '',
+    email: mockUser?.email || '',
     phone: '',
     preferredDate: '',
     message: ''
@@ -188,7 +189,7 @@ const PropertyDetails = () => {
     setSubmitSuccess(false);
 
     try {
-      await axios.post('/api/showings', {
+      const res = await axios.post('/api/showings', {
         listing: id,
         name: formData.name.trim(),
         email: formData.email.trim(),
@@ -196,6 +197,14 @@ const PropertyDetails = () => {
         preferredDate: new Date(formData.preferredDate).toISOString(),
         message: formData.message.trim()
       });
+
+      // Persist showing ID so the user can track status in My Showings
+      if (mockUser && res.data.showing?._id) {
+        const stored = JSON.parse(localStorage.getItem('c2c_my_showings') || '[]');
+        if (!stored.includes(res.data.showing._id)) {
+          localStorage.setItem('c2c_my_showings', JSON.stringify([...stored, res.data.showing._id]));
+        }
+      }
 
       setSubmitSuccess(true);
       setFormData({
@@ -311,103 +320,6 @@ const PropertyDetails = () => {
 
   return (
     <div className="property-details-page">
-      {isOwner && (
-        <div style={{
-          display: 'flex',
-          gap: '12px',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          marginBottom: '16px'
-        }}>
-          {canMarkAsSold && (
-            <button
-              type="button"
-              onClick={() => {
-                setShowSoldForm((prev) => !prev);
-                setSoldError('');
-                setSoldSuccess('');
-              }}
-              style={{
-                padding: '8px 16px',
-                backgroundColor: '#1d4ed8',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '500',
-                cursor: 'pointer'
-              }}
-            >
-              {showSoldForm ? 'Cancel' : 'Mark as Sold'}
-            </button>
-          )}
-          <Link
-            to={`/listings/edit/${property._id}`}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#059669',
-              color: 'white',
-              textDecoration: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500'
-            }}
-          >
-            Edit Listing
-          </Link>
-          <button
-            onClick={handleDelete}
-            style={{
-              padding: '8px 16px',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '500',
-              cursor: 'pointer'
-            }}
-          >
-            Delete Listing
-          </button>
-
-          {soldSuccess && <p className="sold-form-success">{soldSuccess}</p>}
-          {soldError && <p className="sold-form-error">{soldError}</p>}
-
-          {canMarkAsSold && showSoldForm && (
-            <form className="sold-inline-form" onSubmit={handleMarkAsSold}>
-              <label>
-                Closing Date
-                <input
-                  type="date"
-                  name="closingDate"
-                  value={soldFormData.closingDate}
-                  onChange={handleSoldFormChange}
-                  required
-                />
-              </label>
-
-              <label>
-                Final Sale Price
-                <input
-                  type="number"
-                  name="finalSalePrice"
-                  value={soldFormData.finalSalePrice}
-                  onChange={handleSoldFormChange}
-                  min="0"
-                  step="0.01"
-                  required
-                />
-              </label>
-
-              <button type="submit" disabled={soldSubmitting}>
-                {soldSubmitting ? 'Saving...' : 'Confirm Sale'}
-              </button>
-            </form>
-          )}
-        </div>
-      )}
 
       <div className="property-details-hero">
         <div className="property-details-main-image">
@@ -522,7 +434,7 @@ const PropertyDetails = () => {
           <div className="property-details-card">
             <h3>Request a Custom Time</h3>
 
-            {isAuthenticated() ? (
+            {canRequest ? (
               <>
                 {!showTourForm && !submitSuccess && (
                   <button

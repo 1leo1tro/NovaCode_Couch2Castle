@@ -27,11 +27,13 @@ const filterFields = [
   },
 ];
 
-export default function ListingSearchBar({ filters, onFilterChange, onSearch, placeholder }) {
+export default function ListingSearchBar({ filters, onFilterChange, onSearch, placeholder, alwaysOpen }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const ref = useRef(null);
+  const open = alwaysOpen || filtersOpen;
 
   useEffect(() => {
+    if (alwaysOpen) return;
     const handleClickOutside = (e) => {
       if (ref.current && !ref.current.contains(e.target)) {
         setFiltersOpen(false);
@@ -39,7 +41,7 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, pl
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [alwaysOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -57,7 +59,7 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, pl
 
   return (
     <div className="listings-search" ref={ref}>
-      <div className={`listings-search-row ${filtersOpen ? 'filters-open' : ''}`}>
+      <div className={`listings-search-row ${open ? 'filters-open' : ''}`}>
         <form className="listings-search-bar" onSubmit={(e) => { e.preventDefault(); onSearch?.(); }}>
           <svg className="listings-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="11" cy="11" r="8" />
@@ -74,25 +76,27 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, pl
           <button type="submit" className="listings-search-btn">
             Search
           </button>
-          <button
-            type="button"
-            className={`listings-filters-btn ${filtersOpen ? 'active' : ''}`}
-            onClick={() => setFiltersOpen((v) => !v)}
-            aria-expanded={filtersOpen}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
-              <line x1="4" y1="6" x2="20" y2="6" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="18" x2="20" y2="18" />
-            </svg>
-            Filters
-            {activeFilterCount > 0 && (
-              <span className="listings-filters-badge">{activeFilterCount}</span>
-            )}
-          </button>
+          {!alwaysOpen && (
+            <button
+              type="button"
+              className={`listings-filters-btn ${filtersOpen ? 'active' : ''}`}
+              onClick={() => setFiltersOpen((v) => !v)}
+              aria-expanded={filtersOpen}
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                <line x1="4" y1="6" x2="20" y2="6" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="18" x2="20" y2="18" />
+              </svg>
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="listings-filters-badge">{activeFilterCount}</span>
+              )}
+            </button>
+          )}
         </form>
         <AnimatePresence>
-          {filtersOpen && (
+          {open && (
             <motion.div
               className="listings-filters-panel"
               initial={{ opacity: 0, x: -24 }}
