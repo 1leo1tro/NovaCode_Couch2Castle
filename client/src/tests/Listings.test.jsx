@@ -79,11 +79,11 @@ describe('Listings page', () => {
       expect(screen.getByText('Loading listings...')).toBeInTheDocument();
     });
 
-    it('fetches /api/listings on mount with no query params', async () => {
+    it('fetches /api/listings on mount with active status filter', async () => {
       axios.get.mockResolvedValue({ data: { listings: [] } });
       renderListings();
       await waitFor(() =>
-        expect(axios.get).toHaveBeenCalledWith('/api/listings')
+        expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active')
       );
     });
 
@@ -333,7 +333,7 @@ describe('Listings page', () => {
 
     it('appends keyword query param when keyword filter is set', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       const input = screen.getByPlaceholderText('Address, ZIP code, status');
       await userEvent.type(input, 'A');
@@ -347,7 +347,7 @@ describe('Listings page', () => {
 
     it('appends minPrice query param when minPrice filter is set', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       const input = screen.getByPlaceholderText('Min $');
       await userEvent.type(input, '1');
@@ -361,7 +361,7 @@ describe('Listings page', () => {
 
     it('appends maxPrice query param when maxPrice filter is set', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       const input = screen.getByPlaceholderText('Max $');
       await userEvent.type(input, '9');
@@ -375,7 +375,7 @@ describe('Listings page', () => {
 
     it('appends zipCode query param when zipCode filter is set', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       const input = screen.getByPlaceholderText('ZIP Code');
       await userEvent.type(input, '9');
@@ -389,7 +389,7 @@ describe('Listings page', () => {
 
     it('combines multiple active filters into the query string', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       await userEvent.type(screen.getByPlaceholderText('Min $'), '1');
       await userEvent.type(screen.getByPlaceholderText('Max $'), '9');
@@ -406,7 +406,7 @@ describe('Listings page', () => {
 
     it('omits empty filter fields from query string', async () => {
       renderListings();
-      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings'));
+      await waitFor(() => expect(axios.get).toHaveBeenCalledWith('/api/listings?status=active'));
 
       // Only type in keyword
       await userEvent.type(

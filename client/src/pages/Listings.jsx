@@ -15,7 +15,7 @@ const Listings = () => {
     minPrice: '',
     maxPrice: '',
     zipCode: '',
-    status: '',
+    status: 'active',
     minSquareFeet: '',
     maxSquareFeet: '',
   });

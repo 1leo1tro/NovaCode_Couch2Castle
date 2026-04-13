@@ -19,7 +19,7 @@ const filterFields = [
     name: 'status',
     type: 'select',
     options: [
-      { value: '', label: 'All Status' },
+      { value: '', label: 'All Statuses' },
       { value: 'active', label: 'Active' },
       { value: 'pending', label: 'Pending' },
       { value: 'sold', label: 'Sold' },

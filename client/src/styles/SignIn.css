@@ -163,3 +163,31 @@
 .signin-footer a:hover {
   text-decoration: underline;
 }
+
+.signin-recovery-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.signin-link-button {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.signin-link-button:hover {
+  color: var(--color-accent-dark);
+}
+
+.signin-recovery-copy {
+  margin: 0 0 1rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
