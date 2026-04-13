@@ -389,7 +389,7 @@ Returns active and pending listings aggregated by agent.
 ### Get Closed Listings Report (Protected)
 **GET** `/reports/closed`
 
-Returns sold listings aggregated by agent, including count, total value, average sale price, and average days on market (time from `createdAt` to `updatedAt`).
+Returns sold listings aggregated by agent, including count, total value, average sale price, and average days on market.
 
 **Authentication:** Required (Bearer token)
 
@@ -422,7 +422,7 @@ Returns sold listings aggregated by agent, including count, total value, average
 
 **Notes:**
 - Results sorted by `totalValue` descending
-- `avgDaysOnMarket` is computed from each listing's `createdAt` to `updatedAt`
+- `avgDaysOnMarket` uses each listing's `daysOnMarket` when available, otherwise falls back to `closingDate - createdAt` (or `updatedAt - createdAt` for older data)
 - Listings with no associated agent are included with `agent: {}`
 
 ---

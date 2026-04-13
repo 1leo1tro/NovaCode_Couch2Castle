@@ -300,6 +300,29 @@ export const markAsSold = async (req, res) => {
     const { id } = req.params;
     const { closingDate, finalSalePrice } = req.body;
 
+    if (closingDate === undefined || finalSalePrice === undefined) {
+      return res.status(400).json(
+        createErrorResponse(
+          'Missing required fields',
+          'closingDate and finalSalePrice are required to mark a listing as sold'
+        )
+      );
+    }
+
+    const parsedClosingDate = new Date(closingDate);
+    if (Number.isNaN(parsedClosingDate.getTime())) {
+      return res.status(400).json(
+        createErrorResponse('Invalid field', 'closingDate must be a valid date')
+      );
+    }
+
+    const parsedFinalSalePrice = Number(finalSalePrice);
+    if (!Number.isFinite(parsedFinalSalePrice) || parsedFinalSalePrice < 0) {
+      return res.status(400).json(
+        createErrorResponse('Invalid field', 'finalSalePrice must be a valid non-negative number')
+      );
+    }
+
     // Validate MongoDB ObjectId format
     const idValidation = validateObjectId(id);
     if (!idValidation.isValid) {
@@ -326,12 +349,8 @@ export const markAsSold = async (req, res) => {
 
     // Set sold fields
     existingListing.status = 'sold';
-    if (closingDate) {
-      existingListing.closingDate = closingDate;
-    }
-    if (finalSalePrice !== undefined) {
-      existingListing.finalSalePrice = finalSalePrice;
-    }
+    existingListing.closingDate = parsedClosingDate;
+    existingListing.finalSalePrice = parsedFinalSalePrice;
     existingListing.updatedBy = req.agent._id;
 
     // Save triggers the pre-save hook to compute daysOnMarket
