@@ -55,7 +55,37 @@ const agentSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
-  }
+  },
+  availabilitySlots: [{
+    dayOfWeek: {
+      type: Number, // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+      required: [true, 'Day of week is required'],
+      min: [0, 'Day of week must be between 0 and 6'],
+      max: [6, 'Day of week must be between 0 and 6']
+    },
+    startTime: {
+      type: String,
+      required: [true, 'Start time is required'],
+      validate: {
+        validator: function(time) {
+          // Basic validation for HH:MM format
+          return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+        },
+        message: 'Start time must be in HH:MM format (e.g., 10:30)'
+      }
+    },
+    endTime: {
+      type: String,
+      required: [true, 'End time is required'],
+      validate: {
+        validator: function(time) {
+          // Basic validation for HH:MM format
+          return /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(time);
+        },
+        message: 'End time must be in HH:MM format (e.g., 17:30)'
+      }
+    }
+  }]
 }, {
   timestamps: true // Adds createdAt and updatedAt
 });

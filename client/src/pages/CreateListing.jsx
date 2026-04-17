@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import AddressAutocomplete from '../components/AddressAutocomplete';
 import '../styles/CreateListing.css';
 
 const CreateListing = () => {
@@ -18,6 +19,8 @@ const CreateListing = () => {
     status: 'active',
     images: []
   });
+  const [addressCoordinates, setAddressCoordinates] = useState(null);
+  const [addressVerified, setAddressVerified] = useState(false);
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -33,16 +36,29 @@ const CreateListing = () => {
     return null;
   }
 
+  const handleAddressSelect = ({ address, zipCode, coordinates }) => {
+    if (address) {
+      setFormData(prev => ({
+        ...prev,
+        address,
+        zipCode: zipCode || prev.zipCode
+      }));
+      setAddressCoordinates(coordinates);
+      setAddressVerified(true);
+      setErrors(prev => ({ ...prev, address: '' }));
+    } else {
+      setAddressVerified(false);
+      setAddressCoordinates(null);
+    }
+  };
+
   // Individual field validators
   const validateAddress = (value) => {
     if (!value.trim()) {
       return 'Address is required';
     }
-    if (value.trim().length < 5) {
-      return 'Address must be at least 5 characters';
-    }
-    if (value.trim().length > 200) {
-      return 'Address must not exceed 200 characters';
+    if (!addressVerified) {
+      return 'Select a verified address from the dropdown';
     }
     return '';
   };
@@ -283,7 +299,7 @@ const CreateListing = () => {
     setShowSuccessAlert(false);
 
     try {
-      const response = await axios.post('/api/listings', {
+      const payload = {
         address: formData.address.trim(),
         description: formData.description.trim(),
         price: Number(formData.price),
@@ -291,7 +307,16 @@ const CreateListing = () => {
         zipCode: formData.zipCode.trim(),
         status: formData.status,
         images: formData.images
-      });
+      };
+
+      if (addressCoordinates) {
+        payload.location = {
+          type: 'Point',
+          coordinates: addressCoordinates
+        };
+      }
+
+      const response = await axios.post('/api/listings', payload);
 
       setSuccess('✓ Listing created successfully! Redirecting...');
       setShowSuccessAlert(true);
@@ -425,19 +450,12 @@ const CreateListing = () => {
             <label htmlFor="address">
               Address <span className="required">*</span>
             </label>
-            <input
-              type="text"
-              id="address"
-              name="address"
+            <AddressAutocomplete
               value={formData.address}
-              onChange={handleInputChange}
-              onBlur={handleBlur}
-              placeholder="123 Main Street, City, State"
-              className={errors.address && touched.address ? 'input-error' : ''}
+              onChange={handleAddressSelect}
+              error={touched.address ? errors.address : ''}
+              verified={addressVerified}
             />
-            {errors.address && touched.address && (
-              <span className="error-message">{errors.address}</span>
-            )}
           </motion.div>
 
           {/* Price Field */}

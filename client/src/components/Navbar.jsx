@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -11,8 +12,34 @@ function HouseIcon() {
   );
 }
 
+function MoonIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="navbar-theme-icon">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="16" cy="9" r="7" fill="var(--color-background)" />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="navbar-theme-icon">
+      <circle cx="12" cy="12" r="5"/>
+      <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 function Navbar() {
   const { user, isAuthenticated, logout, mockUser, mockLogout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
@@ -88,6 +115,7 @@ function Navbar() {
                 </Link>
               </li>
               <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
+              <li><Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''}>Scheduling</Link></li>
               <li className="navbar-agent-profile">
                 <span className="navbar-agent-badge">Agent</span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>
@@ -121,6 +149,16 @@ function Navbar() {
               </li>
             </>
           )}
+          <li className="navbar-theme-toggle-item">
+            <button 
+              onClick={toggleTheme} 
+              className="navbar-theme-toggle"
+              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              aria-label="Toggle dark mode"
+            >
+              {isDark ? <SunIcon /> : <MoonIcon />}
+            </button>
+          </li>
         </ul>
       </nav>
     </header>

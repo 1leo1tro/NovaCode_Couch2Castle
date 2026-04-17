@@ -300,6 +300,29 @@ export const markAsSold = async (req, res) => {
     const { id } = req.params;
     const { closingDate, finalSalePrice } = req.body;
 
+    if (closingDate === undefined || finalSalePrice === undefined) {
+      return res.status(400).json(
+        createErrorResponse(
+          'Missing required fields',
+          'closingDate and finalSalePrice are required to mark a listing as sold'
+        )
+      );
+    }
+
+    const parsedClosingDate = new Date(closingDate);
+    if (Number.isNaN(parsedClosingDate.getTime())) {
+      return res.status(400).json(
+        createErrorResponse('Invalid field', 'closingDate must be a valid date')
+      );
+    }
+
+    const parsedFinalSalePrice = Number(finalSalePrice);
+    if (!Number.isFinite(parsedFinalSalePrice) || parsedFinalSalePrice < 0) {
+      return res.status(400).json(
+        createErrorResponse('Invalid field', 'finalSalePrice must be a valid non-negative number')
+      );
+    }
+
     // Validate MongoDB ObjectId format
     const idValidation = validateObjectId(id);
     if (!idValidation.isValid) {
@@ -326,12 +349,8 @@ export const markAsSold = async (req, res) => {
 
     // Set sold fields
     existingListing.status = 'sold';
-    if (closingDate) {
-      existingListing.closingDate = closingDate;
-    }
-    if (finalSalePrice !== undefined) {
-      existingListing.finalSalePrice = finalSalePrice;
-    }
+    existingListing.closingDate = parsedClosingDate;
+    existingListing.finalSalePrice = parsedFinalSalePrice;
     existingListing.updatedBy = req.agent._id;
 
     // Save triggers the pre-save hook to compute daysOnMarket
@@ -353,6 +372,65 @@ export const markAsSold = async (req, res) => {
     }
     res.status(500).json(
       createErrorResponse('Error marking listing as sold', error.message, { type: error.name })
+    );
+  }
+};
+
+// Set/replace tags on a listing (admin only)
+export const updateListingTags = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const idValidation = validateObjectId(id);
+    if (!idValidation.isValid) {
+      return res.status(400).json(idValidation.error);
+    }
+
+    const { tags } = req.body;
+
+    if (!Array.isArray(tags)) {
+      return res.status(400).json(
+        createErrorResponse('Invalid tags', 'tags must be an array of strings')
+      );
+    }
+
+    if (tags.length > 20) {
+      return res.status(400).json(
+        createErrorResponse('Too many tags', 'A listing may have at most 20 tags')
+      );
+    }
+
+    const invalidTag = tags.find(tag => typeof tag !== 'string' || tag.length === 0 || tag.length > 50);
+    if (invalidTag !== undefined) {
+      return res.status(400).json(
+        createErrorResponse('Invalid tag', 'Each tag must be a non-empty string of 50 characters or fewer')
+      );
+    }
+
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      return res.status(404).json(handleNotFoundError('Listing', id));
+    }
+
+    const updatedListing = await Listing.findByIdAndUpdate(
+      id,
+      { tags, updatedBy: req.agent._id },
+      { new: true, runValidators: true }
+    ).populate('createdBy updatedBy', 'name email phone');
+
+    res.json({
+      message: 'Listing tags updated successfully',
+      listing: updatedListing
+    });
+  } catch (error) {
+    if (isValidationError(error)) {
+      return res.status(400).json(handleValidationError(error));
+    }
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error updating listing tags', error.message, { type: error.name })
     );
   }
 };

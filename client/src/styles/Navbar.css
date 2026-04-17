@@ -190,3 +190,33 @@
   box-shadow: 0 4px 12px rgba(15, 82, 128, 0.4);
   transform: translateY(-1px);
 }
+
+/* Dark mode theme toggle button */
+.navbar-theme-toggle-item {
+  margin-left: auto;
+}
+
+.navbar-theme-toggle {
+  background: transparent;
+  border: none;
+  color: var(--color-foreground);
+  cursor: pointer;
+  padding: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.navbar-theme-toggle:hover {
+  background-color: var(--color-secondary);
+  color: var(--color-accent);
+}
+
+.navbar-theme-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}

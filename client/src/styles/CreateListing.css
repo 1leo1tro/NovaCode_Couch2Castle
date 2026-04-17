@@ -2,11 +2,12 @@
 
 .create-listing-container {
   min-height: calc(100vh - 80px);
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  background: var(--color-secondary);
   padding: 40px 20px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  transition: background-color var(--transition-fast);
 }
 
 .create-listing-content {

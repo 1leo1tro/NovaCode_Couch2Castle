@@ -169,6 +169,91 @@ describe('Ownership Enforcement', () => {
   });
 });
 
+describe('PATCH /api/listings/:id/sold', () => {
+  test('should allow owner to mark listing as sold with closingDate and finalSalePrice', async () => {
+    const listing = await createTestListing(agent1._id);
+    const listingCreatedAt = new Date(listing.createdAt);
+
+    const closingDate = new Date(Date.UTC(
+      listingCreatedAt.getUTCFullYear(),
+      listingCreatedAt.getUTCMonth(),
+      listingCreatedAt.getUTCDate() + 7
+    ));
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: closingDate.toISOString(), finalSalePrice: 275000 })
+      .expect(200);
+
+    expect(response.body.message).toBe('Listing marked as sold');
+    expect(response.body.listing.status).toBe('sold');
+    expect(response.body.listing.finalSalePrice).toBe(275000);
+    expect(new Date(response.body.listing.closingDate).toISOString()).toBe(closingDate.toISOString());
+    expect(response.body.listing.daysOnMarket).toBe(7);
+  });
+
+  test('should return 400 when closingDate is missing', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ finalSalePrice: 275000 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Missing required fields');
+  });
+
+  test('should return 400 when finalSalePrice is missing', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString() })
+      .expect(400);
+
+    expect(response.body.message).toBe('Missing required fields');
+  });
+
+  test('should return 400 when closingDate is invalid', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: 'not-a-date', finalSalePrice: 275000 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Invalid field');
+    expect(response.body.error).toBe('closingDate must be a valid date');
+  });
+
+  test('should return 400 when finalSalePrice is invalid', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString(), finalSalePrice: -1 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Invalid field');
+    expect(response.body.error).toBe('finalSalePrice must be a valid non-negative number');
+  });
+
+  test('should deny access to mark another agent\'s listing as sold', async () => {
+    const listing = await createTestListing(agent2._id);
+
+    await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString(), finalSalePrice: 300000 })
+      .expect(403);
+  });
+});
+
 describe('GET /api/listings', () => {
   describe('Active Listings', () => {
     test('should return all active listings', async () => {
@@ -368,9 +453,7 @@ describe('GET /api/listings', () => {
   });
 
   describe('Square Footage Filtering', () => {
-    // Note: Current implementation doesn't support square footage filtering
-    // These tests document expected behavior for future implementation
-    test('should support square footage filtering (future feature)', async () => {
+    beforeEach(async () => {
       await Listing.create([
         {
           price: 200000,
@@ -387,18 +470,45 @@ describe('GET /api/listings', () => {
           zipCode: '35802'
         }
       ]);
+    });
 
-      // This will currently return all listings since filtering isn't implemented
+    test('should filter by minimum square footage', async () => {
       const response = await request(app)
         .get('/api/listings?minSquareFeet=2000')
         .expect(200);
 
-      // For now, just verify the endpoint works
-      expect(response.body.listings).toHaveLength(2);
+      expect(response.body.listings).toHaveLength(1);
+      expect(response.body.listings[0].squareFeet).toBeGreaterThanOrEqual(2000);
+    });
 
-      // TODO: Update this test when square footage filtering is implemented
-      // expect(response.body.listings).toHaveLength(1);
-      // expect(response.body.listings[0].squareFeet).toBeGreaterThanOrEqual(2000);
+    test('should filter by maximum square footage', async () => {
+      const response = await request(app)
+        .get('/api/listings?maxSquareFeet=1500')
+        .expect(200);
+
+      expect(response.body.listings).toHaveLength(1);
+      expect(response.body.listings[0].squareFeet).toBeLessThanOrEqual(1500);
+    });
+
+    test('should filter by square footage range', async () => {
+      const response = await request(app)
+        .get('/api/listings?minSquareFeet=900&maxSquareFeet=2600')
+        .expect(200);
+
+      expect(response.body.listings).toHaveLength(2);
+      response.body.listings.forEach(listing => {
+        expect(listing.squareFeet).toBeGreaterThanOrEqual(900);
+        expect(listing.squareFeet).toBeLessThanOrEqual(2600);
+      });
+    });
+
+    test('should return 400 when minSquareFeet exceeds maxSquareFeet', async () => {
+      const response = await request(app)
+        .get('/api/listings?minSquareFeet=3000&maxSquareFeet=1000')
+        .expect(400);
+
+      expect(response.body.message).toBe('Invalid query parameters');
+      expect(response.body.error).toBe('minSquareFeet cannot be greater than maxSquareFeet');
     });
   });
 
@@ -466,8 +576,8 @@ describe('GET /api/listings', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
       expect(response.body.error).toBe('zipCode must be a 5-digit number');
-      expect(response.body.parameter).toBe('zipCode');
-      expect(response.body.value).toBe('invalid');
+      expect(response.body.details.parameter).toBe('zipCode');
+      expect(response.body.details.value).toBe('invalid');
     });
 
     test('should reject ZIP+4 format', async () => {
@@ -555,9 +665,9 @@ describe('GET /api/listings', () => {
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
-      expect(response.body.parameter).toBe('minPrice');
-      expect(response.body.value).toBe('invalid');
+      expect(response.body.error).toBe('minPrice must be a valid number');
+      expect(response.body.details.parameter).toBe('minPrice');
+      expect(response.body.details.value).toBe('invalid');
     });
 
     test('should handle negative price values', async () => {
@@ -575,7 +685,7 @@ describe('GET /api/listings', () => {
 
       expect(response.body).toHaveProperty('message');
       expect(response.body.message).toBe('Invalid query parameter');
-      expect(response.body.error).toBe('minPrice must be a valid non-negative number');
+      expect(response.body.error).toBe('minPrice must be at least 0');
     });
 
     test('should return error when min price exceeds max price', async () => {
@@ -722,7 +832,7 @@ describe('GET /api/listings/:id', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toBe('Invalid listing ID format');
+      expect(response.body.message).toBe('Invalid ID format');
       expect(response.body.error).toBe('The provided ID is not a valid MongoDB ObjectId');
       expect(response.body.id).toBe('invalid-id-format');
     });
@@ -733,7 +843,7 @@ describe('GET /api/listings/:id', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('message');
-      expect(response.body.message).toBe('Invalid listing ID format');
+      expect(response.body.message).toBe('Invalid ID format');
     });
 
     test('should return 404 for valid ObjectId that does not exist', async () => {
@@ -771,5 +881,135 @@ describe('GET /api/listings/:id', () => {
       const mongoUri = mongoServer.getUri();
       await mongoose.connect(mongoUri);
     });
+  });
+});
+
+// ── PATCH /api/listings/:id/tags ─────────────────────────────────────────────
+
+describe('PATCH /api/listings/:id/tags', () => {
+  let listing;
+  let adminAgent, adminToken;
+
+  beforeAll(async () => {
+    adminAgent = await Agent.create({
+      name: 'Admin Agent',
+      email: 'admin@test.com',
+      password: 'password123',
+      isActive: true,
+      role: 'admin'
+    });
+    adminToken = generateToken(adminAgent._id);
+  });
+
+  beforeEach(async () => {
+    listing = await createTestListing(agent1._id);
+  });
+
+  test('should allow admin to set tags on a listing', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool', 'garage', 'new construction'] })
+      .expect(200);
+
+    expect(response.body.message).toBe('Listing tags updated successfully');
+    expect(response.body.listing.tags).toEqual(['pool', 'garage', 'new construction']);
+  });
+
+  test('should replace existing tags entirely', async () => {
+    await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool', 'garage'] })
+      .expect(200);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['waterfront'] })
+      .expect(200);
+
+    expect(response.body.listing.tags).toEqual(['waterfront']);
+  });
+
+  test('should allow clearing tags with an empty array', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: [] })
+      .expect(200);
+
+    expect(response.body.listing.tags).toEqual([]);
+  });
+
+  test('should reject more than 20 tags', async () => {
+    const tags = Array.from({ length: 21 }, (_, i) => `tag${i}`);
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should reject a tag exceeding 50 characters', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['a'.repeat(51)] })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should reject a non-array tags value', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: 'pool' })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 403 for a non-admin agent', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ tags: ['pool'] })
+      .expect(403);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 401 without a token', async () => {
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/tags`)
+      .send({ tags: ['pool'] })
+      .expect(401);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 404 for a non-existent listing', async () => {
+    const nonExistentId = new mongoose.Types.ObjectId();
+    const response = await request(app)
+      .patch(`/api/listings/${nonExistentId}/tags`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool'] })
+      .expect(404);
+
+    expect(response.body).toHaveProperty('message');
+  });
+
+  test('should return 400 for an invalid listing ID', async () => {
+    const response = await request(app)
+      .patch('/api/listings/bad-id/tags')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ tags: ['pool'] })
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message');
   });
 });
