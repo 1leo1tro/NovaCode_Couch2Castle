@@ -9,6 +9,17 @@
   padding: 0 1.5rem 2rem;
 }
 
+.property-details-no-image {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0f0f0;
+  color: #999;
+  font-size: 0.95rem;
+}
+
 .property-details-main-image {
   position: relative;
   width: 100%;
@@ -113,8 +124,15 @@
 }
 
 .property-details-description,
-.property-details-features {
+.property-details-features,
+.property-details-tags {
   margin-bottom: 2rem;
+}
+
+.property-details-tags h2 {
+  color: var(--color-accent);
+  font-size: 1.35rem;
+  margin-bottom: 1rem;
 }
 
 .property-details-description h2,
@@ -231,9 +249,7 @@
 }
 
 .property-details-agent {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  display: block;
 }
 
 .property-details-agent-avatar {
@@ -251,9 +267,11 @@
 }
 
 .property-details-agent-name {
-  font-weight: 600;
-  color: var(--color-foreground);
-  margin: 0 0 0.2rem 0;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-accent);
+  margin: 0;
+  letter-spacing: 0.01em;
 }
 
 .property-details-agent-phone {
@@ -454,6 +472,53 @@
   color: #b91c1c;
 }
 
+/* Open house banner — shown below hero, above content grid */
+.property-details-oh-banner {
+  background: #ecfdf5;
+  border-top: 2px solid #6ee7b7;
+  border-bottom: 2px solid #6ee7b7;
+  padding: 0.7rem 1.5rem;
+}
+
+.property-details-oh-banner-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.property-details-oh-banner-label {
+  background: #059669;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  flex-shrink: 0;
+}
+
+.property-details-oh-banner-events {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+}
+
+.property-details-oh-banner-event {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #065f46;
+}
+
+.property-details-oh-banner-notes {
+  font-weight: 400;
+  font-style: italic;
+  color: #047857;
+}
+
 /* Open houses section */
 .property-details-open-houses,
 .property-details-availability {
@@ -545,6 +610,43 @@
   background: #9ca3af;
   cursor: not-allowed;
   opacity: 0.8;
+}
+
+.tour-availability {
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.tour-availability-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+  margin: 0 0 0.5rem;
+}
+
+.tour-availability-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tour-availability-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+}
+
+.tour-availability-list li span:first-child {
+  font-weight: 600;
 }
 
 .tour-cancel-btn {

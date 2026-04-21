@@ -320,6 +320,26 @@
   min-width: 220px;
 }
 
+.feedback-cell--post {
+  min-width: 260px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 0.65rem 0.75rem;
+}
+
+.feedback-cell-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #065f46;
+}
+
+.feedback-cell-label--minor {
+  color: var(--color-muted);
+}
+
 .feedback-textarea {
   width: 100%;
   resize: vertical;
@@ -333,7 +353,14 @@
   line-height: 1.35;
 }
 
-.feedback-textarea:focus {
+.feedback-textarea--post {
+  border-color: #86efac;
+  background: #fff;
+  font-size: 0.88rem;
+}
+
+.feedback-textarea:focus,
+.feedback-textarea--post:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 3px rgba(15, 82, 128, 0.1);

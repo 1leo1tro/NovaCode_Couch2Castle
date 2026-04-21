@@ -295,7 +295,7 @@ const Showings = () => {
                   <th>Property Address</th>
                   <th>Scheduled Date & Time</th>
                   <th>Status</th>
-                  <th>Feedback</th>
+                  <th>Notes</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -306,9 +306,7 @@ const Showings = () => {
                       <div className="requester-info">
                         <span className="requester-name">{showing.name}</span>
                         {showing.message && (
-                          <span className="requester-message" title={showing.message}>
-                            💬 Has message
-                          </span>
+                          <p className="requester-message">{showing.message}</p>
                         )}
                       </div>
                     </td>
@@ -348,32 +346,59 @@ const Showings = () => {
                       </span>
                     </td>
                     <td>
-                      <div className="feedback-cell">
-                        <textarea
-                          className="feedback-textarea"
-                          value={feedbackById[showing._id] ?? ''}
-                          onChange={(e) => handleFeedbackChange(showing._id, e.target.value)}
-                          rows={3}
-                          placeholder="Add feedback for this showing"
-                        />
-                        <div className="feedback-actions">
-                          <button
-                            onClick={() => handleSaveFeedback(showing._id)}
-                            disabled={Boolean(savingFeedbackById[showing._id])}
-                            className="btn-action btn-feedback-save"
-                            title="Save feedback"
-                          >
-                            {savingFeedbackById[showing._id] ? 'Saving...' : 'Save'}
-                          </button>
-                          {feedbackStatusById[showing._id]?.message && (
-                            <span
-                              className={`feedback-status feedback-status-${feedbackStatusById[showing._id].type}`}
+                      {showing.status === 'completed' ? (
+                        <div className="feedback-cell feedback-cell--post">
+                          <span className="feedback-cell-label">Post-Showing Feedback</span>
+                          <textarea
+                            className="feedback-textarea feedback-textarea--post"
+                            value={feedbackById[showing._id] ?? ''}
+                            onChange={(e) => handleFeedbackChange(showing._id, e.target.value)}
+                            rows={4}
+                            placeholder="How did the showing go? Note client reactions, concerns about the property, likelihood of an offer, and any follow-up steps."
+                          />
+                          <div className="feedback-actions">
+                            <button
+                              onClick={() => handleSaveFeedback(showing._id)}
+                              disabled={Boolean(savingFeedbackById[showing._id])}
+                              className="btn-action btn-feedback-save"
+                              title="Save feedback"
                             >
-                              {feedbackStatusById[showing._id].message}
-                            </span>
-                          )}
+                              {savingFeedbackById[showing._id] ? 'Saving...' : 'Save feedback'}
+                            </button>
+                            {feedbackStatusById[showing._id]?.message && (
+                              <span className={`feedback-status feedback-status-${feedbackStatusById[showing._id].type}`}>
+                                {feedbackStatusById[showing._id].message}
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        <div className="feedback-cell">
+                          <span className="feedback-cell-label feedback-cell-label--minor">Pre-showing notes</span>
+                          <textarea
+                            className="feedback-textarea"
+                            value={feedbackById[showing._id] ?? ''}
+                            onChange={(e) => handleFeedbackChange(showing._id, e.target.value)}
+                            rows={2}
+                            placeholder="Internal notes before the showing…"
+                          />
+                          <div className="feedback-actions">
+                            <button
+                              onClick={() => handleSaveFeedback(showing._id)}
+                              disabled={Boolean(savingFeedbackById[showing._id])}
+                              className="btn-action btn-feedback-save"
+                              title="Save notes"
+                            >
+                              {savingFeedbackById[showing._id] ? 'Saving...' : 'Save'}
+                            </button>
+                            {feedbackStatusById[showing._id]?.message && (
+                              <span className={`feedback-status feedback-status-${feedbackStatusById[showing._id].type}`}>
+                                {feedbackStatusById[showing._id].message}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </td>
                     <td>
                       <div className="actions-cell">

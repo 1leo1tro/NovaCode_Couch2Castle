@@ -10,6 +10,7 @@ import '../styles/App.css';
 
 const Listings = () => {
   const [listings, setListings] = useState([]);
+  const [openHouseListingIds, setOpenHouseListingIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [hoveredId, setHoveredId] = useState(null);
@@ -70,6 +71,17 @@ const Listings = () => {
 
     return () => clearTimeout(timer);
   }, [filters]);
+
+  useEffect(() => {
+    axios.get('/api/open-houses/upcoming')
+      .then(res => {
+        const ids = new Set((res.data.openHouses || []).map(oh =>
+          typeof oh.listing === 'object' ? oh.listing._id : oh.listing
+        ));
+        setOpenHouseListingIds(ids);
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="listings-page">
@@ -160,6 +172,9 @@ const Listings = () => {
                           )}
                           {listing.status && (
                             <span className="property-badge">{listing.status}</span>
+                          )}
+                          {openHouseListingIds.has(listing._id) && (
+                            <span className="property-badge property-badge--open-house">Open House</span>
                           )}
                           <BookmarkStar listingId={listing._id} />
                         </div>

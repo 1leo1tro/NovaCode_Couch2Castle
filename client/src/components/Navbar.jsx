@@ -40,8 +40,19 @@ function SunIcon() {
   );
 }
 
+function BurgerIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="navbar-burger-icon">
+      <line x1="3" y1="6" x2="21" y2="6"/>
+      <line x1="3" y1="12" x2="21" y2="12"/>
+      <line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  );
+}
+
 function Navbar() {
   const { user, isAuthenticated, logout, mockUser, mockLogout } = useAuth();
+  const isManager = isAuthenticated() && user?.role === 'manager';
   const { isDark, toggleTheme } = useTheme();
   const { bookmarks } = useBookmarks();
   const { unseenCount } = useShowingNotifications();
@@ -49,6 +60,7 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -83,6 +95,15 @@ function Navbar() {
     };
   }, [isAuthenticated]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handler = (e) => {
+      if (!e.target.closest('.navbar-burger-item')) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [menuOpen]);
+
   const handleSignOut = () => {
     logout();
     navigate('/');
@@ -99,7 +120,7 @@ function Navbar() {
         <ul className="navbar-links navbar-left">
           <li><Link to="/" className={isActive('/') ? 'nav-active' : ''}>Home</Link></li>
           <li><Link to="/listings" className={location.pathname === '/listings' ? 'nav-active' : ''}>Listings</Link></li>
-          {isAuthenticated() && (
+          {isAuthenticated() && !isManager && (
             <li><Link to="/listings/mine" className={location.pathname !== '/listings' && isActive('/listings') ? 'nav-active' : ''}>My Listings</Link></li>
           )}
           {!isAuthenticated() && (
@@ -166,18 +187,55 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           {isAuthenticated() ? (
             <>
-              <li><Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''}>Reports</Link></li>
-              <li>
-                <Link to="/showings" className={`navbar-showings-link ${isActive('/showings') ? 'nav-active' : ''}`}>
-                  Showings
-                  {pendingCount > 0 && (
-                    <span className="navbar-showings-badge">{pendingCount}</span>
+              <li className="navbar-burger-item">
+                <button
+                  className={`navbar-burger-btn${menuOpen ? ' navbar-burger-btn--open' : ''}`}
+                  onClick={() => setMenuOpen(o => !o)}
+                  aria-label="Toggle menu"
+                >
+                  <BurgerIcon />
+                  {pendingCount > 0 && !menuOpen && (
+                    <span className="navbar-burger-dot" />
                   )}
-                </Link>
+                </button>
+                <AnimatePresence>
+                  {menuOpen && (
+                    <motion.ul
+                      className="navbar-burger-menu"
+                      initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                      transition={{ duration: 0.15 }}
+                    >
+                      {isManager ? (
+                        <li>
+                          <Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>
+                            Reports
+                          </Link>
+                        </li>
+                      ) : (
+                        <>
+                          <li>
+                            <Link to="/showings" className={`navbar-showings-link${isActive('/showings') ? ' nav-active' : ''}`} onClick={() => setMenuOpen(false)}>
+                              Showings
+                              {pendingCount > 0 && (
+                                <span className="navbar-showings-badge">{pendingCount}</span>
+                              )}
+                            </Link>
+                          </li>
+                          <li>
+                            <Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>
+                              Scheduling
+                            </Link>
+                          </li>
+                        </>
+                      )}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
               </li>
-              <li><Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''}>Scheduling</Link></li>
               <li className="navbar-agent-profile">
-                <span className="navbar-agent-badge">Agent</span>
+                <span className="navbar-agent-badge">{isManager ? 'Manager' : 'Agent'}</span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>
               </li>
               <li>
