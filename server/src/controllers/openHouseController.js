@@ -53,6 +53,26 @@ export const getPublicOpenHousesByListing = async (req, res) => {
   }
 };
 
+// Public: Get all upcoming open houses (no auth required) — used for listing card badges
+export const getUpcomingOpenHouses = async (req, res) => {
+  try {
+    const openHouses = await OpenHouse.find({
+      date: { $gte: new Date(new Date().setHours(0, 0, 0, 0)) }
+    })
+      .select('listing date startTime endTime notes')
+      .sort({ date: 1, startTime: 1 });
+
+    res.json({ openHouses });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error fetching open houses', error.message, { type: error.name })
+    );
+  }
+};
+
 // Create a new open house
 export const createOpenHouse = async (req, res) => {
   try {

@@ -4,17 +4,18 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import PropertyMap from '../components/PropertyMap';
 import '../styles/PropertyDetails.css';
+import '../styles/TagPicker.css';
 
-const interiorImages = [
-  { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80', label: 'Living room' },
-  { url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=800&q=80', label: 'Kitchen' },
-  { url: 'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80', label: 'Bedroom' },
-  { url: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=800&q=80', label: 'Bathroom' },
-  { url: 'https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=800&q=80', label: 'Dining area' },
-  { url: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80', label: 'Interior view' },
-];
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const formatTime12 = (time) => {
+  if (!time) return time;
+  const [h, m] = time.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+};
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -32,7 +33,7 @@ const PropertyDetails = () => {
   const [agentAvailability, setAgentAvailability] = useState([]);
 
   // Tour form state
-  const [showTourForm, setShowTourForm] = useState(false);
+  const [showTourForm, setShowTourForm] = useState(true);
   const [formData, setFormData] = useState({
     name: mockUser?.name || '',
     email: mockUser?.email || '',
@@ -146,9 +147,10 @@ const PropertyDetails = () => {
       errors.preferredDate = 'Preferred date is required';
     } else {
       const selectedDate = new Date(formData.preferredDate);
-      const now = new Date();
-      if (selectedDate <= now) {
-        errors.preferredDate = 'Preferred date must be in the future';
+      const oneWeekFromNow = new Date();
+      oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+      if (selectedDate < oneWeekFromNow) {
+        errors.preferredDate = 'Tours must be scheduled at least 1 week in advance';
       }
     }
 
@@ -315,27 +317,51 @@ const PropertyDetails = () => {
   const isSold = property.status === 'sold';
 
   const gallery = property.images && property.images.length > 0
-    ? [...property.images, ...interiorImages.map((i) => i.url)].slice(0, 6)
-    : interiorImages.map((i) => i.url).slice(0, 6);
+    ? property.images.slice(0, 6)
+    : [];
 
   return (
     <div className="property-details-page">
 
       <div className="property-details-hero">
         <div className="property-details-main-image">
-          <img src={gallery[0]} alt={property.address} />
+          {gallery[0]
+            ? <img src={gallery[0]} alt={property.address} />
+            : <div className="property-details-no-image">No image</div>
+          }
           {property.status && property.status !== 'active' && (
             <span className="property-details-badge">{property.status.toUpperCase()}</span>
           )}
         </div>
         <div className="property-details-gallery-grid">
-          {gallery.slice(1, 6).map((img, idx) => (
+          {Array.from({ length: 5 }).map((_, idx) => (
             <div key={idx} className="property-details-gallery-thumb">
-              <img src={img} alt={`${property.address} - ${interiorImages[idx]?.label || 'Photo'}`} />
+              {gallery[idx + 1]
+                ? <img src={gallery[idx + 1]} alt={`${property.address} - Photo ${idx + 2}`} />
+                : <div className="property-details-no-image">No image</div>
+              }
             </div>
           ))}
         </div>
       </div>
+
+      {openHouses.length > 0 && (
+        <div className="property-details-oh-banner">
+          <div className="property-details-oh-banner-inner">
+            <span className="property-details-oh-banner-label">Open House</span>
+            <div className="property-details-oh-banner-events">
+              {openHouses.map((oh) => (
+                <span key={oh._id} className="property-details-oh-banner-event">
+                  {new Date(oh.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                  &nbsp;&middot;&nbsp;
+                  {formatTime12(oh.startTime)} – {formatTime12(oh.endTime)}
+                  {oh.notes && <em className="property-details-oh-banner-notes"> · {oh.notes}</em>}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="property-details-content">
         <div className="property-details-main">
@@ -390,37 +416,14 @@ const PropertyDetails = () => {
             </ul>
           </section>
 
-          {openHouses.length > 0 && (
-            <section className="property-details-open-houses">
-              <h2>Upcoming Open Houses</h2>
-              <ul className="open-house-list">
-                {openHouses.map((oh) => (
-                  <li key={oh._id} className="open-house-item">
-                    <span className="open-house-date">
-                      {new Date(oh.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
-                    </span>
-                    <span className="open-house-time">{oh.startTime} – {oh.endTime}</span>
-                    {oh.notes && <span className="open-house-notes">{oh.notes}</span>}
-                  </li>
+          {property.tags && property.tags.length > 0 && (
+            <section className="property-details-tags">
+              <h2>Neighborhood &amp; Lifestyle</h2>
+              <div className="tag-display">
+                {property.tags.map((tag) => (
+                  <span key={tag} className="tag-display-chip">{tag}</span>
                 ))}
-              </ul>
-            </section>
-          )}
-
-          {agentAvailability.length > 0 && (
-            <section className="property-details-availability">
-              <h2>Agent Availability</h2>
-              <ul className="availability-list">
-                {agentAvailability
-                  .slice()
-                  .sort((a, b) => a.dayOfWeek - b.dayOfWeek)
-                  .map((slot, idx) => (
-                    <li key={idx} className="availability-item">
-                      <span className="availability-day">{DAY_NAMES[slot.dayOfWeek]}</span>
-                      <span className="availability-time">{slot.startTime} – {slot.endTime}</span>
-                    </li>
-                  ))}
-              </ul>
+              </div>
             </section>
           )}
 
@@ -431,22 +434,18 @@ const PropertyDetails = () => {
         </div>
 
         <aside className="property-details-sidebar">
+          <div className="property-details-card property-details-agent">
+            <p className="property-details-agent-name">
+              Agent: {property.createdBy?.name || 'Listed by Agent'}
+            </p>
+          </div>
+
           <div className="property-details-card">
-            <h3>Request a Custom Time</h3>
+            <h3>Request a Showing</h3>
 
             {canRequest ? (
               <>
-                {!showTourForm && !submitSuccess && (
-                  <button
-                    type="button"
-                    className="tour-request-btn"
-                    onClick={() => setShowTourForm(true)}
-                  >
-                    Request a Showing
-                  </button>
-                )}
-
-                {submitSuccess && (
+{submitSuccess && (
                   <div className="alert alert-success">
                     <div className="alert-content">
                       <span className="alert-icon">✓</span>
@@ -477,6 +476,24 @@ const PropertyDetails = () => {
                     >
                       ×
                     </button>
+                  </div>
+                )}
+
+                {showTourForm && agentAvailability.length > 0 && (
+                  <div className="tour-availability">
+                    <p className="tour-availability-label">Agent available:</p>
+                    <ul className="tour-availability-list">
+                      {agentAvailability
+                        .filter(s => s.date && s.date >= new Date().toISOString().slice(0, 10))
+                        .sort((a, b) => a.date.localeCompare(b.date))
+                        .slice(0, 5)
+                        .map((slot, idx) => (
+                          <li key={idx}>
+                            <span>{new Date(slot.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                            <span>{formatTime12(slot.startTime)} – {formatTime12(slot.endTime)}</span>
+                          </li>
+                        ))}
+                    </ul>
                   </div>
                 )}
 
@@ -528,6 +545,7 @@ const PropertyDetails = () => {
                         name="preferredDate"
                         value={formData.preferredDate}
                         onChange={handleTourFormChange}
+                        min={(() => { const d = new Date(); d.setDate(d.getDate() + 7); return d.toISOString().slice(0, 16); })()}
                         className={formErrors.preferredDate ? 'input-error' : ''}
                       />
                       {formErrors.preferredDate && <span className="error-message">{formErrors.preferredDate}</span>}
@@ -550,13 +568,6 @@ const PropertyDetails = () => {
                       <button type="submit" disabled={submitting}>
                         {submitting ? 'Submitting...' : 'Submit Request'}
                       </button>
-                      <button
-                        type="button"
-                        className="tour-cancel-btn"
-                        onClick={() => { setShowTourForm(false); setSubmitError(''); }}
-                      >
-                        Cancel
-                      </button>
                     </div>
                   </form>
                 )}
@@ -578,20 +589,6 @@ const PropertyDetails = () => {
             )}
           </div>
 
-          <div className="property-details-card property-details-agent">
-            <div className="property-details-agent-avatar">
-              {property.createdBy?.name?.charAt(0) || 'A'}
-            </div>
-            <div>
-              <p className="property-details-agent-name">
-                {property.createdBy?.name || 'Listed by Agent'}
-              </p>
-              <p className="property-details-agent-phone">
-                {property.createdBy?.phone || '(555) 123-4567'}
-              </p>
-              <button type="button" className="property-details-agent-btn">Contact Agent</button>
-            </div>
-          </div>
         </aside>
       </div>
     </div>

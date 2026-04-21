@@ -38,6 +38,21 @@ const SignIn = () => {
       } finally {
         setLoading(false);
       }
+    } else if (userType === 'manager') {
+      try {
+        const result = await login('margaret.holloway@novarealty.com', 'password123');
+        if (result.success) {
+          const name = result.agent?.name || 'Manager';
+          setSuccess(`Welcome, ${name}. Redirecting...`);
+          setTimeout(() => navigate('/reports'), 800);
+        } else {
+          setError(result.error || 'Login failed.');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Login failed.');
+      } finally {
+        setLoading(false);
+      }
     } else {
       // Regular user — mock session
       mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
@@ -95,6 +110,15 @@ const SignIn = () => {
             <div className="signin-option-icon">👤</div>
             <h2>Agent</h2>
             <p>Sign in to manage your listings, schedule tours, and connect with clients.</p>
+          </button>
+          <button
+            type="button"
+            className="signin-option-card"
+            onClick={() => handleUserTypeChange('manager')}
+          >
+            <div className="signin-option-icon">📊</div>
+            <h2>Manager</h2>
+            <p>Sign in to view reports across all agents and monitor portfolio performance.</p>
           </button>
           <button
             type="button"
@@ -187,65 +211,28 @@ const SignIn = () => {
           ) : (
             <>
               <form className="signin-form" onSubmit={handleSubmit}>
-                <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
+                <h2>Sign in as {userType === 'agent' ? 'Agent' : userType === 'manager' ? 'Manager' : 'User'}</h2>
 
                 {success && (
-                  <div
-                    className="signin-success"
-                    style={{
-                      color: '#2e7d32',
-                      backgroundColor: '#e8f5e9',
-                      padding: '12px',
-                      borderRadius: '4px',
-                      marginBottom: '16px',
-                      fontSize: '14px'
-                    }}
-                  >
+                  <div className="signin-success" style={{ color: '#2e7d32', backgroundColor: '#e8f5e9', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>
                     {success}
                   </div>
                 )}
                 {error && (
-                  <div className="signin-error" style={{
-                    color: '#d32f2f',
-                    backgroundColor: '#ffebee',
-                    padding: '12px',
-                    borderRadius: '4px',
-                    marginBottom: '16px',
-                    fontSize: '14px'
-                  }}>
+                  <div className="signin-error" style={{ color: '#d32f2f', backgroundColor: '#ffebee', padding: '12px', borderRadius: '4px', marginBottom: '16px', fontSize: '14px' }}>
                     {error}
                   </div>
                 )}
 
                 <label>
                   Email
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
+                  <input type="email" name="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} disabled={loading} />
                 </label>
                 <label>
                   Password
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    disabled={loading}
-                  />
+                  <input type="password" name="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} disabled={loading} />
                 </label>
-                <button
-                  type="submit"
-                  className="signin-submit"
-                  disabled={loading}
-                >
+                <button type="submit" className="signin-submit" disabled={loading}>
                   {loading ? 'Signing in...' : 'Sign In'}
                 </button>
               </form>

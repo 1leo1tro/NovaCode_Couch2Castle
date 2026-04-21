@@ -29,6 +29,18 @@ export const createShowing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', listing));
     }
 
+    // Prevent duplicate: same email + listing with a non-cancelled status
+    const duplicate = await Showing.findOne({
+      listing,
+      email: email.trim().toLowerCase(),
+      status: { $in: ['pending', 'confirmed'] }
+    });
+    if (duplicate) {
+      return res.status(409).json({
+        message: 'A showing request for this property is already pending or confirmed for this email address.'
+      });
+    }
+
     // Create showing request
     const showing = await Showing.create({
       listing,

@@ -1,165 +1,584 @@
-.scheduling-section {
-  margin-bottom: 3rem;
-  padding-bottom: 2rem;
-  border-bottom: 1px solid var(--color-border);
+/* ── Scheduling page layout ── */
+.sched-page {
+  background: var(--color-background);
+  min-height: calc(100vh - 80px);
+  padding: 2.5rem 1.5rem;
 }
 
-.scheduling-section:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
+.sched-wrap {
+  max-width: 860px;
+  margin: 0 auto;
 }
 
-.scheduling-section h2 {
-  font-size: 1.4rem;
+.sched-page-title {
+  font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-accent);
+  color: var(--color-foreground);
+  margin: 0 0 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.sched-page-sub {
+  font-size: 0.95rem;
+  color: var(--color-muted);
+  margin: 0 0 2.5rem;
+}
+
+/* ── Section ── */
+.sched-section {
+  margin-bottom: 3rem;
+}
+
+.sched-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.sched-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-muted);
   margin: 0;
 }
 
-.scheduling-section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.scheduling-add-btn {
-  padding: 0.5rem 1.1rem;
-  background: var(--color-accent);
-  color: #fff;
-  border: none;
+/* ── Buttons ── */
+.sched-btn-ghost {
+  padding: 0.4rem 0.9rem;
+  background: transparent;
+  color: var(--color-accent);
+  border: 1.5px solid var(--color-accent);
   border-radius: 6px;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 
-.scheduling-add-btn:hover {
-  opacity: 0.9;
+.sched-btn-ghost:hover {
+  background: var(--color-accent);
+  color: #fff;
 }
 
-.scheduling-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  background: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 10px;
-  padding: 1.25rem;
-  margin-bottom: 1.5rem;
+.sched-btn-ghost--cancel {
+  color: var(--color-muted);
+  border-color: var(--color-border);
 }
 
-.scheduling-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-foreground);
-}
-
-.scheduling-form input,
-.scheduling-form select,
-.scheduling-form textarea {
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  font-size: 0.95rem;
+.sched-btn-ghost--cancel:hover {
   background: var(--color-secondary);
   color: var(--color-foreground);
 }
 
-.scheduling-time-row {
+.sched-btn-primary {
+  padding: 0.55rem 1.4rem;
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.sched-btn-primary:hover:not(:disabled) {
+  background: var(--color-accent-dark);
+  box-shadow: 0 3px 10px rgba(15, 82, 128, 0.25);
+}
+
+.sched-btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.sched-btn-save {
+  background: #059669;
+}
+
+.sched-btn-save:hover:not(:disabled) {
+  background: #047857;
+  box-shadow: 0 3px 10px rgba(5, 150, 105, 0.25);
+}
+
+/* ── New Open House form ── */
+.sched-form {
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 1.25rem 1.4rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sched-form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-.scheduling-submit-btn {
-  align-self: flex-start;
-  padding: 0.6rem 1.5rem;
-  background: #059669;
-  color: #fff;
-  border: none;
-  border-radius: 7px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.scheduling-submit-btn:disabled {
-  opacity: 0.65;
-  cursor: not-allowed;
-}
-
-.scheduling-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.93rem;
-}
-
-.scheduling-table th {
-  text-align: left;
-  padding: 0.6rem 0.85rem;
-  background: var(--color-background);
-  font-weight: 600;
-  color: var(--color-muted);
-  border-bottom: 2px solid var(--color-border);
-}
-
-.scheduling-table td {
-  padding: 0.6rem 0.85rem;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-foreground);
-}
-
-.scheduling-table tr:last-child td {
-  border-bottom: none;
-}
-
-.scheduling-loading,
-.scheduling-empty {
-  color: var(--color-muted);
-  font-size: 0.95rem;
-  padding: 0.5rem 0;
-}
-
-.scheduling-form-error {
-  color: #b91c1c;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-.scheduling-form-success {
-  color: #166534;
-  font-size: 0.9rem;
-  margin: 0;
-}
-
-/* Availability slot rows */
-.availability-slot-row {
+.sched-form label {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.6rem;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
 }
 
-.availability-slot-row select,
-.availability-slot-row input[type="time"] {
-  padding: 0.45rem 0.7rem;
+.sched-form input,
+.sched-form select {
+  padding: 0.5rem 0.7rem;
   border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 0.93rem;
+  font-weight: 400;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  transition: border-color 0.15s;
+}
+
+.sched-form input:focus,
+.sched-form select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(15, 82, 128, 0.08);
+}
+
+.sched-form-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+}
+
+.sched-form-error {
+  font-size: 0.875rem;
+  color: #b91c1c;
+  margin: 0;
+}
+
+/* ── Open House cards ── */
+.sched-oh-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sched-oh-card {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+
+.sched-oh-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+}
+
+.sched-oh-date-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 72px;
+  padding: 0.9rem 0.75rem;
+  background: var(--color-accent);
+  color: #fff;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sched-oh-date-month {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.85;
+}
+
+.sched-oh-date-day {
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.sched-oh-date-dow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.75;
+  margin-top: 0.2rem;
+}
+
+.sched-oh-body {
+  flex: 1;
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.sched-oh-address {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.sched-oh-time {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.sched-oh-notes {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.sched-oh-delete {
+  display: flex;
+  align-items: center;
+  padding: 0 1.1rem;
+}
+
+.sched-oh-delete-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0.35rem;
+  border-radius: 5px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.sched-oh-delete-btn:hover {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+/* ── Empty state ── */
+.sched-empty {
+  text-align: center;
+  padding: 2.5rem 1rem;
+  color: var(--color-muted);
+  font-size: 0.93rem;
+  border: 1.5px dashed var(--color-border);
+  border-radius: 10px;
+}
+
+/* ── Availability slots ── */
+.av-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.av-slot-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 0.6rem 0.85rem;
+}
+
+.av-slot-row select,
+.av-slot-row input[type="time"] {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  font-size: 0.9rem;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  transition: border-color 0.15s;
+}
+
+.av-slot-row select:focus,
+.av-slot-row input[type="time"]:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+.av-slot-row select {
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.av-slot-sep {
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.av-slot-remove {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.3rem;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.av-slot-remove:hover {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+/* ── Status messages ── */
+.av-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.av-msg-error {
+  font-size: 0.875rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin: 0;
+}
+
+.av-msg-success {
+  font-size: 0.875rem;
+  color: #065f46;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin: 0;
+}
+
+.av-msg-warn {
+  font-size: 0.875rem;
+  color: #92400e;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  margin: 0;
+}
+
+.scheduling-form-error { color: #b91c1c; font-size: 0.875rem; margin: 0; }
+.scheduling-form-success { color: #065f46; font-size: 0.875rem; margin: 0; }
+
+/* ── Weekly availability calendar ── */
+.av-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.av-cal-col {
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.av-cal-col:last-child {
+  border-right: none;
+}
+
+.av-cal-col-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  background: var(--color-secondary);
+  border-bottom: 1px solid var(--color-border);
+  gap: 0.1rem;
+}
+
+.av-cal-day-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+}
+
+.av-cal-day-num {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-foreground);
+  line-height: 1;
+}
+
+.av-cal-col-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.5rem 0.3rem;
+  min-height: 80px;
+}
+
+.av-cal-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
+  background: rgba(15, 82, 128, 0.07);
+  border: 1px solid rgba(15, 82, 128, 0.18);
+  border-radius: 6px;
+  padding: 0.3rem 0.35rem;
+  position: relative;
+}
+
+.av-cal-slot input[type="time"] {
+  width: 100%;
+  padding: 0.2rem 0.3rem;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  background: var(--color-background);
   color: var(--color-foreground);
 }
 
-.availability-slot-row select {
-  min-width: 130px;
+.av-cal-slot input[type="time"]:focus {
+  outline: none;
+  border-color: var(--color-accent);
 }
 
-.slot-dash {
+.av-cal-sep {
+  font-size: 0.7rem;
   color: var(--color-muted);
+  text-align: center;
+  line-height: 1;
+}
+
+.av-cal-remove {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 3px;
+  transition: color 0.12s;
+}
+
+.av-cal-remove:hover {
+  color: #b91c1c;
+}
+
+.av-cal-add {
+  margin-top: auto;
+  align-self: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.12s, color 0.12s, background 0.12s;
+}
+
+.av-cal-add:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  background: rgba(15, 82, 128, 0.06);
+}
+
+/* Week navigation */
+.av-week-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.av-week-nav-btn {
+  background: transparent;
+  border: 1.5px solid var(--color-border);
+  border-radius: 6px;
+  color: var(--color-foreground);
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.12s, color 0.12s;
+}
+
+.av-week-nav-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.av-week-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.av-week-nav-label {
+  font-size: 0.85rem;
   font-weight: 600;
+  color: var(--color-foreground);
+  min-width: 130px;
+  text-align: center;
+}
+
+/* Past day columns */
+.av-cal-col--past {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Today highlight */
+.av-cal-col-header--today {
+  background: var(--color-accent);
+}
+
+.av-cal-col-header--today .av-cal-day-name,
+.av-cal-col-header--today .av-cal-day-num {
+  color: #fff;
 }

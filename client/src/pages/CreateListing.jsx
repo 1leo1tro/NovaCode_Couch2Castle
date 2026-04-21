@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import AddressAutocomplete from '../components/AddressAutocomplete';
+import TagPicker from '../components/TagPicker';
 import '../styles/CreateListing.css';
 
 const CreateListing = () => {
@@ -22,6 +23,7 @@ const CreateListing = () => {
   const [addressCoordinates, setAddressCoordinates] = useState(null);
   const [addressVerified, setAddressVerified] = useState(false);
 
+  const [tags, setTags] = useState([]);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [loading, setLoading] = useState(false);
@@ -306,7 +308,8 @@ const CreateListing = () => {
         squareFeet: Number(formData.squareFeet),
         zipCode: formData.zipCode.trim(),
         status: formData.status,
-        images: formData.images
+        images: formData.images,
+        tags,
       };
 
       if (addressCoordinates) {
@@ -545,6 +548,12 @@ const CreateListing = () => {
             {errors.description && touched.description && (
               <span className="error-message">{errors.description}</span>
             )}
+          </motion.div>
+
+          {/* Tags Field */}
+          <motion.div className="form-group form-group-full" variants={itemVariants}>
+            <label>Neighborhood &amp; Lifestyle Tags (Optional)</label>
+            <TagPicker selected={tags} onChange={setTags} />
           </motion.div>
 
           {/* Status Field */}

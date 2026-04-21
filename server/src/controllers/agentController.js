@@ -25,60 +25,35 @@ export const updateAgentAvailability = async (req, res) => {
 
     // Validate each slot in the array
     for (const slot of availabilitySlots) {
-      // Check required fields
-      if (!slot.dayOfWeek && slot.dayOfWeek !== 0) {
+      if (!slot.date) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'Each availability slot must include a dayOfWeek'
-          )
+          createErrorResponse('Invalid input', 'Each availability slot must include a date')
         );
       }
-      
-      if (slot.dayOfWeek < 0 || slot.dayOfWeek > 6) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(slot.date)) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'Day of week must be between 0 and 6 (0 = Sunday, 6 = Saturday)'
-          )
+          createErrorResponse('Invalid input', 'Date must be in YYYY-MM-DD format (e.g., 2025-04-28)')
         );
       }
-
       if (!slot.startTime) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'Each availability slot must include a startTime'
-          )
+          createErrorResponse('Invalid input', 'Each availability slot must include a startTime')
         );
       }
-
       if (!slot.endTime) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'Each availability slot must include an endTime'
-          )
+          createErrorResponse('Invalid input', 'Each availability slot must include an endTime')
         );
       }
-
-      // Validate time format (HH:MM)
       const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(slot.startTime)) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'Start time must be in HH:MM format (e.g., 10:30)'
-          )
+          createErrorResponse('Invalid input', 'Start time must be in HH:MM format')
         );
       }
-
       if (!timeRegex.test(slot.endTime)) {
         return res.status(400).json(
-          createErrorResponse(
-            'Invalid input',
-            'End time must be in HH:MM format (e.g., 17:30)'
-          )
+          createErrorResponse('Invalid input', 'End time must be in HH:MM format')
         );
       }
     }

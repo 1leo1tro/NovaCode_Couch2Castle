@@ -146,6 +146,44 @@
   box-shadow: 0 4px 12px rgba(15, 82, 128, 0.3);
 }
 
+.signin-mock-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.85rem 1rem;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.signin-mock-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.signin-mock-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-foreground);
+  margin: 0;
+}
+
+.signin-mock-email {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
 .signin-footer {
   margin-top: 2rem;
   padding-top: 1.5rem;

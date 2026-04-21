@@ -8,11 +8,11 @@ import { protect } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Public route - get any agent's availability by their ID (no auth required)
-router.get('/agents/:agentId/availability', getAgentAvailabilityById);
-
-// Protected routes (authentication required - agent only)
+// Protected routes must come before /:agentId to prevent "me" matching the param
 router.put('/agents/me/availability', protect, updateAgentAvailability);
 router.get('/agents/me/availability', protect, getAgentAvailability);
+
+// Public route - get any agent's availability by their ID (no auth required)
+router.get('/agents/:agentId/availability', getAgentAvailabilityById);
 
 export default router;
