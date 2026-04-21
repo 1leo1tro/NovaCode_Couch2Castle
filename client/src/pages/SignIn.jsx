@@ -276,38 +276,8 @@ const SignIn = () => {
                   Forgot username?
                 </button>
               </div>
-            )}
-
-            <label>
-              Email
-              <input
-                type="email"
-                name="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={loading}
-              />
-            </label>
-            <label>
-              Password
-              <input
-                type="password"
-                name="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={loading}
-              />
-            </label>
-            <button
-              type="submit"
-              className="signin-submit"
-              disabled={loading}
-            >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-          </form>
+            </>
+          )}
           {userType === 'agent' && (
             <div className="signin-helper">
               <div className="signin-helper-card">
