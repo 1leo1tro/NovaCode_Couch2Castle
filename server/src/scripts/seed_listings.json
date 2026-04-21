@@ -1,0 +1,328 @@
+[
+  {
+    "price": 589000,
+    "address": "1842 Belmont Blvd, Nashville, TN 37212",
+    "zipCode": "37212",
+    "squareFeet": 2340,
+    "status": "active",
+    "viewCount": 84,
+    "description": "Stunning craftsman bungalow in the heart of Belmont-Hillsboro. Original hardwood floors, updated kitchen with quartz countertops, and a spacious rear deck overlooking a private fenced yard. Walking distance to Belmont University and 12 South dining.",
+    "images": [
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-86.7974, 36.1389] },
+    "tags": ["craftsman", "hardwood floors", "fenced yard", "walkable"]
+  },
+  {
+    "price": 875000,
+    "address": "3204 Tarrytown Cir, Austin, TX 78703",
+    "zipCode": "78703",
+    "squareFeet": 3100,
+    "status": "active",
+    "viewCount": 137,
+    "description": "Modern farmhouse in coveted Tarrytown just minutes from downtown Austin. Open-plan living with 10-foot ceilings, chef's kitchen with Wolf appliances, primary suite with soaking tub, and a resort-style pool. Top-rated Casis Elementary attendance zone.",
+    "images": [
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-97.7676, 30.2909] },
+    "tags": ["pool", "modern farmhouse", "chef kitchen", "top schools"]
+  },
+  {
+    "price": 695000,
+    "address": "528 Vine St, Denver, CO 80206",
+    "zipCode": "80206",
+    "squareFeet": 2750,
+    "status": "active",
+    "viewCount": 61,
+    "description": "Gorgeous Victorian in Congress Park with original architectural details intact. Three bedrooms, two updated bathrooms, a finished basement family room, and a beautifully landscaped garden. Two-car detached garage. Walk to Cheesman Park.",
+    "images": [
+      "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-104.9506, 39.7312] },
+    "tags": ["victorian", "finished basement", "garage", "historic"]
+  },
+  {
+    "price": 1150000,
+    "address": "2917 Hibiscus St, Miami, FL 33133",
+    "zipCode": "33133",
+    "squareFeet": 3600,
+    "status": "active",
+    "viewCount": 203,
+    "description": "Contemporary masterpiece in Coconut Grove. Walls of glass open to a tropical courtyard with heated pool and summer kitchen. Italian porcelain floors throughout, smart home automation, and a gourmet kitchen with Miele appliances. Minutes from Biscayne Bay.",
+    "images": [
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-80.2485, 25.7264] },
+    "tags": ["pool", "smart home", "contemporary", "waterfront adjacent"]
+  },
+  {
+    "price": 765000,
+    "address": "1735 N Sedgwick St, Chicago, IL 60614",
+    "zipCode": "60614",
+    "squareFeet": 2900,
+    "status": "active",
+    "viewCount": 92,
+    "description": "Stunning Lincoln Park row home with private rooftop deck and skyline views. Open main level with exposed brick, chef's kitchen, and dining room perfect for entertaining. Three bedrooms, two and a half baths, and an attached garage. Steps from the lakefront path.",
+    "images": [
+      "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-87.6375, 41.9231] },
+    "tags": ["rooftop deck", "skyline view", "exposed brick", "lakefront"]
+  },
+  {
+    "price": 625000,
+    "address": "3540 Habersham Rd NW, Atlanta, GA 30305",
+    "zipCode": "30305",
+    "squareFeet": 3200,
+    "status": "active",
+    "viewCount": 75,
+    "description": "Classic Buckhead brick Colonial on a half-acre wooded lot. Formal living and dining rooms, updated eat-in kitchen, sunroom, and a large back deck. Primary suite with spa bath upstairs. Attached two-car garage and full unfinished basement with high ceilings.",
+    "images": [
+      "https://images.unsplash.com/photo-1523217582562-09d0def993a6?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-84.3863, 33.8491] },
+    "tags": ["colonial", "wooded lot", "garage", "basement"]
+  },
+  {
+    "price": 485000,
+    "address": "6231 N 20th St, Phoenix, AZ 85016",
+    "zipCode": "85016",
+    "squareFeet": 2100,
+    "status": "active",
+    "viewCount": 49,
+    "description": "Remodeled mid-century ranch in the Biltmore corridor. New roof, HVAC, and plumbing (2023). Open living area with vaulted ceilings, quartz kitchen, split master floor plan, and a resort backyard with Pebble Tec pool and covered patio. No HOA.",
+    "images": [
+      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-112.0398, 33.5112] },
+    "tags": ["pool", "mid-century", "no HOA", "remodeled"]
+  },
+  {
+    "price": 995000,
+    "address": "714 W Blaine St, Seattle, WA 98119",
+    "zipCode": "98119",
+    "squareFeet": 2650,
+    "status": "active",
+    "viewCount": 158,
+    "description": "Sophisticated Queen Anne craftsman with sweeping views of Puget Sound and the Olympic Mountains. Main level great room with gas fireplace, Sub-Zero refrigerator, and hardwood floors. Primary suite features a private view deck. Two-car garage with EV charger.",
+    "images": [
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-122.3694, 47.6378] },
+    "tags": ["water view", "craftsman", "EV charger", "fireplace"]
+  },
+  {
+    "price": 549000,
+    "address": "2408 NW Lovejoy St, Portland, OR 97210",
+    "zipCode": "97210",
+    "squareFeet": 1980,
+    "status": "pending",
+    "viewCount": 113,
+    "description": "Charming Northwest District bungalow fully updated while preserving its 1920s character. Coved ceilings, built-in bookcases, and a formal dining room. New kitchen with marble countertops, primary suite addition with walk-in closet. Detached one-car garage.",
+    "images": [
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-122.6955, 45.5311] },
+    "tags": ["bungalow", "historic", "updated kitchen", "walkable"]
+  },
+  {
+    "price": 520000,
+    "address": "1629 Maryland Ave, Charlotte, NC 28209",
+    "zipCode": "28209",
+    "squareFeet": 2450,
+    "status": "active",
+    "viewCount": 67,
+    "description": "Turnkey four-bedroom in Dilworth's most sought-after block. Rocking-chair front porch, open kitchen-family room with shiplap accent wall, screened back porch, and fenced yard. Walk to restaurants, Freedom Park, and light rail.",
+    "images": [
+      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-80.8582, 35.2053] },
+    "tags": ["front porch", "fenced yard", "walkable", "light rail"]
+  },
+  {
+    "price": 389000,
+    "address": "318 Bushnell Ave, San Antonio, TX 78212",
+    "zipCode": "78212",
+    "squareFeet": 2050,
+    "status": "active",
+    "viewCount": 42,
+    "description": "Beautifully restored King William District home with original 1910 character. Pressed tin ceilings, pine floors, and a wraparound veranda. Updated two baths, open kitchen with farmhouse sink, and a lush courtyard garden. Walking distance to the River Walk.",
+    "images": [
+      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-98.4926, 29.4149] },
+    "tags": ["historic", "veranda", "courtyard", "walkable"]
+  },
+  {
+    "price": 679000,
+    "address": "4412 W Swann Ave, Tampa, FL 33609",
+    "zipCode": "33609",
+    "squareFeet": 2850,
+    "status": "active",
+    "viewCount": 88,
+    "description": "New construction pool home in South Tampa's Beach Park neighborhood. Impact windows and doors, quartz waterfall island, 10-foot ceilings, and a spa-style primary bath. Heated saltwater pool and outdoor kitchen on a large corner lot.",
+    "images": [
+      "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-82.5219, 27.9401] },
+    "tags": ["new construction", "pool", "saltwater", "impact windows"]
+  },
+  {
+    "price": 565000,
+    "address": "9204 Painted Sunset Dr, Las Vegas, NV 89117",
+    "zipCode": "89117",
+    "squareFeet": 3050,
+    "status": "active",
+    "viewCount": 55,
+    "description": "Immaculate Summerlin home in a guard-gated community. Travertine floors, formal dining room, gourmet kitchen with double ovens, and a loft bonus room. Backyard oasis with pool, spa, and covered patio. Three-car garage. Award-winning school district.",
+    "images": [
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-115.2788, 36.1538] },
+    "tags": ["gated", "pool", "spa", "3-car garage"]
+  },
+  {
+    "price": 449000,
+    "address": "2811 Irving Ave S, Minneapolis, MN 55408",
+    "zipCode": "55408",
+    "squareFeet": 2200,
+    "status": "active",
+    "viewCount": 39,
+    "description": "Impeccably maintained Whittier Foursquare with century-old charm. Original woodwork, leaded-glass windows, and a restored front porch. Updated kitchen and baths, finished attic office, and a deep city lot with privacy fence. Minutes from Eat Street.",
+    "images": [
+      "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-93.2982, 44.9531] },
+    "tags": ["foursquare", "original woodwork", "attic office", "historic"]
+  },
+  {
+    "price": 1295000,
+    "address": "4506 Rheims Pl, Dallas, TX 75205",
+    "zipCode": "75205",
+    "squareFeet": 4800,
+    "status": "active",
+    "viewCount": 241,
+    "description": "Luxurious Highland Park estate on a premier street. Five bedrooms, six baths, grand foyer with curved staircase, paneled study, and a chef's kitchen opening to a family room. Resort backyard with pool, spa, outdoor kitchen, and putting green. Three-car garage.",
+    "images": [
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-96.8017, 32.8478] },
+    "tags": ["luxury", "pool", "putting green", "Highland Park"]
+  },
+  {
+    "price": 540000,
+    "address": "2406 Wroxton Rd, Houston, TX 77005",
+    "zipCode": "77005",
+    "squareFeet": 2500,
+    "status": "sold",
+    "viewCount": 176,
+    "closingDate": "2025-11-15T00:00:00.000Z",
+    "finalSalePrice": 530000,
+    "daysOnMarket": 18,
+    "description": "Elegant Southampton traditional with recently updated kitchen and baths. Hardwood floors throughout, formal living with gas fireplace, sunlit breakfast room, and a large primary suite. Brick-enclosed backyard with mature trees. One block from Rice University.",
+    "images": [
+      "https://images.unsplash.com/photo-1505843513577-22bb7d21e455?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-95.4160, 29.7193] },
+    "tags": ["traditional", "fireplace", "hardwood floors", "near Rice"]
+  },
+  {
+    "price": 615000,
+    "address": "847 N Quince St, Salt Lake City, UT 84103",
+    "zipCode": "84103",
+    "squareFeet": 2350,
+    "status": "active",
+    "viewCount": 71,
+    "description": "Beautifully restored Avenues Victorian with mountain views. Period details include cove ceilings, transom windows, and a clawfoot tub. Chef's kitchen with quartz and Bosch appliances, private backyard, and a one-car garage. Steps from City Creek trails.",
+    "images": [
+      "https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-111.8972, 40.7831] },
+    "tags": ["victorian", "mountain view", "restored", "walkable"]
+  },
+  {
+    "price": 558000,
+    "address": "1514 Canterbury Rd, Raleigh, NC 27608",
+    "zipCode": "27608",
+    "squareFeet": 2900,
+    "status": "active",
+    "viewCount": 52,
+    "description": "Spacious Budleigh brick ranch fully renovated in 2022. Open kitchen-living with 9-foot quartz island, hardwood floors throughout, primary suite with dual walk-in closets, and a sunroom. Screened porch, flat fenced yard, and oversized two-car garage.",
+    "images": [
+      "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-78.6594, 35.8039] },
+    "tags": ["ranch", "renovated", "sunroom", "screened porch"]
+  },
+  {
+    "price": 1050000,
+    "address": "3841 Falcon St, San Diego, CA 92103",
+    "zipCode": "92103",
+    "squareFeet": 2700,
+    "status": "active",
+    "viewCount": 189,
+    "description": "Architectural gem in Mission Hills with panoramic views of downtown San Diego and the bay. Stunning renovations include a designer kitchen, spa primary bath, and whole-home smart system. Private courtyard with fountain, rooftop terrace, and a two-car garage.",
+    "images": [
+      "https://images.unsplash.com/photo-1592595896551-12b371d546d5?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-117.1622, 32.7497] },
+    "tags": ["bay view", "rooftop terrace", "smart home", "courtyard"]
+  },
+  {
+    "price": 1425000,
+    "address": "48 Marlborough St, Boston, MA 02116",
+    "zipCode": "02116",
+    "squareFeet": 3400,
+    "status": "sold",
+    "viewCount": 312,
+    "closingDate": "2025-12-20T00:00:00.000Z",
+    "finalSalePrice": 1500000,
+    "daysOnMarket": 9,
+    "description": "Exceptional Back Bay brownstone with classic Federal architecture. Four floors of living space with original medallion plaster ceilings, marble fireplaces, and a chef's kitchen on the garden level. Roof deck with skyline views and private parking.",
+    "images": [
+      "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=800&q=80"
+    ],
+    "location": { "type": "Point", "coordinates": [-71.0761, 42.3516] },
+    "tags": ["brownstone", "Back Bay", "roof deck", "parking"]
+  }
+]

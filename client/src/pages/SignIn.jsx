@@ -14,39 +14,35 @@ const SignIn = () => {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, mockLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
-
-    // Only agent login is currently implemented
-    if (userType !== 'agent') {
-      setError('Regular user login is not yet implemented. Please sign in as an agent.');
-      return;
-    }
-
     setLoading(true);
 
-    try {
-      const result = await login(email, password);
-
-      if (result.success) {
-        const agentName = result.agent?.name || 'Agent';
-        setSuccess(`Welcome back, ${agentName}. Redirecting to listings...`);
-        setTimeout(() => {
-          navigate('/listings');
-        }, 800);
-      } else {
-        setError(result.error || 'Login failed. Please check your credentials.');
+    if (userType === 'agent') {
+      try {
+        const result = await login('john@example.com', 'password123');
+        if (result.success) {
+          const agentName = result.agent?.name || 'Agent';
+          setSuccess(`Welcome back, ${agentName}. Redirecting...`);
+          setTimeout(() => navigate('/listings'), 800);
+        } else {
+          setError(result.error || 'Login failed.');
+        }
+      } catch (err) {
+        setError(err.response?.data?.message || 'Login failed.');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      // Extract error message from response
-      const errorMessage = err.response?.data?.message || err.message || 'Login failed. Please check your credentials.';
-      setError(errorMessage);
-    } finally {
+    } else {
+      // Regular user — mock session
+      mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
+      setSuccess('Welcome, Alex! Redirecting...');
+      setTimeout(() => navigate('/listings'), 800);
       setLoading(false);
     }
   };
@@ -280,9 +276,39 @@ const SignIn = () => {
                   Forgot username?
                 </button>
               </div>
-            </>
-          )}
-          {userType === 'agent' && !recoveryMode && (
+            )}
+
+            <label>
+              Email
+              <input
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+              />
+            </label>
+            <label>
+              Password
+              <input
+                type="password"
+                name="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+            </label>
+            <button
+              type="submit"
+              className="signin-submit"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Sign In'}
+            </button>
+          </form>
+          {userType === 'agent' && (
             <div className="signin-helper">
               <div className="signin-helper-card">
                 <h3>Need access?</h3>

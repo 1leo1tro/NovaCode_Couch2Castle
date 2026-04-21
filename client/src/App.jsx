@@ -2,6 +2,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { BookmarkProvider } from './context/BookmarkContext';
+import { ShowingNotificationsProvider } from './context/ShowingNotificationsContext';
 
 import Home from './pages/Home';
 import Contacts from './pages/Contacts';
@@ -16,6 +18,8 @@ import Help from './pages/Help';
 import Reports from './pages/Reports';
 import Scheduling from './pages/Scheduling';
 import CreateUser from './pages/CreateUser';
+import Bookmarks from './pages/Bookmarks';
+import MyShowings from './pages/MyShowings';
 import Navbar from './components/Navbar';
 import ProtectedRoute from './components/ProtectedRoute';
 import './styles/App.css';
@@ -26,6 +30,8 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <BookmarkProvider>
+        <ShowingNotificationsProvider>
         <ThemeProvider>
           <div className="app">
             <Navbar />
@@ -38,6 +44,8 @@ function App() {
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/create-user" element={<CreateUser />} />
                 <Route path="/listings" element={<Listings />} />
+                <Route path="/bookmarks" element={<Bookmarks />} />
+                <Route path="/my-showings" element={<MyShowings />} />
                 <Route path="/listings/mine" element={
                   <ProtectedRoute requireAgent={true}>
                     <MyListings />
@@ -68,6 +76,8 @@ function App() {
             </main>
           </div>
         </ThemeProvider>
+        </ShowingNotificationsProvider>
+        </BookmarkProvider>
       </AuthProvider>
     </Router>
   );

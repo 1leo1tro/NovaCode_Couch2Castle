@@ -15,6 +15,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [mockUser, setMockUser] = useState(() => {
+    const stored = localStorage.getItem('mockUser');
+    return stored ? JSON.parse(stored) : null;
+  });
 
   // Initialize auth state from localStorage on mount
   useEffect(() => {
@@ -104,16 +108,23 @@ export const AuthProvider = ({ children }) => {
 
   // Logout function
   const logout = () => {
-    // Clear state
     setToken(null);
     setUser(null);
-
-    // Clear localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-
-    // Clear axios default header
     delete axios.defaults.headers.common['Authorization'];
+  };
+
+  // Mock login for regular users (no backend auth)
+  const mockLogin = (userData) => {
+    setMockUser(userData);
+    localStorage.setItem('mockUser', JSON.stringify(userData));
+  };
+
+  // Mock logout
+  const mockLogout = () => {
+    setMockUser(null);
+    localStorage.removeItem('mockUser');
   };
 
   // Check if user is authenticated
@@ -136,6 +147,9 @@ export const AuthProvider = ({ children }) => {
     token,
     login,
     logout,
+    mockUser,
+    mockLogin,
+    mockLogout,
     isAuthenticated,
     getUser,
     getToken,

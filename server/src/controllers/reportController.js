@@ -57,7 +57,7 @@ export const getOpenListingsReport = async (req, res) => {
     const summary = results.reduce(
       (acc, item) => {
         acc.totalAgents += 1;
-        acc.totalListings += item.count;
+        acc.totalListings += item.listingCount;
         acc.totalValue += item.totalValue;
         return acc;
       },

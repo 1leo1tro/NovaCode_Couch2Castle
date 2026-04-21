@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import '../styles/Reports.css';
 
 const Reports = () => {
   const { isAuthenticated } = useAuth();
@@ -40,25 +41,33 @@ const Reports = () => {
   return (
     <div className="reports-page">
       <h1>Reports</h1>
+      <p className="reports-subtitle">
+        {activeTab === 'open' ? 'Active listings by agent' : 'Closed / sold listings by agent'}
+      </p>
 
       <div className="reports-tabs">
         <button
           className={`reports-tab-btn${activeTab === 'open' ? ' active' : ''}`}
           onClick={() => setActiveTab('open')}
         >
-          Open
+          Open Listings
         </button>
         <button
           className={`reports-tab-btn${activeTab === 'closed' ? ' active' : ''}`}
           onClick={() => setActiveTab('closed')}
         >
-          Closed
+          Closed Listings
         </button>
       </div>
 
-      {loading && <p className="reports-loading">Loading report...</p>}
+      {loading && (
+        <div className="reports-loading">
+          <div className="reports-loading-spinner" />
+          Loading report…
+        </div>
+      )}
 
-      {error && <p className="reports-error">{error}</p>}
+      {error && <div className="reports-error">{error}</div>}
 
       {!loading && !error && summary && (
         <div className="reports-summary">
@@ -90,34 +99,37 @@ const Reports = () => {
       )}
 
       {!loading && !error && data.length > 0 && (
-        <table className="reports-table">
-          <thead>
-            <tr>
-              <th>Agent</th>
-              <th>Email</th>
-              <th>Listings</th>
-              <th>Total Value</th>
-              {activeTab === 'closed' && <th>Avg Sale Price</th>}
-              {activeTab === 'closed' && <th>Avg Days on Market</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, idx) => (
-              <tr key={row.agent?._id || idx}>
-                <td>{row.agent?.name || '—'}</td>
-                <td>{row.agent?.email || '—'}</td>
-                <td>{(row.listingCount ?? row.count ?? 0).toLocaleString()}</td>
-                <td>${(row.totalValue ?? 0).toLocaleString()}</td>
-                {activeTab === 'closed' && (
-                  <td>${Math.round(row.avgSalePrice ?? 0).toLocaleString()}</td>
-                )}
-                {activeTab === 'closed' && (
-                  <td>{Math.round(row.avgDaysOnMarket ?? 0)}</td>
-                )}
+        <div className="reports-table-wrapper">
+          <table className="reports-table">
+            <thead>
+              <tr>
+                <th>Agent</th>
+                <th>Listings</th>
+                <th>Total Value</th>
+                {activeTab === 'closed' && <th>Avg Sale Price</th>}
+                {activeTab === 'closed' && <th>Avg Days on Market</th>}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {data.map((row, idx) => (
+                <tr key={row.agent?._id || idx}>
+                  <td>
+                    <div className="reports-agent-name">{row.agent?.name || '—'}</div>
+                    <div className="reports-agent-email">{row.agent?.email || ''}</div>
+                  </td>
+                  <td>{(row.listingCount ?? row.count ?? 0).toLocaleString()}</td>
+                  <td className="reports-value">${(row.totalValue ?? 0).toLocaleString()}</td>
+                  {activeTab === 'closed' && (
+                    <td className="reports-value">${Math.round(row.avgSalePrice ?? 0).toLocaleString()}</td>
+                  )}
+                  {activeTab === 'closed' && (
+                    <td>{Math.round(row.avgDaysOnMarket ?? 0)}</td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
 
       {!loading && !error && data.length === 0 && summary && (
