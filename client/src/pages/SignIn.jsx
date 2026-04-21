@@ -8,6 +8,8 @@ const SignIn = () => {
   const [userType, setUserType] = useState(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [recoveryMode, setRecoveryMode] = useState(null);
+  const [recoveryEmail, setRecoveryEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,12 +47,31 @@ const SignIn = () => {
     }
   };
 
+  const handleRecoverySubmit = (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!recoveryEmail) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess("If an account exists, you'll receive an email shortly.");
+    }, 300);
+  };
+
   const handleUserTypeChange = (type) => {
     setUserType(type);
+    setRecoveryMode(null);
     setError('');
     setSuccess('');
     setEmail('');
     setPassword('');
+    setRecoveryEmail('');
   };
 
   return (
@@ -94,34 +115,166 @@ const SignIn = () => {
           >
             ← Back
           </button>
-          <form className="signin-form" onSubmit={handleSubmit}>
-            <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
+          {recoveryMode ? (
+            <form className="signin-form" onSubmit={handleRecoverySubmit}>
+              <h2>
+                {recoveryMode === 'password' ? 'Forgot Password' : 'Forgot Username'}
+              </h2>
+              <p className="signin-recovery-copy">
+                Enter the email address associated with your account. We will show a mock confirmation message.
+              </p>
 
-            {success && (
-              <div
-                className="signin-success"
-                style={{
-                  color: '#2e7d32',
-                  backgroundColor: '#e8f5e9',
+              {success && (
+                <div
+                  className="signin-success"
+                  style={{
+                    color: '#2e7d32',
+                    backgroundColor: '#e8f5e9',
+                    padding: '12px',
+                    borderRadius: '4px',
+                    marginBottom: '16px',
+                    fontSize: '14px'
+                  }}
+                >
+                  {success}
+                </div>
+              )}
+              {error && (
+                <div className="signin-error" style={{
+                  color: '#d32f2f',
+                  backgroundColor: '#ffebee',
                   padding: '12px',
                   borderRadius: '4px',
                   marginBottom: '16px',
                   fontSize: '14px'
+                }}>
+                  {error}
+                </div>
+              )}
+
+              <label>
+                Email
+                <input
+                  type="email"
+                  name="recoveryEmail"
+                  placeholder="you@example.com"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </label>
+
+              <button
+                type="submit"
+                className="signin-submit"
+                disabled={loading}
+              >
+                {loading ? 'Sending...' : 'Send recovery email'}
+              </button>
+              <button
+                type="button"
+                className="signin-back"
+                onClick={() => {
+                  setRecoveryMode(null);
+                  setError('');
+                  setSuccess('');
                 }}
               >
-                {success}
-              </div>
-            )}
-            {error && (
-              <div className="signin-error" style={{
-                color: '#d32f2f',
-                backgroundColor: '#ffebee',
-                padding: '12px',
-                borderRadius: '4px',
-                marginBottom: '16px',
-                fontSize: '14px'
-              }}>
-                {error}
+                ← Back to sign in
+              </button>
+            </form>
+          ) : (
+            <>
+              <form className="signin-form" onSubmit={handleSubmit}>
+                <h2>Sign in as {userType === 'agent' ? 'Agent' : 'User'}</h2>
+
+                {success && (
+                  <div
+                    className="signin-success"
+                    style={{
+                      color: '#2e7d32',
+                      backgroundColor: '#e8f5e9',
+                      padding: '12px',
+                      borderRadius: '4px',
+                      marginBottom: '16px',
+                      fontSize: '14px'
+                    }}
+                  >
+                    {success}
+                  </div>
+                )}
+                {error && (
+                  <div className="signin-error" style={{
+                    color: '#d32f2f',
+                    backgroundColor: '#ffebee',
+                    padding: '12px',
+                    borderRadius: '4px',
+                    marginBottom: '16px',
+                    fontSize: '14px'
+                  }}>
+                    {error}
+                  </div>
+                )}
+
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </label>
+                <label>
+                  Password
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className="signin-submit"
+                  disabled={loading}
+                >
+                  {loading ? 'Signing in...' : 'Sign In'}
+                </button>
+              </form>
+
+              <div className="signin-recovery-options">
+                <button
+                  type="button"
+                  className="signin-link-button"
+                  onClick={() => {
+                    setRecoveryMode('password');
+                    setError('');
+                    setSuccess('');
+                    setRecoveryEmail(email);
+                  }}
+                >
+                  Forgot password?
+                </button>
+                <button
+                  type="button"
+                  className="signin-link-button"
+                  onClick={() => {
+                    setRecoveryMode('username');
+                    setError('');
+                    setSuccess('');
+                    setRecoveryEmail(email);
+                  }}
+                >
+                  Forgot username?
+                </button>
               </div>
             )}
 

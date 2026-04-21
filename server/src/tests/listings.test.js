@@ -169,6 +169,91 @@ describe('Ownership Enforcement', () => {
   });
 });
 
+describe('PATCH /api/listings/:id/sold', () => {
+  test('should allow owner to mark listing as sold with closingDate and finalSalePrice', async () => {
+    const listing = await createTestListing(agent1._id);
+    const listingCreatedAt = new Date(listing.createdAt);
+
+    const closingDate = new Date(Date.UTC(
+      listingCreatedAt.getUTCFullYear(),
+      listingCreatedAt.getUTCMonth(),
+      listingCreatedAt.getUTCDate() + 7
+    ));
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: closingDate.toISOString(), finalSalePrice: 275000 })
+      .expect(200);
+
+    expect(response.body.message).toBe('Listing marked as sold');
+    expect(response.body.listing.status).toBe('sold');
+    expect(response.body.listing.finalSalePrice).toBe(275000);
+    expect(new Date(response.body.listing.closingDate).toISOString()).toBe(closingDate.toISOString());
+    expect(response.body.listing.daysOnMarket).toBe(7);
+  });
+
+  test('should return 400 when closingDate is missing', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ finalSalePrice: 275000 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Missing required fields');
+  });
+
+  test('should return 400 when finalSalePrice is missing', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString() })
+      .expect(400);
+
+    expect(response.body.message).toBe('Missing required fields');
+  });
+
+  test('should return 400 when closingDate is invalid', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: 'not-a-date', finalSalePrice: 275000 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Invalid field');
+    expect(response.body.error).toBe('closingDate must be a valid date');
+  });
+
+  test('should return 400 when finalSalePrice is invalid', async () => {
+    const listing = await createTestListing(agent1._id);
+
+    const response = await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString(), finalSalePrice: -1 })
+      .expect(400);
+
+    expect(response.body.message).toBe('Invalid field');
+    expect(response.body.error).toBe('finalSalePrice must be a valid non-negative number');
+  });
+
+  test('should deny access to mark another agent\'s listing as sold', async () => {
+    const listing = await createTestListing(agent2._id);
+
+    await request(app)
+      .patch(`/api/listings/${listing._id}/sold`)
+      .set('Authorization', `Bearer ${token1}`)
+      .send({ closingDate: new Date().toISOString(), finalSalePrice: 300000 })
+      .expect(403);
+  });
+});
+
 describe('GET /api/listings', () => {
   describe('Active Listings', () => {
     test('should return all active listings', async () => {

@@ -98,13 +98,18 @@ export const getClosedListingsReport = async (req, res) => {
         $group: {
           _id: '$createdBy',
           count: { $sum: 1 },
-          totalValue: { $sum: '$price' },
-          avgSalePrice: { $avg: '$price' },
+          totalValue: { $sum: { $ifNull: ['$finalSalePrice', '$price'] } },
+          avgSalePrice: { $avg: { $ifNull: ['$finalSalePrice', '$price'] } },
           avgDaysOnMarket: {
             $avg: {
-              $divide: [
-                { $subtract: ['$updatedAt', '$createdAt'] },
-                MS_PER_DAY,
+              $ifNull: [
+                '$daysOnMarket',
+                {
+                  $divide: [
+                    { $subtract: [{ $ifNull: ['$closingDate', '$updatedAt'] }, '$createdAt'] },
+                    MS_PER_DAY,
+                  ],
+                },
               ],
             },
           },

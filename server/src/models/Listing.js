@@ -112,14 +112,63 @@ const listingSchema = new mongoose.Schema({
   timestamps: true // Adds createdAt and updatedAt fields
 });
 
-// Auto-calculate daysOnMarket from createdAt when closingDate is set
+const DAY_IN_MS = 1000 * 60 * 60 * 24;
+
+const calculateDaysOnMarket = (createdAt, closingDate) => {
+  if (!createdAt || !closingDate) {
+    return undefined;
+  }
+
+  const created = new Date(createdAt);
+  const closing = new Date(closingDate);
+
+  if (Number.isNaN(created.getTime()) || Number.isNaN(closing.getTime())) {
+    return undefined;
+  }
+
+  // Compare calendar days in UTC to avoid time-of-day and local timezone drift.
+  const createdUtc = Date.UTC(created.getUTCFullYear(), created.getUTCMonth(), created.getUTCDate());
+  const closingUtc = Date.UTC(closing.getUTCFullYear(), closing.getUTCMonth(), closing.getUTCDate());
+  const diffDays = Math.floor((closingUtc - createdUtc) / DAY_IN_MS);
+
+  return Math.max(0, diffDays);
+};
+
+// Auto-calculate daysOnMarket from createdAt when closingDate is set.
 listingSchema.pre('save', function() {
   if (this.closingDate) {
-    const closing = new Date(this.closingDate);
-    const created = new Date(this.createdAt);
-    const diffMs = closing.getTime() - created.getTime();
-    this.daysOnMarket = Math.max(0, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+    const daysOnMarket = calculateDaysOnMarket(this.createdAt, this.closingDate);
+    if (daysOnMarket !== undefined) {
+      this.daysOnMarket = daysOnMarket;
+    }
   }
+});
+
+listingSchema.pre('findOneAndUpdate', async function() {
+  const update = this.getUpdate() || {};
+  const set = update.$set || update;
+
+  if (!set.closingDate) {
+    return;
+  }
+
+  const existingListing = await this.model.findOne(this.getQuery()).select('createdAt');
+  if (!existingListing?.createdAt) {
+    return;
+  }
+
+  const daysOnMarket = calculateDaysOnMarket(existingListing.createdAt, set.closingDate);
+  if (daysOnMarket === undefined) {
+    return;
+  }
+
+  if (update.$set) {
+    update.$set.daysOnMarket = daysOnMarket;
+  } else {
+    update.daysOnMarket = daysOnMarket;
+  }
+
+  this.setUpdate(update);
 });
 
 // Index for common queries
