@@ -11,7 +11,7 @@ const imgs = {
   budget: [
     'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
     'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+    'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=800',
     'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800',
   ],
   mid: [
@@ -20,7 +20,7 @@ const imgs = {
     'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
     'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=800',
     'https://images.unsplash.com/photo-1592595896616-c37162298647?w=800',
-    'https://images.unsplash.com/photo-1575517111839-3a3843ee7f5d?w=800',
+    'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=800',
   ],
   luxury: [
     'https://images.unsplash.com/photo-1613490493576-7fde63acd811?w=800',

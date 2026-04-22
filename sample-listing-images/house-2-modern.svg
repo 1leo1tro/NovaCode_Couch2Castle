@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 533" width="800" height="533">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="60%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0f3460"/>
+    </linearGradient>
+    <linearGradient id="ground2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d4a22"/>
+      <stop offset="100%" stop-color="#1a2e14"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4a90d9" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#1a3a6e" stop-opacity="0.8"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Night sky -->
+  <rect width="800" height="533" fill="url(#sky2)"/>
+
+  <!-- Stars -->
+  <circle cx="50" cy="40" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="120" cy="20" r="1" fill="white" opacity="0.7"/>
+  <circle cx="200" cy="55" r="1.5" fill="white" opacity="0.9"/>
+  <circle cx="320" cy="30" r="1" fill="white" opacity="0.6"/>
+  <circle cx="450" cy="15" r="1.5" fill="white" opacity="0.8"/>
+  <circle cx="580" cy="45" r="1" fill="white" opacity="0.7"/>
+  <circle cx="680" cy="25" r="1.5" fill="white" opacity="0.9"/>
+  <circle cx="750" cy="60" r="1" fill="white" opacity="0.6"/>
+  <circle cx="90" cy="80" r="1" fill="white" opacity="0.5"/>
+  <circle cx="390" cy="70" r="1.5" fill="white" opacity="0.8"/>
+
+  <!-- Moon -->
+  <circle cx="700" cy="70" r="38" fill="#FFF8DC" opacity="0.9"/>
+  <circle cx="718" cy="58" r="32" fill="#16213e"/>
+
+  <!-- Ground -->
+  <rect x="0" y="400" width="800" height="133" fill="url(#ground2)"/>
+
+  <!-- Pool/water feature -->
+  <rect x="550" y="405" width="180" height="80" fill="#1a6a9a" rx="8" opacity="0.9"/>
+  <rect x="555" y="410" width="170" height="70" fill="#2080bb" rx="6" opacity="0.7"/>
+  <text x="640" y="452" font-family="sans-serif" font-size="11" fill="rgba(255,255,255,0.5)" text-anchor="middle">~ ~ ~ ~</text>
+
+  <!-- Path -->
+  <polygon points="360,400 440,400 460,533 340,533" fill="#3a3a3a"/>
+  <line x1="400" y1="400" x2="400" y2="533" stroke="#555" stroke-width="2" stroke-dasharray="15,10"/>
+
+  <!-- Main house body - flat roof modern -->
+  <rect x="80" y="200" width="550" height="205" fill="#2a2a3e"/>
+  <!-- Facade panels -->
+  <rect x="80" y="200" width="220" height="205" fill="#252535"/>
+  <rect x="300" y="200" width="330" height="205" fill="#1e1e2e"/>
+
+  <!-- Flat roof detail -->
+  <rect x="75" y="192" width="560" height="14" fill="#3a3a5a"/>
+  <rect x="75" y="192" width="560" height="4" fill="#4a4a6a"/>
+
+  <!-- Giant glass wall - right section -->
+  <rect x="310" y="210" width="310" height="185" fill="url(#glass)" rx="1"/>
+  <!-- Window frame dividers -->
+  <line x1="413" y1="210" x2="413" y2="395" stroke="#333" stroke-width="3"/>
+  <line x1="516" y1="210" x2="516" y2="395" stroke="#333" stroke-width="3"/>
+  <line x1="310" y1="295" x2="620" y2="295" stroke="#333" stroke-width="3"/>
+  <!-- Interior light glow -->
+  <rect x="312" y="212" width="99" height="81" fill="#FFD580" opacity="0.15"/>
+  <rect x="415" y="212" width="99" height="81" fill="#FFD580" opacity="0.12"/>
+  <rect x="518" y="212" width="100" height="81" fill="#FFD580" opacity="0.18"/>
+  <rect x="312" y="297" width="99" height="96" fill="#b0d4ff" opacity="0.1"/>
+  <rect x="415" y="297" width="99" height="96" fill="#b0d4ff" opacity="0.08"/>
+  <rect x="518" y="297" width="100" height="96" fill="#b0d4ff" opacity="0.12"/>
+
+  <!-- Interior visible items (silhouettes) -->
+  <rect x="330" y="340" width="60" height="45" fill="rgba(0,0,0,0.2)" rx="3"/>
+  <rect x="440" y="350" width="50" height="35" fill="rgba(0,0,0,0.2)" rx="2"/>
+
+  <!-- Left section windows -->
+  <rect x="100" y="220" width="180" height="90" fill="url(#glass)" rx="1" opacity="0.7"/>
+  <line x1="190" y1="220" x2="190" y2="310" stroke="#333" stroke-width="2"/>
+  <line x1="100" y1="265" x2="280" y2="265" stroke="#333" stroke-width="2"/>
+  <rect x="100" y="220" width="88" height="43" fill="#FFD580" opacity="0.12"/>
+  <rect x="192" y="222" width="86" height="41" fill="#FFD580" opacity="0.1"/>
+
+  <!-- Front door -->
+  <rect x="155" y="330" width="65" height="75" fill="#1a1a2a" rx="2"/>
+  <rect x="158" y="333" width="26" height="60" fill="#222238" rx="1"/>
+  <rect x="190" y="333" width="27" height="60" fill="#222238" rx="1"/>
+  <!-- Door handle -->
+  <rect x="184" y="368" width="10" height="2" fill="#D4AF37"/>
+  <!-- Door light strip -->
+  <rect x="155" y="330" width="3" height="75" fill="#4a90d9" opacity="0.5"/>
+
+  <!-- Exterior lighting - wall sconces -->
+  <circle cx="140" cy="328" r="5" fill="#FFD580" opacity="0.9" filter="url(#glow)"/>
+  <rect x="137" y="320" width="6" height="8" fill="#aaa"/>
+  <!-- Light cone -->
+  <polygon points="140,333 128,355 152,355" fill="#FFD580" opacity="0.15"/>
+
+  <circle cx="232" cy="328" r="5" fill="#FFD580" opacity="0.9"/>
+  <rect x="229" y="320" width="6" height="8" fill="#aaa"/>
+  <polygon points="232,333 220,355 244,355" fill="#FFD580" opacity="0.15"/>
+
+  <!-- Second floor overhang -->
+  <rect x="80" y="200" width="550" height="16" fill="#3a3a5a"/>
+
+  <!-- Accent stripe -->
+  <rect x="80" y="200" width="6" height="205" fill="#e74c3c"/>
+  <rect x="624" y="200" width="6" height="205" fill="#e74c3c"/>
+
+  <!-- Garage door (left lower) -->
+  <rect x="80" y="340" width="70" height="65" fill="#1a1a2a" rx="1"/>
+  <line x1="80" y1="362" x2="150" y2="362" stroke="#333" stroke-width="1.5"/>
+  <line x1="80" y1="382" x2="150" y2="382" stroke="#333" stroke-width="1.5"/>
+
+  <!-- Landscape lighting -->
+  <circle cx="300" cy="402" r="3" fill="#FFD580" opacity="0.9"/>
+  <circle cx="500" cy="402" r="3" fill="#FFD580" opacity="0.9"/>
+
+  <!-- Modern landscape - ornamental grasses -->
+  <rect x="640" y="368" width="4" height="35" fill="#4a7a30" transform="rotate(-5,642,403)"/>
+  <rect x="650" y="365" width="4" height="38" fill="#5a8a38" transform="rotate(8,652,403)"/>
+  <rect x="658" y="370" width="3" height="30" fill="#4a7a30" transform="rotate(-3,660,400)"/>
+  <rect x="665" y="367" width="4" height="33" fill="#5a8a38" transform="rotate(10,667,400)"/>
+
+  <rect x="100" y="368" width="4" height="35" fill="#4a7a30" transform="rotate(-8,102,403)"/>
+  <rect x="110" y="365" width="4" height="38" fill="#5a8a38" transform="rotate(5,112,403)"/>
+  <rect x="118" y="370" width="3" height="30" fill="#4a7a30" transform="rotate(-2,120,400)"/>
+
+  <!-- Pool lights reflection -->
+  <rect x="550" y="405" width="180" height="6" fill="#4a90d9" opacity="0.5"/>
+
+  <!-- Label -->
+  <rect x="0" y="490" width="800" height="43" fill="rgba(0,0,0,0.6)"/>
+  <text x="400" y="518" font-family="Arial, sans-serif" font-size="18" fill="white" text-anchor="middle" font-weight="bold">Modern Luxury Home · 5 Bed · 4 Bath · Pool</text>
+</svg>

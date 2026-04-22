@@ -5,7 +5,7 @@ import '../styles/ListingsMap.css';
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
 
-const ListingsMap = ({ listings = [], cityQuery = '', mapHighlightRef, onMarkerHover, onMarkerClick, onBoundsChange }) => {
+const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searchTarget = null, mapHighlightRef, onMarkerHover, onMarkerClick, onBoundsChange }) => {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const popupRef = useRef(null);
@@ -226,6 +226,34 @@ const ListingsMap = ({ listings = [], cityQuery = '', mapHighlightRef, onMarkerH
     if (map.isStyleLoaded()) apply();
     else map.once('load', apply);
   }, [listings]);
+
+  // Fly to user location when geolocation is granted
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !userLocation) return;
+    initialFitDone.current = true;
+    hasUserInteracted.current = true;
+    map.flyTo({
+      center: [userLocation.lng, userLocation.lat],
+      zoom: 11,
+      duration: 3500,
+      essential: true,
+    });
+  }, [userLocation, mapLoaded]);
+
+  // Fly to search result center
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !mapLoaded || !searchTarget) return;
+    if (searchTarget.bounds) {
+      const { minLng, maxLng, minLat, maxLat } = searchTarget.bounds;
+      map.fitBounds([[minLng, minLat], [maxLng, maxLat]], { padding: 60, maxZoom: 13, duration: 2200, essential: true });
+    } else {
+      map.flyTo({ center: [searchTarget.lng, searchTarget.lat], zoom: 11, duration: 2200, essential: true });
+    }
+    hasUserInteracted.current = true;
+    initialFitDone.current = true;
+  }, [searchTarget, mapLoaded]);
 
   // City boundary outline from Nominatim
   useEffect(() => {

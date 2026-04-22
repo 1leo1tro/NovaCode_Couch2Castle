@@ -306,16 +306,6 @@ function Navbar() {
               </li>
             </>
           )}
-          <li className="navbar-theme-toggle-item">
-            <button 
-              onClick={toggleTheme} 
-              className="navbar-theme-toggle"
-              title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-              aria-label="Toggle dark mode"
-            >
-              {isDark ? <SunIcon /> : <MoonIcon />}
-            </button>
-          </li>
         </ul>
       </nav>
     </header>

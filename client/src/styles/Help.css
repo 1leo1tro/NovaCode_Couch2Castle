@@ -33,7 +33,9 @@
   margin: 0 0 0.75rem;
   padding-bottom: 0.5rem;
   border-bottom: 2px solid var(--color-accent);
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .help-accordion {
@@ -125,4 +127,109 @@
 .help-cta-btn:hover {
   background: var(--color-accent-dark);
   box-shadow: 0 4px 12px rgba(15, 82, 128, 0.3);
+}
+
+/* Section heading icons */
+.help-section-icon {
+  display: flex;
+  align-items: center;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* Footer */
+.help-footer {
+  margin-top: 3rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 2.5rem;
+}
+
+.help-footer-channels {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+@media (max-width: 620px) {
+  .help-footer-channels {
+    grid-template-columns: 1fr;
+  }
+}
+
+.help-footer-channel {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.1rem 1rem;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.help-footer-channel-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  background: var(--color-accent);
+  border-radius: 50%;
+  color: white;
+  flex-shrink: 0;
+}
+
+.help-footer-channel-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-accent);
+  margin: 0 0 0.2rem;
+}
+
+.help-footer-channel-value {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  margin: 0 0 0.15rem;
+}
+
+.help-footer-channel-note {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.help-footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1.25rem 0 0.5rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.help-footer-links {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.help-footer-links a {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.help-footer-links a:hover {
+  color: var(--color-accent);
+}
+
+.help-footer-copy {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin: 0;
 }

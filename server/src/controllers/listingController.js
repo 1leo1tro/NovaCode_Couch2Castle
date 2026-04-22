@@ -316,8 +316,9 @@ export const suggestListings = async (req, res) => {
       const parts = m.address.split(',');
       if (parts.length >= 3) {
         const city = parts[1].trim();
-        const state = parts[2].trim();
-        const key = `${city}, ${state}`;
+        // parts[2] may be "AL 35801" — take only the state abbreviation (first word)
+        const stateToken = parts[2].trim().split(/\s+/)[0];
+        const key = `${city}, ${stateToken}`;
         if (!cities.has(key)) cities.set(key, m.zipCode);
       }
       addresses.push({ label: m.address, type: 'address', id: m._id });

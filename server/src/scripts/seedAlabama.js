@@ -11,7 +11,7 @@ const imgs = {
   budget: [
     'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800',
     'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+    'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=800',
   ],
   mid: [
     'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800',
