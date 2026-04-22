@@ -81,6 +81,8 @@ export const getAllListings = async (req, res) => {
       maxPrice,
       minSquareFeet,
       maxSquareFeet,
+      minBedrooms,
+      minBathrooms,
       zipCode,
       status,
       page,
@@ -91,14 +93,22 @@ export const getAllListings = async (req, res) => {
 
     let query = {};
 
-    // Keyword search (case-insensitive)
+    // Keyword search — split into words so "Huntsville AL" matches "Huntsville, AL 35801"
     if (keyword) {
-      const searchRegex = { $regex: keyword, $options: 'i' };
-      query.$or = [
-        { address: searchRegex },
-        { zipCode: searchRegex },
-        { status: searchRegex }
+      const words = keyword.trim().split(/\s+/).filter(Boolean);
+      const searchFields = (regex) => [
+        { address: regex },
+        { zipCode: regex },
+        { description: regex },
+        { tags: regex },
       ];
+      if (words.length > 1) {
+        query.$and = words.map(word => ({
+          $or: searchFields({ $regex: word, $options: 'i' }),
+        }));
+      } else {
+        query.$or = searchFields({ $regex: keyword, $options: 'i' });
+      }
     }
 
     // Validate price range
@@ -121,6 +131,18 @@ export const getAllListings = async (req, res) => {
       if (Object.keys(sqftValidation.query).length > 0) {
         query.squareFeet = sqftValidation.query;
       }
+    }
+
+    if (minBedrooms) {
+      const n = parseInt(minBedrooms, 10);
+      if (!Number.isNaN(n) && n > 0)
+        query.bedrooms = req.query.exactBedrooms === 'true' ? n : { $gte: n };
+    }
+
+    if (minBathrooms) {
+      const n = parseFloat(minBathrooms);
+      if (!Number.isNaN(n) && n > 0)
+        query.bathrooms = req.query.exactBathrooms === 'true' ? n : { $gte: n };
     }
 
     // Validate ZIP code
@@ -222,6 +244,94 @@ export const getListingById = async (req, res) => {
     res.status(500).json(
       createErrorResponse('Error fetching listing', error.message, { type: error.name })
     );
+  }
+};
+
+// Get nearby listings sorted by view count ("hot" homes)
+export const getNearbyListings = async (req, res) => {
+  try {
+    const { lat, lng, radius = 80, limit = 8 } = req.query;
+    const radiusKm = Math.min(parseFloat(radius) || 80, 500);
+    const pageLimit = Math.min(parseInt(limit, 10) || 8, 50);
+
+    let query = { status: { $ne: 'inactive' } };
+
+    const parsedLat = parseFloat(lat);
+    const parsedLng = parseFloat(lng);
+    const hasCoords = !Number.isNaN(parsedLat) && !Number.isNaN(parsedLng);
+
+    if (hasCoords) {
+      query.location = {
+        $geoWithin: {
+          $centerSphere: [[parsedLng, parsedLat], radiusKm / 6371],
+        },
+      };
+    }
+
+    let listings = await Listing.find(query)
+      .sort({ viewCount: -1, createdAt: -1 })
+      .limit(pageLimit)
+      .populate('createdBy', 'name phone')
+      .lean();
+
+    // If location provided but no nearby results, fall back to most-viewed globally
+    if (hasCoords && listings.length === 0) {
+      listings = await Listing.find({ status: { $ne: 'inactive' } })
+        .sort({ viewCount: -1, createdAt: -1 })
+        .limit(pageLimit)
+        .populate('createdBy', 'name phone')
+        .lean();
+    }
+
+    res.json({ listings, isNearby: hasCoords && listings.length > 0 });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+    res.status(500).json(
+      createErrorResponse('Error fetching nearby listings', error.message, { type: error.name })
+    );
+  }
+};
+
+// Suggest listings for autocomplete
+export const suggestListings = async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q || q.length < 2) return res.json({ suggestions: [] });
+
+    const regex = new RegExp(q, 'i');
+
+    const matches = await Listing.find({ address: regex })
+      .select('address zipCode')
+      .limit(50)
+      .lean();
+
+    // Extract unique cities and specific addresses
+    const cities = new Map();
+    const addresses = [];
+
+    for (const m of matches) {
+      // Extract city+state from address (format: "123 Street, City, State, ZIP")
+      const parts = m.address.split(',');
+      if (parts.length >= 3) {
+        const city = parts[1].trim();
+        const state = parts[2].trim();
+        const key = `${city}, ${state}`;
+        if (!cities.has(key)) cities.set(key, m.zipCode);
+      }
+      addresses.push({ label: m.address, type: 'address', id: m._id });
+    }
+
+    const citySuggestions = [...cities.keys()].slice(0, 5).map(city => ({
+      label: city, type: 'city'
+    }));
+
+    const addressSuggestions = addresses.slice(0, 10 - citySuggestions.length);
+
+    res.json({ suggestions: [...citySuggestions, ...addressSuggestions] });
+  } catch (error) {
+    res.status(500).json({ suggestions: [] });
   }
 };
 

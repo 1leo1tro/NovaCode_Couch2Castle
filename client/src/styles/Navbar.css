@@ -364,6 +364,78 @@
   background: rgba(15, 82, 128, 0.06);
 }
 
+/* Mega menu (home page Listings hover) */
+.navbar-mega-item {
+  position: relative;
+}
+
+.navbar-mega-menu {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  background: var(--color-background, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  gap: 2.5rem;
+  z-index: 9999;
+  min-width: 380px;
+  white-space: nowrap;
+  animation: megaFadeIn 0.15s ease;
+}
+
+.navbar-mega-menu::before {
+  content: '';
+  position: absolute;
+  top: -7px;
+  left: 20px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-background, #fff);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-bottom: none;
+  border-right: none;
+  rotate: 45deg;
+}
+
+@keyframes megaFadeIn {
+  from { opacity: 0; translateY(-6px); }
+  to   { opacity: 1; translateY(0); }
+}
+
+.navbar-mega-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 160px;
+}
+
+.navbar-mega-heading {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #8a9ab0;
+  margin: 0 0 0.55rem 0;
+}
+
+.navbar-mega-link {
+  display: block;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: var(--color-foreground);
+  text-decoration: none;
+  transition: background 0.12s, color 0.12s;
+}
+
+.navbar-mega-link:hover {
+  background: rgba(15, 82, 128, 0.08);
+  color: #0f5280;
+}
+
 /* Dark mode theme toggle button */
 .navbar-theme-toggle-item {
   margin-left: auto;

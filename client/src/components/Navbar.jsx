@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useBookmarks } from '../context/BookmarkContext';
 import { useShowingNotifications } from '../context/ShowingNotificationsContext';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
@@ -61,6 +61,16 @@ function Navbar() {
   const location = useLocation();
   const [pendingCount, setPendingCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
+  const megaTimerRef = useRef(null);
+
+  const onMegaEnter = () => {
+    clearTimeout(megaTimerRef.current);
+    setMegaOpen(true);
+  };
+  const onMegaLeave = () => {
+    megaTimerRef.current = setTimeout(() => setMegaOpen(false), 120);
+  };
 
   const isActive = (path) => {
     if (path === '/') return location.pathname === '/';
@@ -119,7 +129,36 @@ function Navbar() {
       <nav className="navbar-inner">
         <ul className="navbar-links navbar-left">
           <li><Link to="/" className={isActive('/') ? 'nav-active' : ''}>Home</Link></li>
-          <li><Link to="/listings" className={location.pathname === '/listings' ? 'nav-active' : ''}>Listings</Link></li>
+          <li
+            className={`navbar-mega-item${location.pathname === '/' ? ' navbar-mega-item--home' : ''}`}
+            onMouseEnter={location.pathname === '/' ? onMegaEnter : undefined}
+            onMouseLeave={location.pathname === '/' ? onMegaLeave : undefined}
+          >
+            <Link to="/listings" className={location.pathname === '/listings' ? 'nav-active' : ''}>Listings</Link>
+            {location.pathname === '/' && megaOpen && (
+              <div
+                className="navbar-mega-menu"
+                onMouseEnter={onMegaEnter}
+                onMouseLeave={onMegaLeave}
+              >
+                <div className="navbar-mega-col">
+                  <p className="navbar-mega-heading">For Sale</p>
+                  <Link to="/listings?status=active" className="navbar-mega-link">Homes for Sale</Link>
+                  <Link to="/listings?minPrice=500000&status=active" className="navbar-mega-link">Luxury Homes</Link>
+                  <Link to="/listings?maxPrice=300000&status=active" className="navbar-mega-link">Homes Under $300K</Link>
+                  <Link to="/listings?minBedrooms=4&status=active" className="navbar-mega-link">4+ Bedroom Homes</Link>
+                  <Link to="/listings?status=active" className="navbar-mega-link">Open Houses</Link>
+                </div>
+                <div className="navbar-mega-col">
+                  <p className="navbar-mega-heading">Resources</p>
+                  <Link to="/contacts" className="navbar-mega-link">Find an Agent</Link>
+                  <Link to="/help" className="navbar-mega-link">Get Help</Link>
+                  <Link to="/bookmarks" className="navbar-mega-link">Saved Homes</Link>
+                  <Link to="/listings?status=active" className="navbar-mega-link">Browse All Listings</Link>
+                </div>
+              </div>
+            )}
+          </li>
           {isAuthenticated() && !isManager && (
             <li><Link to="/listings/mine" className={location.pathname !== '/listings' && isActive('/listings') ? 'nav-active' : ''}>My Listings</Link></li>
           )}
