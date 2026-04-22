@@ -12,7 +12,17 @@
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "seed": "node src/scripts/seedListings.js",
     "seed:agents": "node src/scripts/seedAgents.js",
-    "seed:showings": "node src/scripts/seedShowings.js"
+    "seed:showings": "node src/scripts/seedShowings.js",
+    "import:csv": "node src/scripts/importCsv.js",
+    "geocode": "node src/scripts/geocodeListings.js",
+    "add:images": "node src/scripts/addImages.js",
+    "jitter": "node src/scripts/jitterCoordinates.js",
+    "real:addresses": "node src/scripts/realAddresses.js",
+    "backfill:bedbath": "node src/scripts/backfillBedBath.js",
+    "seed:alabama": "node src/scripts/seedAlabama.js",
+    "images:alabama": "node src/scripts/uniqueImagesAlabama.js",
+    "seed:cities": "node src/scripts/seedMajorCities.js",
+    "images:cities": "node src/scripts/uniqueImagesCities.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
