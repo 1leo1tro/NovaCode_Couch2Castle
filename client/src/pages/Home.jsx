@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import BookmarkStar from '../components/BookmarkStar';
-import ListingPanel from '../components/ListingPanel';
 import ListingSearchBar from '../components/ListingSearchBar';
 import Footer from '../components/Footer';
 
@@ -108,15 +107,28 @@ const streetFromAddress = (address) => {
   return address.split(',')[0].trim();
 };
 
-const ListingCard = ({ listing, onSelect }) => {
+const fakeViews = (id = '') => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  return 120 + (hash % 881); // 120 – 1000
+};
+
+const ListingCard = ({ listing, onSelect, animStyle }) => {
   const [imgErr, setImgErr] = useState(false);
   const img = (!imgErr && listing.images?.[0]) || FALLBACK_IMAGE;
+  const views = fakeViews(listing._id);
 
   return (
-    <div className="property-card home-listing-card" onClick={() => onSelect(listing._id)} style={{ cursor: 'pointer' }}>
+    <div className="property-card home-listing-card" onClick={() => onSelect(listing._id)} style={{ cursor: 'pointer', ...animStyle }}>
       <div className="property-card-image">
         <img src={img} alt={listing.address} onError={() => setImgErr(true)} />
         {listing.status && <span className="property-badge">{listing.status}</span>}
+        <span className="hot-views-badge">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+          </svg>
+          {views.toLocaleString()} views
+        </span>
         <BookmarkStar listingId={listing._id} />
       </div>
       <div className="property-info">
@@ -135,13 +147,13 @@ const ListingCard = ({ listing, onSelect }) => {
   );
 };
 
-const SkeletonCard = () => (
-  <div className="listings-skeleton-card home-skeleton-card">
-    <div className="listings-skeleton-image" />
+const SkeletonCard = ({ delay = 0 }) => (
+  <div className="listings-skeleton-card home-skeleton-card" style={{ animationDelay: `${delay}s` }}>
+    <div className="listings-skeleton-image" style={{ animationDelay: `${delay}s` }} />
     <div className="listings-skeleton-body">
-      <div className="listings-skeleton-line listings-skeleton-line--short" />
-      <div className="listings-skeleton-line listings-skeleton-line--long" />
-      <div className="listings-skeleton-line listings-skeleton-line--medium" />
+      <div className="listings-skeleton-line listings-skeleton-line--short" style={{ animationDelay: `${delay + 0.05}s` }} />
+      <div className="listings-skeleton-line listings-skeleton-line--long" style={{ animationDelay: `${delay + 0.1}s` }} />
+      <div className="listings-skeleton-line listings-skeleton-line--medium" style={{ animationDelay: `${delay + 0.15}s` }} />
     </div>
   </div>
 );
@@ -160,8 +172,6 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [isNearby, setIsNearby] = useState(false);
   const [cityLabel, setCityLabel] = useState('');
-  const [selectedId, setSelectedId] = useState(null);
-
   useEffect(() => {
     const fetchListings = async (lat, lng) => {
       try {
@@ -277,7 +287,7 @@ const Home = () => {
               filters={filters}
               onFilterChange={handleFilterChange}
               onSearch={handleSearch}
-              onSelectListing={setSelectedId}
+              onSelectListing={(id) => navigate(`/listings?listing=${id}`)}
               animatedPlaceholders={[
                 'Try "Huntsville, AL"',
                 'Try "35801"',
@@ -326,11 +336,16 @@ const Home = () => {
           <div className="home-listings-track-wrap">
             <div className="home-listings-track" ref={cardTrackRef}>
               {loading
-                ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+                ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} delay={i * 0.07} />)
                 : listings.length === 0
                   ? <p className="no-results">No listings found. Check back soon!</p>
-                  : listings.map(listing => (
-                      <ListingCard key={listing._id} listing={listing} onSelect={setSelectedId} />
+                  : listings.map((listing, i) => (
+                      <ListingCard
+                        key={listing._id}
+                        listing={listing}
+                        onSelect={(id) => navigate(`/listings?listing=${id}`)}
+                        animStyle={{ animation: 'card-fade-up 0.4s ease both', animationDelay: `${i * 0.06}s` }}
+                      />
                     ))
               }
             </div>
@@ -427,12 +442,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      <AnimatePresence>
-        {selectedId && (
-          <ListingPanel listingId={selectedId} onClose={() => setSelectedId(null)} />
-        )}
-      </AnimatePresence>
 
       <Footer />
     </div>

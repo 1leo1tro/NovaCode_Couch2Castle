@@ -7,11 +7,11 @@ import { connectDB } from '../config/db.js';
 // 55 unique exterior hero shots — none reused from Alabama script
 const heroImages = [
   'https://images.unsplash.com/photo-1560184897-ae75f418493e?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1549517045-bc93de199c04?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1600047508788-86b9dba87c62?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1605276374104-9bbc764fb294?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1604014237800-1c9102c219da?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1617806118233-18e1de247200?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1588880331179-9ea11b9600c6?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1600047509782-20d39509f26d?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1600047509358-9dc75507daeb?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1600047508788-86b9dba87c62?w=1200&h=800&fit=crop',
@@ -21,7 +21,7 @@ const heroImages = [
   'https://images.unsplash.com/photo-1529408686-125703b33b76?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1416331108676-a22ccb276e35?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1533779183510-8086b9f4e5de?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1600047508788-86b9dba87c62?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1597047084897-51e81819a499?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?w=1200&h=800&fit=crop',
@@ -31,18 +31,18 @@ const heroImages = [
   'https://images.unsplash.com/photo-1510627489930-0c1b0bfb6785?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1596204976717-1a9ff47f74ef?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1558036117-15d82a90b9b1?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1502005097973-6a7082348e28?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1598228723793-72519195e34a?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1576941089067-2de3c901e126?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1599427303058-f04cbcf4756f?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1592595896551-12b371d546d5?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1471193945509-9ad0617afabf?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1561753757-d8880c5a3551?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1572120360610-d971b9d7767c?w=1200&h=800&fit=crop',
@@ -50,13 +50,13 @@ const heroImages = [
   'https://images.unsplash.com/photo-1605146769289-440113cc3d00?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1600047509782-20d39509f26d?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1600047508160-c90b9f1ea2b5?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1600047509537-8d58bf94b5b0?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1622866306950-81d17097d458?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1621275471769-e6aa344f2ed8?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1600585154526-990dced4db0d?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1503174971373-b1f69850bded?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1200&h=800&fit=crop',
-  'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=1200&h=800&fit=crop',
+  'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1567767292278-a4f21aa2d36e?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=1200&h=800&fit=crop',
   'https://images.unsplash.com/photo-1512916194211-3f2b7f5f7de3?w=1200&h=800&fit=crop',
@@ -76,7 +76,7 @@ const galleryPool = [
   'https://images.unsplash.com/photo-1449247709967-d4461a6a6103?w=1200&h=800&fit=crop', // dining room 2
   'https://images.unsplash.com/photo-1540518614846-7eded433c457?w=1200&h=800&fit=crop', // bedroom
   'https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1200&h=800&fit=crop', // deck/backyard
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=800&fit=crop',   // exterior detail
+  'https://images.unsplash.com/photo-1523217582562-09d0def993a6?w=1200&h=800&fit=crop',   // exterior detail
   'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?w=1200&h=800&fit=crop', // bathroom
   'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&h=800&fit=crop',   // bathroom 2
   'https://images.unsplash.com/photo-1571055107559-3e67626fa8be?w=1200&h=800&fit=crop', // pool/backyard

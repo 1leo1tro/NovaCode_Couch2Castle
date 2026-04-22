@@ -6,92 +6,9 @@ import { useAuth } from '../context/AuthContext';
 import ListingSearchBar from '../components/ListingSearchBar';
 import ListingsMap from '../components/ListingsMap';
 import ListingPanel from '../components/ListingPanel';
-import BookmarkStar from '../components/BookmarkStar';
+import ListingCard from '../components/ListingCard';
+import Footer from '../components/Footer';
 import '../styles/App.css';
-
-const ListingCard = ({ listing, hasOpenHouse, onSelect }) => {
-  const [imgIndex, setImgIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
-  const images = listing.images || [];
-
-  const prev = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDirection(-1);
-    setImgIndex(i => (i - 1 + images.length) % images.length);
-  };
-
-  const next = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDirection(1);
-    setImgIndex(i => (i + 1) % images.length);
-  };
-
-  const slideVariants = {
-    enter: (dir) => ({ x: dir > 0 ? '100%' : '-100%', opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir) => ({ x: dir > 0 ? '-100%' : '100%', opacity: 0 }),
-  };
-
-  return (
-    <div className="property-card listing-card">
-      <div className="property-card-link" style={{ textDecoration: 'none', cursor: 'pointer' }} onClick={() => onSelect?.(listing._id)}>
-        <div className="property-card-image">
-          {images.length > 0 ? (
-            <>
-              <div className="card-carousel-track">
-                <AnimatePresence initial={false} custom={direction} mode="popLayout">
-                  <motion.img
-                    key={imgIndex}
-                    src={images[imgIndex]}
-                    alt={listing.address}
-                    custom={direction}
-                    variants={slideVariants}
-                    initial="enter"
-                    animate="center"
-                    exit="exit"
-                    transition={{ duration: 0.35, ease: 'easeInOut' }}
-                    onError={(e) => { e.target.style.display = 'none'; }}
-                  />
-                </AnimatePresence>
-              </div>
-              {images.length > 1 && (
-                <>
-                  <button className="card-carousel-btn card-carousel-btn--prev" onClick={prev}>&#8249;</button>
-                  <button className="card-carousel-btn card-carousel-btn--next" onClick={next}>&#8250;</button>
-                  <div className="card-carousel-dots">
-                    {images.map((_, i) => (
-                      <span key={i} className={`card-carousel-dot${i === imgIndex ? ' card-carousel-dot--active' : ''}`} />
-                    ))}
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <div className="listing-image-placeholder">No image</div>
-          )}
-          {listing.status && <span className="property-badge">{listing.status}</span>}
-          {hasOpenHouse && <span className="property-badge property-badge--open-house">Open House</span>}
-          <BookmarkStar listingId={listing._id} />
-        </div>
-        <div className="property-info listing-info">
-          <p className="price">${listing.price.toLocaleString()}</p>
-          <h3>{listing.address}</h3>
-          <p className="location">ZIP: {listing.zipCode}</p>
-          <p className="details">
-            {listing.bedrooms != null && `${listing.bedrooms} bd`}
-            {listing.bedrooms != null && listing.bathrooms != null && ' · '}
-            {listing.bathrooms != null && `${listing.bathrooms} ba`}
-            {(listing.bedrooms != null || listing.bathrooms != null) && ' · '}
-            {listing.squareFeet} sqft
-          </p>
-          <p className="details">Status: {listing.status}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const Listings = () => {
   const [listings, setListings] = useState([]);
@@ -101,6 +18,13 @@ const Listings = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState('split'); // 'split' | 'list'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortBy, setSortBy] = useState('default');
+  const [sortOpen, setSortOpen] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
+  const [locationLabel, setLocationLabel] = useState('');
+  const [searchTarget, setSearchTarget] = useState(null);
+  const ITEMS_PER_PAGE = 24;
   const cardRefs = useRef({});
   const hoveredIdRef = useRef(null);
   const mapHighlightRef = useRef(null);
@@ -109,6 +33,28 @@ const Listings = () => {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  useEffect(() => { setCurrentPage(1); }, [viewMode]);
+  useEffect(() => { setCurrentPage(1); }, [listings]);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const handler = (e) => { if (!e.target.closest('.listings-sort-wrap')) setSortOpen(false); };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [sortOpen]);
+
+  useEffect(() => {
+    if (viewMode !== 'split') return;
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lng } = pos.coords;
+        setUserLocation({ lat, lng });
+      },
+      () => {}
+    );
+  }, [viewMode]);
 
   const [filters, setFilters] = useState({
     keyword: '',
@@ -131,7 +77,7 @@ const Listings = () => {
   const [searchParams] = useSearchParams();
   const { isAuthenticated, user } = useAuth();
 
-  const visibleListings = mapBounds
+  const filteredListings = (mapBounds && !filters.keyword)
     ? listings.filter(l => {
         if (!l.location?.coordinates?.length) return true;
         const [lng, lat] = l.location.coordinates;
@@ -139,6 +85,28 @@ const Listings = () => {
                lat >= mapBounds.minLat && lat <= mapBounds.maxLat;
       })
     : listings;
+
+  const visibleListings = [...filteredListings].sort((a, b) => {
+    switch (sortBy) {
+      case 'price-desc': return b.price - a.price;
+      case 'price-asc':  return a.price - b.price;
+      case 'newest':     return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'beds':       return (b.bedrooms ?? 0) - (a.bedrooms ?? 0);
+      case 'baths':      return (b.bathrooms ?? 0) - (a.bathrooms ?? 0);
+      case 'sqft':       return (b.squareFeet ?? 0) - (a.squareFeet ?? 0);
+      default:           return 0;
+    }
+  });
+
+  const sortLabels = {
+    default:    'Homes for You',
+    'price-desc': 'Price (High to Low)',
+    'price-asc':  'Price (Low to High)',
+    newest:     'Newest',
+    beds:       'Bedrooms',
+    baths:      'Bathrooms',
+    sqft:       'Square Feet',
+  };
 
   // Direct DOM hover — no React re-render
   const setHovered = useCallback((id) => {
@@ -195,7 +163,28 @@ const Listings = () => {
       const url = `/api/listings${queryString ? `?${queryString}` : ''}`;
 
       const response = await axios.get(url);
-      setListings(response.data.listings || []);
+      const fetched = response.data.listings || [];
+      setListings(fetched);
+
+      setLocationLabel(f.keyword ? f.keyword.trim() : '');
+
+      if (f.keyword) {
+        const valid = fetched.filter(l => l.location?.coordinates?.length === 2);
+        if (valid.length === 1) {
+          const [lng, lat] = valid[0].location.coordinates;
+          setSearchTarget({ lng, lat, _key: Date.now() });
+        } else if (valid.length > 1) {
+          const lngs = valid.map(l => l.location.coordinates[0]);
+          const lats = valid.map(l => l.location.coordinates[1]);
+          setSearchTarget({
+            bounds: {
+              minLng: Math.min(...lngs), maxLng: Math.max(...lngs),
+              minLat: Math.min(...lats), maxLat: Math.max(...lats),
+            },
+            _key: Date.now(),
+          });
+        }
+      }
     } catch (err) {
       console.error('Error fetching listings:', err);
       setError(err.response?.data?.message || 'Failed to load listings');
@@ -219,6 +208,8 @@ const Listings = () => {
       filtersRef.current = { ...filtersRef.current, ...updates };
       setFilters(filtersRef.current);
     }
+    const listingParam = searchParams.get('listing');
+    if (listingParam) setSelectedId(listingParam);
     fetchListings();
   }, []);
 
@@ -291,6 +282,16 @@ const Listings = () => {
           onSearch={fetchListings}
           onSelectListing={setSelectedId}
           alwaysOpen
+          animatedPlaceholders={[
+            'Try "New York, NY"',
+            'Try "Austin, TX"',
+            'Try "Miami, FL"',
+            'Try "Denver, CO"',
+            'Try "Seattle, WA"',
+            'Try "Nashville, TN"',
+            'Try "90027"',
+            'Try "3 bed 2 bath"',
+          ]}
         />
         {error && <div className="listings-error">{error}</div>}
       </div>
@@ -298,11 +299,36 @@ const Listings = () => {
       {/* View mode toggle + count */}
       <div className="listings-toolbar">
         <div className="listings-toolbar-left">
-          <h2 className="listings-panel-title">Homes for Sale</h2>
+          <h2 className="listings-panel-title">{locationLabel ? `Homes in ${locationLabel}` : 'Homes for Sale'}</h2>
           {!loading && visibleListings.length > 0 && (
             <p className="listings-count">{visibleListings.length} listing{visibleListings.length !== 1 ? 's' : ''} found</p>
           )}
         </div>
+        <div className="listings-sort-wrap">
+          <button
+            className="listings-sort-btn"
+            onClick={() => setSortOpen(o => !o)}
+          >
+            <span>Sort: <strong>{sortLabels[sortBy]}</strong></span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="14" height="14" style={{ marginLeft: '0.4rem', transform: sortOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          {sortOpen && (
+            <div className="listings-sort-dropdown">
+              {Object.entries(sortLabels).map(([key, label]) => (
+                <button
+                  key={key}
+                  className={`listings-sort-option${sortBy === key ? ' listings-sort-option--active' : ''}`}
+                  onClick={() => { setSortBy(key); setSortOpen(false); setCurrentPage(1); }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
         <div className="listings-view-toggle">
           <button
             type="button"
@@ -379,6 +405,8 @@ const Listings = () => {
             <ListingsMap
               listings={listings}
               cityQuery={filters.keyword}
+              userLocation={userLocation}
+              searchTarget={searchTarget}
               mapHighlightRef={mapHighlightRef}
               onMarkerHover={setHovered}
               onMarkerClick={handleMarkerClick}
@@ -386,45 +414,103 @@ const Listings = () => {
             />
           </div>
         </div>
-      ) : (
-        <div className="listings-list-view">
-          {loading ? (
-            <div className="listings-skeleton-list listings-skeleton-list--grid">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="listings-skeleton-card">
-                  <div className="listings-skeleton-image" />
-                  <div className="listings-skeleton-body">
-                    <div className="listings-skeleton-line listings-skeleton-line--short" />
-                    <div className="listings-skeleton-line listings-skeleton-line--long" />
-                    <div className="listings-skeleton-line listings-skeleton-line--medium" />
-                    <div className="listings-skeleton-line listings-skeleton-line--short" />
+      ) : (() => {
+        const totalPages = Math.ceil(visibleListings.length / ITEMS_PER_PAGE);
+        const pageListings = visibleListings.slice(
+          (currentPage - 1) * ITEMS_PER_PAGE,
+          currentPage * ITEMS_PER_PAGE
+        );
+        const goTo = (p) => {
+          setCurrentPage(p);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        return (
+          <div className="listings-list-view">
+            {loading ? (
+              <div className="listings-skeleton-list listings-skeleton-list--grid">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="listings-skeleton-card">
+                    <div className="listings-skeleton-image" />
+                    <div className="listings-skeleton-body">
+                      <div className="listings-skeleton-line listings-skeleton-line--short" />
+                      <div className="listings-skeleton-line listings-skeleton-line--long" />
+                      <div className="listings-skeleton-line listings-skeleton-line--medium" />
+                      <div className="listings-skeleton-line listings-skeleton-line--short" />
+                    </div>
                   </div>
+                ))}
+              </div>
+            ) : noResults || lowResults ? (
+              emptyOrLowContent(lowResults)
+            ) : (
+              <>
+                <div className="listings-list listings-list--grid">
+                  {pageListings.map((listing) => (
+                    <div
+                      key={listing._id}
+                      className="listing-card-wrapper"
+                      ref={(el) => { if (el) cardRefs.current[listing._id] = el; }}
+                      onMouseEnter={() => setHovered(listing._id)}
+                      onMouseLeave={() => setHovered(null)}
+                    >
+                      <ListingCard
+                        listing={listing}
+                        hasOpenHouse={openHouseListingIds.has(listing._id)}
+                        onSelect={setSelectedId}
+                      />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          ) : noResults || lowResults ? (
-            emptyOrLowContent(lowResults)
-          ) : (
-            <div className="listings-list listings-list--grid">
-              {visibleListings.map((listing) => (
-                <div
-                  key={listing._id}
-                  className="listing-card-wrapper"
-                  ref={(el) => { if (el) cardRefs.current[listing._id] = el; }}
-                  onMouseEnter={() => setHovered(listing._id)}
-                  onMouseLeave={() => setHovered(null)}
-                >
-                  <ListingCard
-                    listing={listing}
-                    hasOpenHouse={openHouseListingIds.has(listing._id)}
-                    onSelect={setSelectedId}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+
+                {totalPages > 1 && (
+                  <div className="listings-pagination">
+                    <button
+                      className="listings-pagination-btn"
+                      onClick={() => goTo(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      &#8249;
+                    </button>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1)
+                      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                      .reduce((acc, p, idx, arr) => {
+                        if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
+                        acc.push(p);
+                        return acc;
+                      }, [])
+                      .map((item, idx) =>
+                        item === '...' ? (
+                          <span key={`ellipsis-${idx}`} className="listings-pagination-ellipsis">…</span>
+                        ) : (
+                          <button
+                            key={item}
+                            className={`listings-pagination-btn${item === currentPage ? ' listings-pagination-btn--active' : ''}`}
+                            onClick={() => goTo(item)}
+                          >
+                            {item}
+                          </button>
+                        )
+                      )
+                    }
+
+                    <button
+                      className="listings-pagination-btn"
+                      onClick={() => goTo(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      &#8250;
+                    </button>
+                  </div>
+                )}
+
+              </>
+            )}
+            {!loading && <Footer />}
+          </div>
+        );
+      })()}
 
       <AnimatePresence>
         {selectedId && (

@@ -30,6 +30,8 @@ const PropertyMap = ({ coordinates, address, height = '320px' }) => {
       style: 'mapbox://styles/mapbox/streets-v12',
       center: [lng, lat],
       zoom: 15,
+      minZoom: 5,
+      maxBounds: [[-125, 24], [-66, 50]], // continental US only
     });
 
     mapRef.current = map;

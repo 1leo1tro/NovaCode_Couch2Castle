@@ -15,6 +15,16 @@ const listingSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  bedrooms: {
+    type: Number,
+    min: 0,
+    required: false
+  },
+  bathrooms: {
+    type: Number,
+    min: 0,
+    required: false
+  },
   squareFeet: {
     type: Number,
     required: [true, 'Square footage is required'],
@@ -83,11 +93,9 @@ const listingSchema = new mongoose.Schema({
     type: {
       type: String,
       enum: ['Point'],
-      default: 'Point'
     },
     coordinates: {
       type: [Number], // [longitude, latitude]
-      default: undefined
     }
   },
   tags: {

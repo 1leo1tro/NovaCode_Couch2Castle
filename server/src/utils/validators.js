@@ -229,7 +229,7 @@ export const validatePagination = (page, limit) => {
 
   // Validate limit
   if (limit) {
-    const validation = validateNumericParam('limit', limit, { min: 1, max: 100 });
+    const validation = validateNumericParam('limit', limit, { min: 1, max: 1000 });
     if (!validation.isValid) {
       return { isValid: false, error: validation.error };
     }
@@ -278,7 +278,7 @@ export const validateSort = (sortBy, order) => {
     return { isValid: true, sort: { createdAt: -1 } }; // Default sort
   }
 
-  const validSortFields = ['price', 'squareFeet', 'createdAt', 'updatedAt'];
+  const validSortFields = ['price', 'squareFeet', 'createdAt', 'updatedAt', 'viewCount'];
 
   if (!validSortFields.includes(sortBy)) {
     return {

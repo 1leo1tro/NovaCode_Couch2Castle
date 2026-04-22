@@ -6,13 +6,17 @@ import {
   updateListing,
   markAsSold,
   deleteListing,
-  updateListingTags
+  updateListingTags,
+  suggestListings,
+  getNearbyListings
 } from '../controllers/listingController.js';
 import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Public routes (no authentication required)
+router.get('/listings/suggest', suggestListings);
+router.get('/listings/nearby', getNearbyListings);
 router.get('/listings', getAllListings);
 router.get('/listings/:id', getListingById);
 

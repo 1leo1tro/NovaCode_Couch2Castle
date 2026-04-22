@@ -108,7 +108,7 @@ const Scheduling = () => {
 
   const fetchMyListings = async () => {
     try {
-      const res = await axios.get('/api/listings');
+      const res = await axios.get('/api/listings?limit=500');
       const all = res.data.listings || [];
       const userId = user?._id || user?.id;
       setMyListings(
