@@ -23,10 +23,6 @@ export const ThemeProvider = ({ children }) => {
       const isDarkMode = savedTheme === 'dark';
       setIsDark(isDarkMode);
       applyTheme(isDarkMode);
-    } else if (prefersDark) {
-      setIsDark(true);
-      applyTheme(true);
-      localStorage.setItem('theme', 'dark');
     } else {
       setIsDark(false);
       applyTheme(false);
