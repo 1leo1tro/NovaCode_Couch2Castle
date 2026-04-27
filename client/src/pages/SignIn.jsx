@@ -24,6 +24,17 @@ const SignIn = () => {
     if (!email.trim()) { setError('Please enter your email address.'); return; }
     if (!password) { setError('Please enter your password.'); return; }
     setLoading(true);
+    if (userType === 'user') {
+      if (email.trim() === 'alex.johnson@example.com' && password === 'password123') {
+        mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
+        setSuccess('Welcome, Alex!');
+        setTimeout(() => navigate('/listings'), 800);
+      } else {
+        setError('Invalid email or password.');
+      }
+      setLoading(false);
+      return;
+    }
     try {
       const result = await login(email.trim(), password);
       if (result.success) {
@@ -116,7 +127,7 @@ const SignIn = () => {
               <h1 className="signin-title">Welcome</h1>
               <p className="signin-desc">How would you like to sign in?</p>
               <div className="signin-roles">
-                <button className="signin-role-btn" onClick={() => { mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' }); navigate('/listings'); }}>
+                <button className="signin-role-btn" onClick={() => goForward('user')}>
                   <span className="signin-role-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="22" height="22">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
