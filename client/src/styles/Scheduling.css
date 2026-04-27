@@ -240,6 +240,11 @@
   margin: 0;
 }
 
+.sched-oh-address--stale {
+  color: #dc2626;
+  font-style: italic;
+}
+
 .sched-oh-time {
   font-size: 0.85rem;
   color: var(--color-muted);

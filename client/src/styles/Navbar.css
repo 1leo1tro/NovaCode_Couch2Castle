@@ -259,6 +259,29 @@
   color: var(--color-foreground);
 }
 
+/* Manager Portal direct button */
+.navbar-portal-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.navbar-portal-btn:hover { background: var(--color-border); }
+
+.navbar-portal-btn.nav-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 /* Sign out button — matches sign-in button theme */
 .navbar-signout-btn {
   background: var(--color-accent);

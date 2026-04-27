@@ -25,8 +25,17 @@ export const BookmarkProvider = ({ children }) => {
 
   const isBookmarked = useCallback((id) => bookmarks.includes(id), [bookmarks]);
 
+  const removeStale = useCallback((validIds) => {
+    setBookmarks((prev) => {
+      const next = prev.filter((id) => validIds.includes(id));
+      if (next.length === prev.length) return prev;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
   return (
-    <BookmarkContext.Provider value={{ bookmarks, toggle, isBookmarked }}>
+    <BookmarkContext.Provider value={{ bookmarks, toggle, isBookmarked, removeStale }}>
       {children}
     </BookmarkContext.Provider>
   );

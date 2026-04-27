@@ -1,10 +1,27 @@
 import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 import Agent from '../models/Agent.js';
 
 dotenv.config();
 
-// 7 agents across multiple real-estate markets
+// Generate YYYY-MM-DD strings for the next N weekdays starting from today
+const upcomingDates = (count = 5) => {
+  const dates = [];
+  const d = new Date();
+  while (dates.length < count) {
+    d.setDate(d.getDate() + 1);
+    const dow = d.getDay();
+    if (dow !== 0 && dow !== 6) {
+      dates.push(d.toISOString().slice(0, 10));
+    }
+  }
+  return dates;
+};
+
+const [mon, tue, wed, thu, fri] = upcomingDates(5);
+
+// 15 agents across multiple real-estate markets
 const agentData = [
   {
     name: 'Margaret Holloway',
@@ -15,11 +32,11 @@ const agentData = [
     role: 'manager',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 1, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 2, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 3, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 4, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 5, startTime: '09:00', endTime: '15:00' },
+      { date: mon, startTime: '09:00', endTime: '17:00' },
+      { date: tue, startTime: '09:00', endTime: '17:00' },
+      { date: wed, startTime: '09:00', endTime: '17:00' },
+      { date: thu, startTime: '09:00', endTime: '17:00' },
+      { date: fri, startTime: '09:00', endTime: '15:00' },
     ]
   },
   {
@@ -31,10 +48,9 @@ const agentData = [
     role: 'agent',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 1, startTime: '10:00', endTime: '18:00' },
-      { dayOfWeek: 3, startTime: '10:00', endTime: '18:00' },
-      { dayOfWeek: 5, startTime: '10:00', endTime: '16:00' },
-      { dayOfWeek: 6, startTime: '09:00', endTime: '14:00' },
+      { date: mon, startTime: '10:00', endTime: '18:00' },
+      { date: wed, startTime: '10:00', endTime: '18:00' },
+      { date: fri, startTime: '10:00', endTime: '16:00' },
     ]
   },
   {
@@ -46,10 +62,9 @@ const agentData = [
     role: 'agent',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 1, startTime: '08:30', endTime: '16:30' },
-      { dayOfWeek: 2, startTime: '08:30', endTime: '16:30' },
-      { dayOfWeek: 4, startTime: '08:30', endTime: '16:30' },
-      { dayOfWeek: 6, startTime: '10:00', endTime: '15:00' },
+      { date: mon, startTime: '08:30', endTime: '16:30' },
+      { date: tue, startTime: '08:30', endTime: '16:30' },
+      { date: thu, startTime: '08:30', endTime: '16:30' },
     ]
   },
   {
@@ -61,11 +76,10 @@ const agentData = [
     role: 'agent',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 2, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 3, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 4, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 5, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 0, startTime: '11:00', endTime: '15:00' },
+      { date: tue, startTime: '09:00', endTime: '17:00' },
+      { date: wed, startTime: '09:00', endTime: '17:00' },
+      { date: thu, startTime: '09:00', endTime: '17:00' },
+      { date: fri, startTime: '09:00', endTime: '17:00' },
     ]
   },
   {
@@ -77,11 +91,10 @@ const agentData = [
     role: 'agent',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 1, startTime: '11:00', endTime: '19:00' },
-      { dayOfWeek: 2, startTime: '11:00', endTime: '19:00' },
-      { dayOfWeek: 3, startTime: '11:00', endTime: '19:00' },
-      { dayOfWeek: 5, startTime: '10:00', endTime: '16:00' },
-      { dayOfWeek: 6, startTime: '10:00', endTime: '16:00' },
+      { date: mon, startTime: '11:00', endTime: '19:00' },
+      { date: tue, startTime: '11:00', endTime: '19:00' },
+      { date: wed, startTime: '11:00', endTime: '19:00' },
+      { date: fri, startTime: '10:00', endTime: '16:00' },
     ]
   },
   {
@@ -93,10 +106,10 @@ const agentData = [
     role: 'agent',
     isActive: true,
     availabilitySlots: [
-      { dayOfWeek: 1, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 2, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 3, startTime: '09:00', endTime: '17:00' },
-      { dayOfWeek: 4, startTime: '09:00', endTime: '17:00' },
+      { date: mon, startTime: '09:00', endTime: '17:00' },
+      { date: tue, startTime: '09:00', endTime: '17:00' },
+      { date: wed, startTime: '09:00', endTime: '17:00' },
+      { date: thu, startTime: '09:00', endTime: '17:00' },
     ]
   },
   {
@@ -106,7 +119,121 @@ const agentData = [
     phone: '6153027841',
     licenseNumber: 'TN-RE-228403',
     role: 'agent',
-    isActive: false, // On leave
+    isActive: false,
+    availabilitySlots: []
+  },
+  {
+    name: 'Rafael Torres',
+    email: 'rafael.torres@novarealty.com',
+    password: 'password123',
+    phone: '3052948173',
+    licenseNumber: 'FL-RE-104729',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: mon, startTime: '09:00', endTime: '17:00' },
+      { date: tue, startTime: '09:00', endTime: '17:00' },
+      { date: wed, startTime: '09:00', endTime: '17:00' },
+      { date: fri, startTime: '10:00', endTime: '15:00' },
+    ]
+  },
+  {
+    name: 'Simone Hartley',
+    email: 'simone.hartley@novarealty.com',
+    password: 'password123',
+    phone: '7134829056',
+    licenseNumber: 'TX-RE-389512',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: mon, startTime: '08:00', endTime: '16:00' },
+      { date: wed, startTime: '08:00', endTime: '16:00' },
+      { date: thu, startTime: '08:00', endTime: '16:00' },
+    ]
+  },
+  {
+    name: 'Kevin Park',
+    email: 'kevin.park@novarealty.com',
+    password: 'password123',
+    phone: '4152038476',
+    licenseNumber: 'CA-RE-571094',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: tue, startTime: '10:00', endTime: '18:00' },
+      { date: wed, startTime: '10:00', endTime: '18:00' },
+      { date: thu, startTime: '10:00', endTime: '18:00' },
+      { date: fri, startTime: '10:00', endTime: '18:00' },
+    ]
+  },
+  {
+    name: 'Danielle Brooks',
+    email: 'danielle.brooks@novarealty.com',
+    password: 'password123',
+    phone: '7702839145',
+    licenseNumber: 'GA-RE-774821',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: mon, startTime: '09:30', endTime: '17:30' },
+      { date: tue, startTime: '09:30', endTime: '17:30' },
+      { date: thu, startTime: '09:30', endTime: '17:30' },
+      { date: fri, startTime: '09:30', endTime: '17:30' },
+    ]
+  },
+  {
+    name: 'Marcus Webb',
+    email: 'marcus.webb@novarealty.com',
+    password: 'password123',
+    phone: '9193047582',
+    licenseNumber: 'NC-RE-203948',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: mon, startTime: '08:00', endTime: '17:00' },
+      { date: tue, startTime: '08:00', endTime: '17:00' },
+      { date: wed, startTime: '08:00', endTime: '17:00' },
+      { date: thu, startTime: '08:00', endTime: '17:00' },
+      { date: fri, startTime: '08:00', endTime: '14:00' },
+    ]
+  },
+  {
+    name: 'Vanessa Nguyen',
+    email: 'vanessa.nguyen@novarealty.com',
+    password: 'password123',
+    phone: '5124730918',
+    licenseNumber: 'TX-RE-912047',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: tue, startTime: '11:00', endTime: '19:00' },
+      { date: wed, startTime: '11:00', endTime: '19:00' },
+      { date: fri, startTime: '10:00', endTime: '17:00' },
+    ]
+  },
+  {
+    name: 'Aaron Castillo',
+    email: 'aaron.castillo@novarealty.com',
+    password: 'password123',
+    phone: '6024719382',
+    licenseNumber: 'AZ-RE-503817',
+    role: 'agent',
+    isActive: true,
+    availabilitySlots: [
+      { date: mon, startTime: '09:00', endTime: '17:00' },
+      { date: wed, startTime: '09:00', endTime: '17:00' },
+      { date: thu, startTime: '09:00', endTime: '17:00' },
+      { date: fri, startTime: '09:00', endTime: '15:00' },
+    ]
+  },
+  {
+    name: 'Thomas Ewing',
+    email: 'thomas.ewing@novarealty.com',
+    password: 'password123',
+    phone: '3124859203',
+    licenseNumber: 'IL-RE-348201',
+    role: 'agent',
+    isActive: false,
     availabilitySlots: []
   }
 ];
@@ -119,7 +246,9 @@ const seedAgents = async () => {
     await Agent.deleteMany({});
     console.log('Cleared existing agents');
 
-    const createdAgents = await Agent.create(agentData);
+    const hashedPassword = await bcrypt.hash('password123', 10);
+    const agentDataHashed = agentData.map(a => ({ ...a, password: hashedPassword }));
+    const createdAgents = await Agent.insertMany(agentDataHashed);
     console.log(`Created ${createdAgents.length} agents`);
 
     console.log('\n--- Agent Summary ---');

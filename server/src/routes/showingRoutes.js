@@ -8,12 +8,12 @@ import {
   updateFeedback,
   deleteShowing
 } from '../controllers/showingController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, optionalAuth } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Public routes (no authentication required)
-router.post('/showings', createShowing);
+router.post('/showings', optionalAuth, createShowing);
 router.get('/showings/:id', getShowingById);
 
 // Protected routes (authentication required - agent only)

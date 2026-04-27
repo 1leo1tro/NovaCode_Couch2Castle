@@ -1,9 +1,12 @@
 import Agent from '../models/Agent.js';
+import bcrypt from 'bcryptjs';
 import {
   handleValidationError,
   handleDatabaseError,
   isDatabaseConnectionError,
   isValidationError,
+  isDuplicateKeyError,
+  handleDuplicateKeyError,
   createErrorResponse
 } from '../utils/errorHandler.js';
 
@@ -107,6 +110,32 @@ export const getAgentAvailabilityById = async (req, res) => {
     res.status(500).json(
       createErrorResponse('Error fetching availability slots', error.message, { type: error.name })
     );
+  }
+};
+
+// Manager: create a new agent account
+export const createAgentAsManager = async (req, res) => {
+  try {
+    const { name, email, password, phone } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json(createErrorResponse('Missing fields', 'Name, email, and password are required'));
+    }
+    if (password.length < 6) {
+      return res.status(400).json(createErrorResponse('Weak password', 'Password must be at least 6 characters'));
+    }
+
+    const agent = await Agent.create({ name, email, password, phone: phone || undefined, role: 'agent' });
+
+    return res.status(201).json({
+      success: true,
+      agent: { _id: agent._id, name: agent.name, email: agent.email, phone: agent.phone, isActive: agent.isActive, createdAt: agent.createdAt }
+    });
+  } catch (error) {
+    if (isDuplicateKeyError(error)) return res.status(409).json(handleDuplicateKeyError(error));
+    if (isValidationError(error)) return res.status(400).json(handleValidationError(error));
+    if (isDatabaseConnectionError(error)) return res.status(503).json(handleDatabaseError());
+    return res.status(500).json(createErrorResponse('Error creating agent', error.message));
   }
 };
 

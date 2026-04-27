@@ -28,6 +28,7 @@ const Listings = () => {
   const cardRefs = useRef({});
   const hoveredIdRef = useRef(null);
   const mapHighlightRef = useRef(null);
+  const gridScrollRef = useRef(null);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -36,6 +37,7 @@ const Listings = () => {
 
   useEffect(() => { setCurrentPage(1); }, [viewMode]);
   useEffect(() => { setCurrentPage(1); }, [listings]);
+  useEffect(() => { setCurrentPage(1); }, [mapBounds]);
 
   useEffect(() => {
     if (!sortOpen) return;
@@ -214,14 +216,20 @@ const Listings = () => {
   }, []);
 
   useEffect(() => {
-    axios.get('/api/open-houses/upcoming')
-      .then(res => {
-        const ids = new Set((res.data.openHouses || []).map(oh =>
-          typeof oh.listing === 'object' ? oh.listing._id : oh.listing
-        ));
-        setOpenHouseListingIds(ids);
-      })
-      .catch(() => {});
+    const fetchOH = () => {
+      axios.get('/api/open-houses/upcoming')
+        .then(res => {
+          const ids = new Set((res.data.openHouses || []).map(oh =>
+            typeof oh.listing === 'object' ? oh.listing._id : oh.listing
+          ));
+          setOpenHouseListingIds(ids);
+        })
+        .catch(() => {});
+    };
+    fetchOH();
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchOH(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
   }, []);
 
   const lowResults = !loading && visibleListings.length > 0 && visibleListings.length < 4;
@@ -380,25 +388,48 @@ const Listings = () => {
               emptyOrLowContent(false)
             ) : lowResults ? (
               emptyOrLowContent(true)
-            ) : (
-              <div className="listings-list listings-list--panel">
-                {visibleListings.map((listing) => (
-                  <div
-                    key={listing._id}
-                    className="listing-card-wrapper"
-                    ref={(el) => { if (el) cardRefs.current[listing._id] = el; }}
-                    onMouseEnter={() => setHovered(listing._id)}
-                    onMouseLeave={() => setHovered(null)}
-                  >
-                    <ListingCard
-                      listing={listing}
-                      hasOpenHouse={openHouseListingIds.has(listing._id)}
-                      onSelect={setSelectedId}
-                    />
+            ) : (() => {
+              const panelTotal = Math.ceil(visibleListings.length / ITEMS_PER_PAGE);
+              const panelListings = visibleListings.slice(
+                (currentPage - 1) * ITEMS_PER_PAGE,
+                currentPage * ITEMS_PER_PAGE
+              );
+              const goTo = (p) => { setCurrentPage(p); };
+              return (
+                <>
+                  <div className="listings-list listings-list--panel">
+                    {panelListings.map((listing) => (
+                      <div
+                        key={listing._id}
+                        className="listing-card-wrapper"
+                        ref={(el) => { if (el) cardRefs.current[listing._id] = el; }}
+                        onMouseEnter={() => setHovered(listing._id)}
+                        onMouseLeave={() => setHovered(null)}
+                      >
+                        <ListingCard
+                          listing={listing}
+                          hasOpenHouse={openHouseListingIds.has(listing._id)}
+                          onSelect={setSelectedId}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
+                  {panelTotal > 1 && (
+                    <div className="listings-pagination listings-pagination--panel">
+                      <button className="listings-pagination-btn" onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}>&#8249;</button>
+                      {Array.from({ length: panelTotal }, (_, i) => i + 1)
+                        .filter(p => p === 1 || p === panelTotal || Math.abs(p - currentPage) <= 1)
+                        .reduce((acc, p, idx, arr) => { if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...'); acc.push(p); return acc; }, [])
+                        .map((item, idx) => item === '...'
+                          ? <span key={`e-${idx}`} className="listings-pagination-ellipsis">…</span>
+                          : <button key={item} className={`listings-pagination-btn${item === currentPage ? ' listings-pagination-btn--active' : ''}`} onClick={() => goTo(item)}>{item}</button>
+                        )}
+                      <button className="listings-pagination-btn" onClick={() => goTo(currentPage + 1)} disabled={currentPage === panelTotal}>&#8250;</button>
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
 
           <div className="listings-map-panel">
@@ -422,29 +453,31 @@ const Listings = () => {
         );
         const goTo = (p) => {
           setCurrentPage(p);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          gridScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
         };
+
+        const showPagination = !loading && !noResults && !lowResults && totalPages > 1;
 
         return (
           <div className="listings-list-view">
-            {loading ? (
-              <div className="listings-skeleton-list listings-skeleton-list--grid">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="listings-skeleton-card">
-                    <div className="listings-skeleton-image" />
-                    <div className="listings-skeleton-body">
-                      <div className="listings-skeleton-line listings-skeleton-line--short" />
-                      <div className="listings-skeleton-line listings-skeleton-line--long" />
-                      <div className="listings-skeleton-line listings-skeleton-line--medium" />
-                      <div className="listings-skeleton-line listings-skeleton-line--short" />
+            <div className="listings-grid-scroll" ref={gridScrollRef}>
+              {loading ? (
+                <div className="listings-skeleton-list listings-skeleton-list--grid">
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="listings-skeleton-card">
+                      <div className="listings-skeleton-image" />
+                      <div className="listings-skeleton-body">
+                        <div className="listings-skeleton-line listings-skeleton-line--short" />
+                        <div className="listings-skeleton-line listings-skeleton-line--long" />
+                        <div className="listings-skeleton-line listings-skeleton-line--medium" />
+                        <div className="listings-skeleton-line listings-skeleton-line--short" />
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : noResults || lowResults ? (
-              emptyOrLowContent(lowResults)
-            ) : (
-              <>
+                  ))}
+                </div>
+              ) : noResults || lowResults ? (
+                emptyOrLowContent(lowResults)
+              ) : (
                 <div className="listings-list listings-list--grid">
                   {pageListings.map((listing) => (
                     <div
@@ -462,52 +495,24 @@ const Listings = () => {
                     </div>
                   ))}
                 </div>
+              )}
+              {!loading && <Footer />}
+            </div>
 
-                {totalPages > 1 && (
-                  <div className="listings-pagination">
-                    <button
-                      className="listings-pagination-btn"
-                      onClick={() => goTo(currentPage - 1)}
-                      disabled={currentPage === 1}
-                    >
-                      &#8249;
-                    </button>
-
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
-                      .reduce((acc, p, idx, arr) => {
-                        if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...');
-                        acc.push(p);
-                        return acc;
-                      }, [])
-                      .map((item, idx) =>
-                        item === '...' ? (
-                          <span key={`ellipsis-${idx}`} className="listings-pagination-ellipsis">…</span>
-                        ) : (
-                          <button
-                            key={item}
-                            className={`listings-pagination-btn${item === currentPage ? ' listings-pagination-btn--active' : ''}`}
-                            onClick={() => goTo(item)}
-                          >
-                            {item}
-                          </button>
-                        )
-                      )
-                    }
-
-                    <button
-                      className="listings-pagination-btn"
-                      onClick={() => goTo(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                    >
-                      &#8250;
-                    </button>
-                  </div>
-                )}
-
-              </>
+            {showPagination && (
+              <div className="listings-pagination listings-pagination--bar">
+                <button className="listings-pagination-btn" onClick={() => goTo(currentPage - 1)} disabled={currentPage === 1}>&#8249;</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                  .reduce((acc, p, idx, arr) => { if (idx > 0 && p - arr[idx - 1] > 1) acc.push('...'); acc.push(p); return acc; }, [])
+                  .map((item, idx) => item === '...'
+                    ? <span key={`ellipsis-${idx}`} className="listings-pagination-ellipsis">…</span>
+                    : <button key={item} className={`listings-pagination-btn${item === currentPage ? ' listings-pagination-btn--active' : ''}`} onClick={() => goTo(item)}>{item}</button>
+                  )}
+                <button className="listings-pagination-btn" onClick={() => goTo(currentPage + 1)} disabled={currentPage === totalPages}>&#8250;</button>
+                <span className="listings-pagination-info">Page {currentPage} of {totalPages}</span>
+              </div>
             )}
-            {!loading && <Footer />}
           </div>
         );
       })()}

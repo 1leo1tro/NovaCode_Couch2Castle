@@ -48,6 +48,21 @@ export const protect = async (req, res, next) => {
   }
 };
 
+// Optional auth — attaches req.agent if a valid token is present, never blocks
+export const optionalAuth = async (req, res, next) => {
+  const header = req.headers.authorization;
+  if (!header || !header.startsWith('Bearer ')) return next();
+  try {
+    const token = header.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const agent = await Agent.findById(decoded.id).select('-password');
+    if (agent?.isActive) req.agent = agent;
+  } catch {
+    // invalid / expired token — ignore, proceed as unauthenticated
+  }
+  next();
+};
+
 // Middleware to check if agent is active (optional additional check)
 export const checkActive = (req, res, next) => {
   if (!req.agent.isActive) {

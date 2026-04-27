@@ -311,7 +311,6 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, on
 
           {/* Status */}
           <div className="lsf-group">
-            <span className="lsf-label">Status</span>
             <select
               className="lsf-select"
               value={filters.status || ''}
@@ -327,7 +326,6 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, on
 
           {/* Price — custom popover */}
           <div className="lsf-group lsf-group--popover">
-            <span className="lsf-label">Price</span>
             <button
               type="button"
               className={`lsf-select lsf-popover-trigger${isPriceActive ? ' lsf-select--active' : ''}`}
@@ -469,7 +467,6 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, on
 
           {/* Sq Ft — custom popover */}
           <div className="lsf-group lsf-group--popover">
-            <span className="lsf-label">Sq Ft</span>
             <button
               type="button"
               className={`lsf-select lsf-popover-trigger${isSqftActive ? ' lsf-select--active' : ''}`}
@@ -525,26 +522,23 @@ export default function ListingSearchBar({ filters, onFilterChange, onSearch, on
 
           {/* ZIP */}
           <div className="lsf-group">
-            <span className="lsf-label">ZIP</span>
             <input
               type="text"
               placeholder="ZIP Code"
               value={filters.zipCode || ''}
               onFocus={e => { focusValueRef.current = e.target.value; }}
-              onChange={(e) => onFilterChange('zipCode', e.target.value)}
+              onChange={(e) => onFilterChange('zipCode', e.target.value.replace(/\D/g, '').slice(0, 5))}
               onBlur={e => { if (e.target.value !== focusValueRef.current) onSearch?.(); }}
               className="lsf-select"
+              maxLength={5}
               style={{ width: 76 }}
             />
           </div>
 
-          {hasActiveFilters && (
-            <>
-              <div className="lsf-divider" />
-              <button type="button" className="lsf-clear" onClick={clearAll}>Clear all</button>
-            </>
-          )}
         </div>
+      )}
+      {open && hasActiveFilters && (
+        <button type="button" className="lsf-clear" onClick={clearAll}>Clear all</button>
       )}
     </div>
   );

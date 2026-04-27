@@ -122,9 +122,11 @@ export const validateObjectId = (id) => {
 export const validatePriceRange = (minPrice, maxPrice) => {
   const query = {};
 
+  const MAX_PRICE = 100_000_000;
+
   // Validate minPrice
   if (minPrice) {
-    const validation = validateNumericParam('minPrice', minPrice, { min: 0 });
+    const validation = validateNumericParam('minPrice', minPrice, { min: 0, max: MAX_PRICE });
     if (!validation.isValid) {
       return { isValid: false, error: validation.error };
     }
@@ -135,7 +137,7 @@ export const validatePriceRange = (minPrice, maxPrice) => {
 
   // Validate maxPrice
   if (maxPrice) {
-    const validation = validateNumericParam('maxPrice', maxPrice, { min: 0 });
+    const validation = validateNumericParam('maxPrice', maxPrice, { min: 0, max: MAX_PRICE });
     if (!validation.isValid) {
       return { isValid: false, error: validation.error };
     }
@@ -169,9 +171,11 @@ export const validatePriceRange = (minPrice, maxPrice) => {
 export const validateSquareFeetRange = (minSquareFeet, maxSquareFeet) => {
   const query = {};
 
+  const MAX_SQFT = 50_000;
+
   // Validate minSquareFeet
   if (minSquareFeet) {
-    const validation = validateNumericParam('minSquareFeet', minSquareFeet, { min: 0 });
+    const validation = validateNumericParam('minSquareFeet', minSquareFeet, { min: 0, max: MAX_SQFT });
     if (!validation.isValid) {
       return { isValid: false, error: validation.error };
     }
@@ -182,7 +186,7 @@ export const validateSquareFeetRange = (minSquareFeet, maxSquareFeet) => {
 
   // Validate maxSquareFeet
   if (maxSquareFeet) {
-    const validation = validateNumericParam('maxSquareFeet', maxSquareFeet, { min: 0 });
+    const validation = validateNumericParam('maxSquareFeet', maxSquareFeet, { min: 0, max: MAX_SQFT });
     if (!validation.isValid) {
       return { isValid: false, error: validation.error };
     }

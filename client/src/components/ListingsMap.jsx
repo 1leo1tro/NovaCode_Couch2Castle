@@ -4,6 +4,12 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import '../styles/ListingsMap.css';
 
 const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+const MAP_POS_KEY = 'c2c_map_position';
+const saveMapPos = (map) => {
+  const { lng, lat } = map.getCenter();
+  localStorage.setItem(MAP_POS_KEY, JSON.stringify({ center: [lng, lat], zoom: map.getZoom() }));
+};
+const loadMapPos = () => { try { return JSON.parse(localStorage.getItem(MAP_POS_KEY)); } catch { return null; } };
 
 const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searchTarget = null, mapHighlightRef, onMarkerHover, onMarkerClick, onBoundsChange }) => {
   const containerRef = useRef(null);
@@ -25,12 +31,18 @@ const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searc
     if (!MAPBOX_TOKEN || !containerRef.current || mapRef.current) return;
     mapboxgl.accessToken = MAPBOX_TOKEN;
 
+    const saved = loadMapPos();
     const map = new mapboxgl.Map({
       container: containerRef.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-98.5795, 39.8283],
-      zoom: 4,
+      center: saved?.center ?? [-98.5795, 39.8283],
+      zoom: saved?.zoom ?? 4,
     });
+
+    if (saved) {
+      hasUserInteracted.current = true;
+      initialFitDone.current = true;
+    }
 
     mapRef.current = map;
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -144,7 +156,7 @@ const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searc
         .setLngLat(coords)
         .setHTML(`
           <div class="listings-map-popup">
-            ${props.image ? `<img class="listings-map-popup-img" src="${props.image}" alt="" />` : ''}
+            ${props.image ? `<img class="listings-map-popup-img" src="${props.image}" alt="" referrerpolicy="no-referrer" />` : ''}
             <div class="listings-map-popup-body">
               <p class="listings-map-popup-price">$${Number(props.price).toLocaleString()}</p>
               <p class="listings-map-popup-address">${props.address}</p>
@@ -165,8 +177,8 @@ const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searc
     map.on('mouseleave', 'clusters', () => { map.getCanvas().style.cursor = ''; });
 
     map.on('movestart', (e) => { if (e.originalEvent) hasUserInteracted.current = true; });
-    map.on('moveend', emitBounds);
-    map.on('zoomend', emitBounds);
+    map.on('moveend', () => { saveMapPos(map); emitBounds(); });
+    map.on('zoomend', () => saveMapPos(map));
 
     return () => {
       popupRef.current?.remove();
@@ -261,9 +273,13 @@ const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searc
     if (!map || !mapLoaded) return;
 
     const removeBoundary = () => {
-      if (map.getLayer('city-boundary-fill')) map.removeLayer('city-boundary-fill');
-      if (map.getLayer('city-boundary-line')) map.removeLayer('city-boundary-line');
-      if (map.getSource('city-boundary')) map.removeSource('city-boundary');
+      const m = mapRef.current;
+      if (!m) return;
+      try {
+        if (m.getLayer('city-boundary-fill')) m.removeLayer('city-boundary-fill');
+        if (m.getLayer('city-boundary-line')) m.removeLayer('city-boundary-line');
+        if (m.getSource('city-boundary')) m.removeSource('city-boundary');
+      } catch {}
     };
 
     const query = cityQuery?.trim();
@@ -281,7 +297,7 @@ const ListingsMap = ({ listings = [], cityQuery = '', userLocation = null, searc
             f.geometry?.type === 'Polygon' || f.geometry?.type === 'MultiPolygon'
           );
           removeBoundary();
-          if (!feature) return;
+          if (!feature || !mapRef.current) return;
 
           map.addSource('city-boundary', {
             type: 'geojson',

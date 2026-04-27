@@ -149,8 +149,8 @@ const ListingPanel = ({ listingId, onClose }) => {
       setFormData({ name: '', email: '', phone: '', preferredDate: '', message: '' });
     } catch (err) {
       let msg = 'Failed to submit request. Please try again.';
-      if (err.response?.status === 403) msg = 'You must be signed in to request a showing.';
-      else if (err.response?.data?.message) msg = err.response.data.message;
+      if (err.response?.data?.message) msg = err.response.data.message;
+      else if (err.response?.status === 403) msg = 'You must be signed in to request a showing.';
       setSubmitError(msg);
     } finally {
       setSubmitting(false);
@@ -234,19 +234,19 @@ const ListingPanel = ({ listingId, onClose }) => {
             <div className="listing-panel-hero">
               <div className="listing-panel-main-img-wrap">
                 {gallery[0]
-                  ? <img src={gallery[0]} alt={listing.address} className="listing-panel-main-img" />
+                  ? <img src={gallery[0]} alt={listing.address} className="listing-panel-main-img" referrerPolicy="no-referrer" />
                   : <div className="listing-panel-no-img">No image</div>
                 }
                 {listing.status && listing.status !== 'active' && (
                   <span className="listing-panel-badge-hero">{listing.status.toUpperCase()}</span>
                 )}
-                <div className="listing-panel-hero-bookmark"><BookmarkStar listingId={listing._id} /></div>
+                <BookmarkStar listingId={listing._id} />
               </div>
               <div className="listing-panel-thumb-grid">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="listing-panel-thumb">
                     {gallery[i + 1]
-                      ? <img src={gallery[i + 1]} alt={`${listing.address} - Photo ${i + 2}`} />
+                      ? <img src={gallery[i + 1]} alt={`${listing.address} - Photo ${i + 2}`} referrerPolicy="no-referrer" />
                       : <div className="listing-panel-no-img" />
                     }
                   </div>
@@ -386,7 +386,13 @@ const ListingPanel = ({ listingId, onClose }) => {
                   <div className="listing-panel-tour-card">
                     <h3>Request a Showing</h3>
 
-                    {canRequest ? (
+                    {isOwner ? (
+                      <div className="tour-signin-gate">
+                        <p className="tour-signin-hint" style={{ color: 'var(--color-muted)' }}>
+                          You cannot request a tour for your own listing.
+                        </p>
+                      </div>
+                    ) : canRequest ? (
                       <>
                         {upcomingSlots.length > 0 && (
                           <div className="listing-panel-availability">

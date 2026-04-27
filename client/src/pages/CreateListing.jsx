@@ -615,7 +615,14 @@ const CreateListing = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
-                    <span className="image-url">{image}</span>
+                    <img
+                      src={image}
+                      alt={`Preview ${index + 1}`}
+                      referrerPolicy="no-referrer"
+                      className="image-item-thumb"
+                      onError={e => { e.currentTarget.style.display = 'none'; }}
+                    />
+                    <span className="image-url">Image {index + 1}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveImage(index)}

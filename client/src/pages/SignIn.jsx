@@ -23,7 +23,7 @@ const SignIn = () => {
     setError(''); setSuccess(''); setLoading(true);
     if (userType === 'agent') {
       try {
-        const result = await login('john@example.com', 'password123');
+        const result = await login('derek.fountain@novarealty.com', 'password123');
         if (result.success) {
           setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
           setTimeout(() => navigate('/listings'), 800);

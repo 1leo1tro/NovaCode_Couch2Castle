@@ -106,6 +106,10 @@ function Navbar() {
   }, [isAuthenticated]);
 
   useEffect(() => {
+    if (location.pathname === '/showings') setPendingCount(0);
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (!menuOpen) return;
     const handler = (e) => {
       if (!e.target.closest('.navbar-burger-item')) setMenuOpen(false);
@@ -197,7 +201,7 @@ function Navbar() {
                 <AnimatePresence>
                   {bookmarks.length > 0 && (
                     <motion.span
-                      key={bookmarks.length}
+                      key="bookmark-badge"
                       className="navbar-bookmark-badge"
                       initial={{ scale: 0, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
@@ -226,53 +230,51 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           {isAuthenticated() ? (
             <>
-              <li className="navbar-burger-item">
-                <button
-                  className={`navbar-burger-btn${menuOpen ? ' navbar-burger-btn--open' : ''}`}
-                  onClick={() => setMenuOpen(o => !o)}
-                  aria-label="Toggle menu"
-                >
-                  <BurgerIcon />
-                  {pendingCount > 0 && !menuOpen && (
-                    <span className="navbar-burger-dot" />
-                  )}
-                </button>
-                <AnimatePresence>
-                  {menuOpen && (
-                    <motion.ul
-                      className="navbar-burger-menu"
-                      initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.97 }}
-                      transition={{ duration: 0.15 }}
-                    >
-                      {isManager ? (
+              {isManager ? (
+                <li>
+                  <Link to="/reports" className={`navbar-portal-btn${isActive('/reports') ? ' nav-active' : ''}`}>
+                    Manager Portal
+                  </Link>
+                </li>
+              ) : (
+                <li className="navbar-burger-item">
+                  <button
+                    className={`navbar-burger-btn${menuOpen ? ' navbar-burger-btn--open' : ''}`}
+                    onClick={() => setMenuOpen(o => !o)}
+                    aria-label="Toggle menu"
+                  >
+                    <BurgerIcon />
+                    {pendingCount > 0 && !menuOpen && (
+                      <span className="navbar-burger-dot" />
+                    )}
+                  </button>
+                  <AnimatePresence>
+                    {menuOpen && (
+                      <motion.ul
+                        className="navbar-burger-menu"
+                        initial={{ opacity: 0, y: -8, scale: 0.97 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -8, scale: 0.97 }}
+                        transition={{ duration: 0.15 }}
+                      >
                         <li>
-                          <Link to="/reports" className={isActive('/reports') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>
-                            Reports
+                          <Link to="/showings" className={`navbar-showings-link${isActive('/showings') ? ' nav-active' : ''}`} onClick={() => { setMenuOpen(false); setPendingCount(0); }}>
+                            Showings
+                            {pendingCount > 0 && (
+                              <span className="navbar-showings-badge">{pendingCount}</span>
+                            )}
                           </Link>
                         </li>
-                      ) : (
-                        <>
-                          <li>
-                            <Link to="/showings" className={`navbar-showings-link${isActive('/showings') ? ' nav-active' : ''}`} onClick={() => setMenuOpen(false)}>
-                              Showings
-                              {pendingCount > 0 && (
-                                <span className="navbar-showings-badge">{pendingCount}</span>
-                              )}
-                            </Link>
-                          </li>
-                          <li>
-                            <Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>
-                              Scheduling
-                            </Link>
-                          </li>
-                        </>
-                      )}
-                    </motion.ul>
-                  )}
-                </AnimatePresence>
-              </li>
+                        <li>
+                          <Link to="/scheduling" className={isActive('/scheduling') ? 'nav-active' : ''} onClick={() => setMenuOpen(false)}>
+                            Scheduling
+                          </Link>
+                        </li>
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
+                </li>
+              )}
               <li className="navbar-agent-profile">
                 <span className="navbar-agent-badge">{isManager ? 'Manager' : 'Agent'}</span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>
