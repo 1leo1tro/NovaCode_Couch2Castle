@@ -14,21 +14,8 @@ export const ThemeProvider = ({ children }) => {
   const [isDark, setIsDark] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Load theme preference from localStorage on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (savedTheme) {
-      const isDarkMode = savedTheme === 'dark';
-      setIsDark(isDarkMode);
-      applyTheme(isDarkMode);
-    } else {
-      setIsDark(false);
-      applyTheme(false);
-      localStorage.setItem('theme', 'light');
-    }
-
+    applyTheme(false);
     setLoading(false);
   }, []);
 
