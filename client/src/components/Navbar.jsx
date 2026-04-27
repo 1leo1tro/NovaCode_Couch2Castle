@@ -62,6 +62,8 @@ function Navbar() {
   const [pendingCount, setPendingCount] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
+  const [signOutModal, setSignOutModal] = useState(false);
+  const pendingSignOut = useRef(null);
   const megaTimerRef = useRef(null);
 
   const onMegaEnter = () => {
@@ -119,13 +121,18 @@ function Navbar() {
   }, [menuOpen]);
 
   const handleSignOut = () => {
-    logout();
-    navigate('/');
+    pendingSignOut.current = () => { logout(); navigate('/'); };
+    setSignOutModal(true);
   };
 
   const handleMockSignOut = () => {
-    mockLogout();
-    navigate('/');
+    pendingSignOut.current = () => { mockLogout(); navigate('/'); };
+    setSignOutModal(true);
+  };
+
+  const confirmSignOut = () => {
+    setSignOutModal(false);
+    pendingSignOut.current?.();
   };
 
   return (
@@ -310,6 +317,42 @@ function Navbar() {
           )}
         </ul>
       </nav>
+
+      <AnimatePresence>
+        {signOutModal && (
+          <motion.div
+            className="signout-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            onClick={() => setSignOutModal(false)}
+          >
+            <motion.div
+              className="signout-modal"
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              transition={{ duration: 0.18 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="signout-modal-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="28" height="28">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </div>
+              <h2 className="signout-modal-title">Sign out?</h2>
+              <p className="signout-modal-desc">You'll need to sign back in to access your account.</p>
+              <div className="signout-modal-actions">
+                <button className="signout-modal-cancel" onClick={() => setSignOutModal(false)}>Cancel</button>
+                <button className="signout-modal-confirm" onClick={confirmSignOut}>Sign out</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
