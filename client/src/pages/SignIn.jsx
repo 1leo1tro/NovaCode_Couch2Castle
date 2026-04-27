@@ -15,7 +15,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [dir, setDir] = useState(1); // 1 = forward (→ right enters), -1 = back (← left enters)
 
-  const { login } = useAuth();
+  const { login, mockLogin } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -116,7 +116,7 @@ const SignIn = () => {
               <h1 className="signin-title">Welcome</h1>
               <p className="signin-desc">How would you like to sign in?</p>
               <div className="signin-roles">
-                <button className="signin-role-btn" onClick={() => navigate('/listings')}>
+                <button className="signin-role-btn" onClick={() => { mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' }); navigate('/listings'); }}>
                   <span className="signin-role-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="22" height="22">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
