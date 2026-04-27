@@ -86,10 +86,9 @@ Each script clears its collection before inserting.
 
 | Role | Email | Password |
 |------|-------|----------|
+| Home Buyer | `alex.johnson@example.com` | `password123` |
 | Agent | `derek.fountain@novarealty.com` | `password123` |
 | Manager | `margaret.holloway@novarealty.com` | `password123` |
-
-Home Buyers browse as guests — no login required.
 
 ## Key Features
 
