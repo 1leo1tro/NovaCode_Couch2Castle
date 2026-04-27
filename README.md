@@ -82,12 +82,14 @@ npm run seed:showings # showings with past/future dates
 
 Each script clears its collection before inserting.
 
-**Test logins (password: `password123`):**
+**Demo logins:**
 
-| Role | Email |
-|------|-------|
-| Agent | `derek.fountain@novarealty.com` |
-| Manager | `margaret.holloway@novarealty.com` |
+| Role | Email | Password |
+|------|-------|----------|
+| Agent | `derek.fountain@novarealty.com` | `password123` |
+| Manager | `margaret.holloway@novarealty.com` | `password123` |
+
+Home Buyers browse as guests — no login required.
 
 ## Key Features
 

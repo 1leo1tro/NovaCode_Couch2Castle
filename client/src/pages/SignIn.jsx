@@ -15,36 +15,27 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [dir, setDir] = useState(1); // 1 = forward (→ right enters), -1 = back (← left enters)
 
-  const { login, mockLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
-    if (userType === 'agent') {
-      try {
-        const result = await login('derek.fountain@novarealty.com', 'password123');
-        if (result.success) {
-          setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
-          setTimeout(() => navigate('/listings'), 800);
-        } else setError(result.error || 'Login failed.');
-      } catch (err) {
-        setError(err.response?.data?.message || 'Login failed.');
-      } finally { setLoading(false); }
-    } else if (userType === 'manager') {
-      try {
-        const result = await login('margaret.holloway@novarealty.com', 'password123');
-        if (result.success) {
-          setSuccess(`Welcome, ${result.agent?.name || 'Manager'}.`);
-          setTimeout(() => navigate('/reports'), 800);
-        } else setError(result.error || 'Login failed.');
-      } catch (err) {
-        setError(err.response?.data?.message || 'Login failed.');
-      } finally { setLoading(false); }
-    } else {
-      mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
-      setSuccess('Welcome, Alex!');
-      setTimeout(() => navigate('/listings'), 800);
+    setError(''); setSuccess('');
+    if (!email.trim()) { setError('Please enter your email address.'); return; }
+    if (!password) { setError('Please enter your password.'); return; }
+    setLoading(true);
+    try {
+      const result = await login(email.trim(), password);
+      if (result.success) {
+        const dest = result.agent?.role === 'manager' ? '/reports' : '/listings';
+        setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
+        setTimeout(() => navigate(dest), 800);
+      } else {
+        setError(result.error || 'Invalid email or password.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid email or password.');
+    } finally {
       setLoading(false);
     }
   };
@@ -125,7 +116,7 @@ const SignIn = () => {
               <h1 className="signin-title">Welcome</h1>
               <p className="signin-desc">How would you like to sign in?</p>
               <div className="signin-roles">
-                <button className="signin-role-btn" onClick={() => goForward('user')}>
+                <button className="signin-role-btn" onClick={() => navigate('/listings')}>
                   <span className="signin-role-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" width="22" height="22">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
