@@ -354,7 +354,13 @@ const Scheduling = () => {
                       </span>
                     </div>
                     <div className="sched-oh-body">
-                      <p className="sched-oh-address">{oh.listing?.address || 'Unknown listing'}</p>
+                      {!oh.listing ? (
+                        <p className="sched-oh-address sched-oh-address--stale">
+                          Listing deleted — remove this event
+                        </p>
+                      ) : (
+                        <p className="sched-oh-address">{oh.listing.address || oh.listing}</p>
+                      )}
                       <p className="sched-oh-time">{to12Hour(oh.startTime)} – {to12Hour(oh.endTime)}</p>
                       {oh.notes && <p className="sched-oh-notes">{oh.notes}</p>}
                     </div>

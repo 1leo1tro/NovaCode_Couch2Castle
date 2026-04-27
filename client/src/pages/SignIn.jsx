@@ -20,31 +20,33 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(''); setSuccess(''); setLoading(true);
-    if (userType === 'agent') {
-      try {
-        const result = await login('john@example.com', 'password123');
-        if (result.success) {
-          setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
-          setTimeout(() => navigate('/listings'), 800);
-        } else setError(result.error || 'Login failed.');
-      } catch (err) {
-        setError(err.response?.data?.message || 'Login failed.');
-      } finally { setLoading(false); }
-    } else if (userType === 'manager') {
-      try {
-        const result = await login('margaret.holloway@novarealty.com', 'password123');
-        if (result.success) {
-          setSuccess(`Welcome, ${result.agent?.name || 'Manager'}.`);
-          setTimeout(() => navigate('/reports'), 800);
-        } else setError(result.error || 'Login failed.');
-      } catch (err) {
-        setError(err.response?.data?.message || 'Login failed.');
-      } finally { setLoading(false); }
-    } else {
-      mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
-      setSuccess('Welcome, Alex!');
-      setTimeout(() => navigate('/listings'), 800);
+    setError(''); setSuccess('');
+    if (!email.trim()) { setError('Please enter your email address.'); return; }
+    if (!password) { setError('Please enter your password.'); return; }
+    setLoading(true);
+    if (userType === 'user') {
+      if (email.trim() === 'alex.johnson@example.com' && password === 'password123') {
+        mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
+        setSuccess('Welcome, Alex!');
+        setTimeout(() => navigate('/listings'), 800);
+      } else {
+        setError('Invalid email or password.');
+      }
+      setLoading(false);
+      return;
+    }
+    try {
+      const result = await login(email.trim(), password);
+      if (result.success) {
+        const dest = result.agent?.role === 'manager' ? '/reports' : '/listings';
+        setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
+        setTimeout(() => navigate(dest), 800);
+      } else {
+        setError(result.error || 'Invalid email or password.');
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Invalid email or password.');
+    } finally {
       setLoading(false);
     }
   };

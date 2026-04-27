@@ -39,6 +39,7 @@ const ListingCard = ({ listing, hasOpenHouse, onSelect, animStyle }) => {
                     key={imgIndex}
                     src={images[imgIndex]}
                     alt={listing.address}
+                    referrerPolicy="no-referrer"
                     custom={direction}
                     variants={slideVariants}
                     initial="enter"

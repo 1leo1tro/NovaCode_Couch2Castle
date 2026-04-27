@@ -87,7 +87,7 @@
 .listing-panel-badge-hero {
   position: absolute;
   top: 1rem;
-  right: 1rem;
+  left: 1rem;
   padding: 0.35rem 0.8rem;
   font-size: 0.78rem;
   font-weight: 600;
@@ -96,12 +96,6 @@
   border-radius: 9999px;
 }
 
-.listing-panel-hero-bookmark {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 5;
-}
 
 .listing-panel-thumb-grid {
   flex: 0 0 36%;

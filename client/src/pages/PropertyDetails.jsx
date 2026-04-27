@@ -22,6 +22,12 @@ const PropertyDetails = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user, mockUser } = useAuth();
   const canRequest = isAuthenticated() || !!mockUser;
+  const isOwnListing = (prop) => {
+    if (!isAuthenticated() || !prop) return false;
+    const ownerId = prop.createdBy?._id || prop.createdBy?.id || prop.createdBy;
+    const agentId = user?._id || user?.id;
+    return Boolean(ownerId && agentId && String(ownerId) === String(agentId));
+  };
   const [property, setProperty] = useState(null);
   const [showingCount, setShowingCount] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -326,7 +332,7 @@ const PropertyDetails = () => {
       <div className="property-details-hero">
         <div className="property-details-main-image">
           {gallery[0]
-            ? <img src={gallery[0]} alt={property.address} />
+            ? <img src={gallery[0]} alt={property.address} referrerPolicy="no-referrer" />
             : <div className="property-details-no-image">No image</div>
           }
           {property.status && property.status !== 'active' && (
@@ -337,7 +343,7 @@ const PropertyDetails = () => {
           {Array.from({ length: 5 }).map((_, idx) => (
             <div key={idx} className="property-details-gallery-thumb">
               {gallery[idx + 1]
-                ? <img src={gallery[idx + 1]} alt={`${property.address} - Photo ${idx + 2}`} />
+                ? <img src={gallery[idx + 1]} alt={`${property.address} - Photo ${idx + 2}`} referrerPolicy="no-referrer" />
                 : <div className="property-details-no-image">No image</div>
               }
             </div>
@@ -443,7 +449,11 @@ const PropertyDetails = () => {
           <div className="property-details-card">
             <h3>Request a Showing</h3>
 
-            {canRequest ? (
+            {isOwnListing(property) ? (
+              <p style={{ color: 'var(--color-muted)', fontSize: '0.9rem', margin: '0.5rem 0' }}>
+                You cannot request a tour for your own listing.
+              </p>
+            ) : canRequest ? (
               <>
 {submitSuccess && (
                   <div className="alert alert-success">

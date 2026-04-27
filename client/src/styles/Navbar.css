@@ -259,6 +259,29 @@
   color: var(--color-foreground);
 }
 
+/* Manager Portal direct button */
+.navbar-portal-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 1rem;
+  background: var(--color-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 7px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-foreground);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.navbar-portal-btn:hover { background: var(--color-border); }
+
+.navbar-portal-btn.nav-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
 /* Sign out button — matches sign-in button theme */
 .navbar-signout-btn {
   background: var(--color-accent);
@@ -464,4 +487,92 @@
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
+}
+
+/* Sign-out confirmation modal */
+.signout-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.signout-modal {
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 36px 32px 28px;
+  max-width: 360px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  text-align: center;
+}
+
+.signout-modal-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: var(--color-secondary);
+  border-radius: 50%;
+  color: var(--color-accent);
+  margin-bottom: 16px;
+}
+
+.signout-modal-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-foreground);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.3px;
+}
+
+.signout-modal-desc {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin: 0 0 28px 0;
+  line-height: 1.5;
+}
+
+.signout-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.signout-modal-cancel {
+  padding: 10px 0;
+  background: var(--color-secondary);
+  color: var(--color-foreground);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.signout-modal-cancel:hover {
+  background: var(--color-border);
+}
+
+.signout-modal-confirm {
+  padding: 10px 0;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.signout-modal-confirm:hover {
+  background: #b91c1c;
 }

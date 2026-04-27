@@ -7,7 +7,7 @@ import ListingCard from '../components/ListingCard';
 import '../styles/Bookmarks.css';
 
 const Bookmarks = () => {
-  const { bookmarks } = useBookmarks();
+  const { bookmarks, removeStale } = useBookmarks();
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -22,9 +22,11 @@ const Bookmarks = () => {
       }
       try {
         const results = await Promise.all(
-          bookmarks.map((id) => axios.get(`/api/listings/${id}`).then((r) => r.data.listing).catch(() => null))
+          bookmarks.map((id) => axios.get(`/api/listings/${id}`).then((r) => ({ id, listing: r.data.listing })).catch(() => ({ id, listing: null })))
         );
-        setListings(results.filter(Boolean));
+        const valid = results.filter((r) => r.listing !== null);
+        removeStale(valid.map((r) => r.id));
+        setListings(valid.map((r) => r.listing));
       } catch {
         setListings([]);
       } finally {

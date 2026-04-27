@@ -29,6 +29,12 @@ export const createShowing = async (req, res) => {
       return res.status(404).json(handleNotFoundError('Listing', listing));
     }
 
+    // Agents cannot request a tour for their own listing
+    if (req.agent && listingExists.createdBy &&
+        String(req.agent._id) === String(listingExists.createdBy)) {
+      return res.status(403).json({ message: 'You cannot request a tour for a listing you posted.' });
+    }
+
     // Prevent duplicate: same email + listing with a non-cancelled status
     const duplicate = await Showing.findOne({
       listing,

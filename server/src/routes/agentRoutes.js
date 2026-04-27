@@ -2,11 +2,15 @@ import express from 'express';
 import {
   updateAgentAvailability,
   getAgentAvailability,
-  getAgentAvailabilityById
+  getAgentAvailabilityById,
+  createAgentAsManager,
 } from '../controllers/agentController.js';
-import { protect } from '../middleware/auth.js';
+import { protect, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
+
+// Manager: create a new agent
+router.post('/agents', protect, authorize('manager'), createAgentAsManager);
 
 // Protected routes must come before /:agentId to prevent "me" matching the param
 router.put('/agents/me/availability', protect, updateAgentAvailability);

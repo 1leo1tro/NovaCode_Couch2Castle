@@ -29,7 +29,9 @@ const MyShowings = () => {
     Promise.all(
       ids.map((id) => axios.get(`/api/showings/${id}`).then((r) => r.data.showing).catch(() => null))
     ).then((results) => {
-      setShowings(results.filter(Boolean).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      const valid = results.filter(Boolean);
+      localStorage.setItem('c2c_my_showings', JSON.stringify(valid.map((s) => s._id)));
+      setShowings(valid.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
       setLoading(false);
       markAllSeen();
     });

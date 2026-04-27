@@ -121,7 +121,7 @@ const ListingCard = ({ listing, onSelect, animStyle }) => {
   return (
     <div className="property-card home-listing-card" onClick={() => onSelect(listing._id)} style={{ cursor: 'pointer', ...animStyle }}>
       <div className="property-card-image">
-        <img src={img} alt={listing.address} onError={() => setImgErr(true)} />
+        <img src={img} alt={listing.address} referrerPolicy="no-referrer" onError={() => setImgErr(true)} />
         {listing.status && <span className="property-badge">{listing.status}</span>}
         <span className="hot-views-badge">
           <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
