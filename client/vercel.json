@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://novacode-couch2castle.onrender.com/api/:path*"
+    },
+    {
+      "source": "/uploads/:path*",
+      "destination": "https://novacode-couch2castle.onrender.com/uploads/:path*"
+    }
+  ]
+}
