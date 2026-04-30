@@ -23,7 +23,10 @@ const app = express();
 app.use(cors({
   origin: [
     process.env.CLIENT_ORIGIN || 'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://127.0.0.1:5173',
+    'https://couch2castle.site',
+    'https://www.couch2castle.site',
+    'https://nova-code-couch2castle.vercel.app'
   ]
 }));
 app.use(express.json());
