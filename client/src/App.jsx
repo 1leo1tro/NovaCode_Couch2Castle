@@ -47,28 +47,32 @@ function App() {
                 <Route path="/bookmarks" element={<Bookmarks />} />
                 <Route path="/my-showings" element={<MyShowings />} />
                 <Route path="/listings/mine" element={
-                  <ProtectedRoute requireAgent={true}>
+                  <ProtectedRoute roles={['agent', 'manager', 'admin']}>
                     <MyListings />
                   </ProtectedRoute>
                 } />
                 <Route path="/listings/create" element={
-                  <ProtectedRoute requireAgent={true}>
+                  <ProtectedRoute roles={['agent', 'manager', 'admin']}>
                     <CreateListing />
                   </ProtectedRoute>
                 } />
-                <Route path="/listings/edit/:id" element={<EditListing />} />
+                <Route path="/listings/edit/:id" element={
+                  <ProtectedRoute roles={['agent', 'manager', 'admin']}>
+                    <EditListing />
+                  </ProtectedRoute>
+                } />
                 <Route path="/showings" element={
-                  <ProtectedRoute requireAgent={true}>
+                  <ProtectedRoute roles={['agent', 'manager', 'admin']}>
                     <Showings />
                   </ProtectedRoute>
                 } />
                 <Route path="/reports" element={
-                  <ProtectedRoute requireAgent={true}>
+                  <ProtectedRoute roles={['manager', 'admin']}>
                     <Reports />
                   </ProtectedRoute>
                 } />
                 <Route path="/scheduling" element={
-                  <ProtectedRoute requireAgent={true}>
+                  <ProtectedRoute roles={['agent', 'manager', 'admin']}>
                     <Scheduling />
                   </ProtectedRoute>
                 } />

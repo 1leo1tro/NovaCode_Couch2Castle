@@ -53,6 +53,7 @@ function BurgerIcon() {
 function Navbar() {
   const { user, isAuthenticated, logout, mockUser, mockLogout } = useAuth();
   const isManager = isAuthenticated() && user?.role === 'manager';
+  const isBuyer = isAuthenticated() && user?.role === 'buyer';
   const { isDark, toggleTheme } = useTheme();
   const { bookmarks } = useBookmarks();
   const { unseenCount } = useShowingNotifications();
@@ -170,7 +171,7 @@ function Navbar() {
               </div>
             )}
           </li>
-          {isAuthenticated() && !isManager && (
+          {isAuthenticated() && !isBuyer && (
             <li><Link to="/listings/mine" className={location.pathname !== '/listings' && isActive('/listings') ? 'nav-active' : ''}>My Listings</Link></li>
           )}
           {!isAuthenticated() && (
@@ -237,13 +238,14 @@ function Navbar() {
         <ul className="navbar-links navbar-right">
           {isAuthenticated() ? (
             <>
-              {isManager ? (
+              {isManager && (
                 <li>
                   <Link to="/reports" className={`navbar-portal-btn${isActive('/reports') ? ' nav-active' : ''}`}>
                     Manager Portal
                   </Link>
                 </li>
-              ) : (
+              )}
+              {!isBuyer && (
                 <li className="navbar-burger-item">
                   <button
                     className={`navbar-burger-btn${menuOpen ? ' navbar-burger-btn--open' : ''}`}
@@ -283,7 +285,9 @@ function Navbar() {
                 </li>
               )}
               <li className="navbar-agent-profile">
-                <span className="navbar-agent-badge">{isManager ? 'Manager' : 'Agent'}</span>
+                <span className="navbar-agent-badge">
+                  {user?.role === 'manager' ? 'Manager' : user?.role === 'buyer' ? 'User' : 'Agent'}
+                </span>
                 <span className="navbar-agent-name">{user?.name || user?.email}</span>
               </li>
               <li>

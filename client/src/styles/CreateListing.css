@@ -258,6 +258,46 @@
   color: #dc2626;
 }
 
+/* Drop zone */
+.img-drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 2rem 1.5rem;
+  border: 2px dashed var(--color-border);
+  border-radius: 10px;
+  background: var(--color-secondary);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  text-align: center;
+}
+
+.img-drop-zone:hover,
+.img-drop-zone--over {
+  border-color: var(--color-accent);
+  background: rgba(15, 82, 128, 0.04);
+  color: var(--color-accent);
+}
+
+.img-drop-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.img-drop-hint {
+  font-size: 0.75rem;
+  opacity: 0.7;
+}
+
+.img-drop-uploading {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
 /* Image Input Group */
 .image-input-group {
   display: grid;
@@ -292,64 +332,115 @@
   transform: translateY(0);
 }
 
-/* Images List */
-.images-list {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: var(--color-secondary);
+/* Image preview grid */
+.img-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.img-preview-cell {
+  position: relative;
   border-radius: 8px;
-  border: 1px solid var(--color-border);
-  max-height: 160px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
+  aspect-ratio: 4/3;
+  background: var(--color-secondary);
+  border: 1.5px solid var(--color-border);
+}
+
+.img-preview-thumb {
   width: 100%;
-  box-sizing: border-box;
-}
-
-.images-count {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--color-foreground);
-  margin: 0 0 6px 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.image-item-thumb {
-  width: 40px;
-  height: 30px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 4px;
-  flex-shrink: 0;
-  border: 1px solid var(--color-border);
+  display: block;
+  cursor: zoom-in;
 }
 
-.image-item {
+/* Lightbox */
+.img-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.88);
+  z-index: 9999;
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 8px;
-  background-color: var(--color-background);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  margin-bottom: 8px;
-  font-size: 13px;
-  overflow: hidden;
+  justify-content: center;
+  padding: 1.5rem;
+  cursor: zoom-out;
 }
 
-.image-item:last-child {
-  margin-bottom: 0;
+.img-lightbox img {
+  max-width: 90vw;
+  max-height: 88vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  cursor: default;
 }
 
-.image-url {
-  color: var(--color-muted);
-  flex: 1;
-  min-width: 0;
-  font-family: 'Monaco', 'Courier New', monospace;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.img-lightbox-close {
+  position: fixed;
+  top: 1.25rem;
+  right: 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.img-lightbox-close:hover {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.img-preview-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+
+.img-preview-cell:hover .img-preview-remove {
+  opacity: 1;
+}
+
+.img-preview-remove:hover {
+  background: rgba(220, 38, 38, 0.85);
+}
+
+.img-preview-badge {
+  position: absolute;
+  bottom: 5px;
+  left: 5px;
+  padding: 0.15rem 0.45rem;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  pointer-events: none;
 }
 
 .btn-remove-image {

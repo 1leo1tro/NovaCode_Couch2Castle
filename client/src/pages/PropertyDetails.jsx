@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import PropertyMap from '../components/PropertyMap';
+import ImageLightbox from '../components/ImageLightbox';
 import '../styles/PropertyDetails.css';
 import '../styles/TagPicker.css';
 
@@ -53,6 +54,7 @@ const PropertyDetails = () => {
   const [submitError, setSubmitError] = useState('');
 
   const [showSoldForm, setShowSoldForm] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [soldFormData, setSoldFormData] = useState({
     closingDate: '',
     finalSalePrice: ''
@@ -326,13 +328,22 @@ const PropertyDetails = () => {
     ? property.images.slice(0, 6)
     : [];
 
+  const allImages = property.images?.filter(Boolean) || [];
+
   return (
     <div className="property-details-page">
+      {lightboxIndex !== null && allImages.length > 0 && (
+        <ImageLightbox
+          images={allImages}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
 
       <div className="property-details-hero">
         <div className="property-details-main-image">
           {gallery[0]
-            ? <img src={gallery[0]} alt={property.address} referrerPolicy="no-referrer" />
+            ? <img src={gallery[0]} alt={property.address} referrerPolicy="no-referrer" style={{ cursor: 'zoom-in' }} onClick={() => setLightboxIndex(0)} />
             : <div className="property-details-no-image">No image</div>
           }
           {property.status && property.status !== 'active' && (
@@ -343,7 +354,7 @@ const PropertyDetails = () => {
           {Array.from({ length: 5 }).map((_, idx) => (
             <div key={idx} className="property-details-gallery-thumb">
               {gallery[idx + 1]
-                ? <img src={gallery[idx + 1]} alt={`${property.address} - Photo ${idx + 2}`} referrerPolicy="no-referrer" />
+                ? <img src={gallery[idx + 1]} alt={`${property.address} - Photo ${idx + 2}`} referrerPolicy="no-referrer" style={{ cursor: 'zoom-in' }} onClick={() => setLightboxIndex(idx + 1)} />
                 : <div className="property-details-no-image">No image</div>
               }
             </div>
@@ -385,16 +396,11 @@ const PropertyDetails = () => {
 
           <section className="property-details-description">
             <h2>About this home</h2>
-            <p>
-              Welcome to this property located at {property.address}. This beautifully maintained property
-              offers {property.squareFeet.toLocaleString()} square feet of living space.
-              The property is currently {property.status} and is priced at ${property.price.toLocaleString()}.
-            </p>
-            <p>
-              Located in the {property.zipCode} area, this property offers convenient access to local amenities
-              and is perfect for those looking for quality living space. Don&apos;t miss your chance to make
-              this exceptional property your new home.
-            </p>
+            {property.description ? (
+              <p>{property.description}</p>
+            ) : (
+              <p style={{ color: 'var(--color-muted)', fontStyle: 'italic' }}>No description provided.</p>
+            )}
           </section>
 
           <section className="property-details-features">

@@ -215,19 +215,13 @@ export const getListingById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    // Validate MongoDB ObjectId format
     const idValidation = validateObjectId(id);
     if (!idValidation.isValid) {
       return res.status(400).json(idValidation.error);
     }
 
-    // Atomically increment viewCount and count showings in parallel
     const [listing, showingCount] = await Promise.all([
-      Listing.findByIdAndUpdate(
-        id,
-        { $inc: { viewCount: 1 } },
-        { new: true }
-      ).populate('createdBy', 'name phone'),
+      Listing.findById(id).populate('createdBy', 'name phone'),
       Showing.countDocuments({ listing: id })
     ]);
 
@@ -243,6 +237,38 @@ export const getListingById = async (req, res) => {
 
     res.status(500).json(
       createErrorResponse('Error fetching listing', error.message, { type: error.name })
+    );
+  }
+};
+
+// Record a single view (called explicitly by the client, once per panel open)
+export const recordView = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const idValidation = validateObjectId(id);
+    if (!idValidation.isValid) {
+      return res.status(400).json(idValidation.error);
+    }
+
+    const listing = await Listing.findByIdAndUpdate(
+      id,
+      { $inc: { viewCount: 1 } },
+      { new: true, select: 'viewCount' }
+    );
+
+    if (!listing) {
+      return res.status(404).json(handleNotFoundError('Listing', id));
+    }
+
+    res.json({ viewCount: listing.viewCount });
+  } catch (error) {
+    if (isDatabaseConnectionError(error)) {
+      return res.status(503).json(handleDatabaseError());
+    }
+
+    res.status(500).json(
+      createErrorResponse('Error recording view', error.message, { type: error.name })
     );
   }
 };

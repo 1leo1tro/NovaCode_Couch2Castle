@@ -49,7 +49,7 @@ const agentSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['agent', 'manager', 'admin'],
+    enum: ['buyer', 'agent', 'manager', 'admin'],
     default: 'agent'
   },
   isActive: {

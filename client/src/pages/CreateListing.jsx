@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
@@ -31,6 +31,11 @@ const CreateListing = () => {
   const [imageInput, setImageInput] = useState('');
   const [showErrorAlert, setShowErrorAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const [lightboxSrc, setLightboxSrc] = useState(null);
+  const fileInputRef = useRef(null);
 
   // Redirect if not authenticated
   if (!isAuthenticated) {
@@ -113,10 +118,13 @@ const CreateListing = () => {
   };
 
   const validateDescription = (value) => {
-    if (value && value.trim().length > 0 && value.trim().length < 10) {
-      return 'Description should be at least 10 characters if provided';
+    if (!value || !value.trim()) {
+      return 'Description is required';
     }
-    if (value && value.trim().length > 2000) {
+    if (value.trim().length < 10) {
+      return 'Description must be at least 10 characters';
+    }
+    if (value.trim().length > 2000) {
       return 'Description must not exceed 2000 characters';
     }
     return '';
@@ -274,6 +282,39 @@ const CreateListing = () => {
     }));
   };
 
+  const uploadFiles = async (files) => {
+    const allowed = Array.from(files).filter(f => /^image\/(jpeg|png|gif|webp)$/.test(f.type));
+    if (!allowed.length) {
+      setUploadError('Only jpg, png, gif, and webp images are allowed.');
+      return;
+    }
+    setUploadError('');
+    setUploadingFiles(true);
+    try {
+      const data = new FormData();
+      allowed.forEach(f => data.append('images', f));
+      const res = await axios.post('/api/upload', data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      setFormData(prev => ({ ...prev, images: [...prev.images, ...res.data.urls] }));
+    } catch (err) {
+      setUploadError(err.response?.data?.error || 'Upload failed. Please try again.');
+    } finally {
+      setUploadingFiles(false);
+    }
+  };
+
+  const handleFilePick = (e) => {
+    if (e.target.files?.length) uploadFiles(e.target.files);
+    e.target.value = '';
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files?.length) uploadFiles(e.dataTransfer.files);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -385,6 +426,13 @@ const CreateListing = () => {
   };
 
   return (
+    <>
+    {lightboxSrc && (
+      <div className="img-lightbox" onClick={() => setLightboxSrc(null)}>
+        <button className="img-lightbox-close" onClick={() => setLightboxSrc(null)}>✕</button>
+        <img src={lightboxSrc} alt="Full preview" referrerPolicy="no-referrer" onClick={e => e.stopPropagation()} />
+      </div>
+    )}
     <motion.div
       className="create-listing-container"
       variants={containerVariants}
@@ -528,14 +576,14 @@ const CreateListing = () => {
 
           {/* Description Field */}
           <motion.div className={`form-group form-group-full ${errors.description && touched.description ? 'has-error' : ''}`} variants={itemVariants}>
-            <label htmlFor="description">Description (Optional)</label>
+            <label htmlFor="description">Description</label>
             <textarea
               id="description"
               name="description"
               value={formData.description}
               onChange={handleInputChange}
               onBlur={handleBlur}
-              placeholder="Enter property description (min 10 characters if provided)"
+              placeholder="Describe the property (min 10 characters)"
               rows="5"
               maxLength="2000"
               className={errors.description && touched.description ? 'input-error' : ''}
@@ -576,60 +624,85 @@ const CreateListing = () => {
 
           {/* Images Section */}
           <motion.div className="form-group form-group-full" variants={itemVariants}>
-            <label htmlFor="imageInput">Property Images (Optional)</label>
-            <div className="image-input-group">
+            <label>Property Images (Optional)</label>
+
+            {/* Drop zone */}
+            <div
+              className={`img-drop-zone${dragOver ? ' img-drop-zone--over' : ''}`}
+              onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+              onDragLeave={() => setDragOver(false)}
+              onDrop={handleDrop}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                multiple
+                style={{ display: 'none' }}
+                onChange={handleFilePick}
+              />
+              {uploadingFiles ? (
+                <span className="img-drop-uploading">Uploading…</span>
+              ) : (
+                <>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <span className="img-drop-label">Drop photos here or <u>browse</u></span>
+                  <span className="img-drop-hint">JPG, PNG, GIF, WEBP · max 10 MB each</span>
+                </>
+              )}
+            </div>
+            {uploadError && <span className="error-message">{uploadError}</span>}
+
+            {/* URL input row */}
+            <div className="image-input-group" style={{ marginTop: '0.6rem' }}>
               <input
                 type="url"
                 id="imageInput"
                 value={imageInput}
                 onChange={(e) => setImageInput(e.target.value)}
-                placeholder="Paste image URL (jpg, png, gif, webp)"
+                placeholder="Or paste an image URL"
                 onKeyPress={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddImage();
-                  }
+                  if (e.key === 'Enter') { e.preventDefault(); handleAddImage(); }
                 }}
                 className={errors.imageInput ? 'input-error' : ''}
               />
-              <button
-                type="button"
-                onClick={handleAddImage}
-                className="btn-add-image"
-              >
-                Add Image
+              <button type="button" onClick={handleAddImage} className="btn-add-image">
+                Add URL
               </button>
             </div>
-            {errors.imageInput && (
-              <span className="error-message">{errors.imageInput}</span>
-            )}
+            {errors.imageInput && <span className="error-message">{errors.imageInput}</span>}
+
             {formData.images.length > 0 && (
-              <div className="images-list">
-                <p className="images-count">
-                  {formData.images.length} image{formData.images.length !== 1 ? 's' : ''} added
-                </p>
+              <div className="img-preview-grid">
                 {formData.images.map((image, index) => (
                   <motion.div
                     key={index}
-                    className="image-item"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    className="img-preview-cell"
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15 }}
                   >
                     <img
                       src={image}
                       alt={`Preview ${index + 1}`}
                       referrerPolicy="no-referrer"
-                      className="image-item-thumb"
-                      onError={e => { e.currentTarget.style.display = 'none'; }}
+                      className="img-preview-thumb"
+                      onClick={() => setLightboxSrc(image)}
                     />
-                    <span className="image-url">Image {index + 1}</span>
                     <button
                       type="button"
+                      className="img-preview-remove"
                       onClick={() => handleRemoveImage(index)}
-                      className="btn-remove-image"
+                      title="Remove"
                     >
                       ✕
                     </button>
+                    {index === 0 && <span className="img-preview-badge">Cover</span>}
                   </motion.div>
                 ))}
               </div>
@@ -657,6 +730,7 @@ const CreateListing = () => {
         </motion.form>
       </div>
     </motion.div>
+    </>
   );
 };
 

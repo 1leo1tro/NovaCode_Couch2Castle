@@ -1,6 +1,9 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import listingRoutes from './routes/listingRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import showingRoutes from './routes/showingRoutes.js';
@@ -8,8 +11,11 @@ import notificationRoutes from './routes/notificationRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import openHouseRoutes from './routes/openHouseRoutes.js';
 import agentRoutes from './routes/agentRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 dotenv.config();
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const app = express();
 
@@ -23,6 +29,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Routes
 app.use('/api', listingRoutes);
 app.use('/api/auth', authRoutes);
@@ -31,6 +40,7 @@ app.use('/api', notificationRoutes);
 app.use('/api', reportRoutes);
 app.use('/api', openHouseRoutes);
 app.use('/api', agentRoutes);
+app.use('/api', uploadRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ message: 'Route not found' });

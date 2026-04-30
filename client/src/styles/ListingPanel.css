@@ -72,6 +72,8 @@
   display: block;
 }
 
+.listing-panel-img-clickable { cursor: zoom-in; }
+
 .listing-panel-no-img {
   width: 100%;
   height: 100%;
@@ -270,8 +272,30 @@
 .listing-panel-agent-label {
   font-size: 0.9rem;
   font-weight: 600;
-  margin: 0;
+  margin: 0 0 0.75rem;
   color: var(--color-foreground);
+}
+
+.listing-panel-view-full-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.18s, box-shadow 0.18s, transform 0.15s;
+}
+
+.listing-panel-view-full-btn:hover {
+  background: var(--color-accent-dark);
+  box-shadow: 0 4px 14px rgba(15, 82, 128, 0.28);
+  transform: translateY(-1px);
 }
 
 .listing-panel-owner-card {
