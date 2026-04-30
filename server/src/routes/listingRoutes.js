@@ -3,6 +3,7 @@ import {
   createListing,
   getAllListings,
   getListingById,
+  recordView,
   updateListing,
   markAsSold,
   deleteListing,
@@ -19,6 +20,7 @@ router.get('/listings/suggest', suggestListings);
 router.get('/listings/nearby', getNearbyListings);
 router.get('/listings', getAllListings);
 router.get('/listings/:id', getListingById);
+router.post('/listings/:id/view', recordView);
 
 // Protected routes (authentication required)
 router.post('/listings', protect, createListing);

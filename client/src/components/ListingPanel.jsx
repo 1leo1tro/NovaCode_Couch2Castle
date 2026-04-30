@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import BookmarkStar from './BookmarkStar';
 import PropertyMap from './PropertyMap';
 import Footer from './Footer';
+import ImageLightbox from './ImageLightbox';
 import { useAuth } from '../context/AuthContext';
 import '../styles/ListingPanel.css';
 
@@ -19,6 +20,7 @@ const formatTime12 = (time) => {
 const ListingPanel = ({ listingId, onClose }) => {
   const { isAuthenticated, user, mockUser } = useAuth();
   const canRequest = isAuthenticated() || !!mockUser;
+  const lastViewedRef = useRef(null);
 
   const [listing, setListing] = useState(null);
   const [showingCount, setShowingCount] = useState(0);
@@ -35,6 +37,8 @@ const ListingPanel = ({ listingId, onClose }) => {
   const [submitting, setSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   const [showSoldForm, setShowSoldForm] = useState(false);
   const [soldFormData, setSoldFormData] = useState({ closingDate: '', finalSalePrice: '' });
@@ -90,7 +94,12 @@ const ListingPanel = ({ listingId, onClose }) => {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchListing(); }, [listingId]);
+  useEffect(() => {
+    fetchListing();
+    if (!listingId || lastViewedRef.current === listingId) return;
+    lastViewedRef.current = listingId;
+    axios.post(`/api/listings/${listingId}/view`, {}).catch(() => {});
+  }, [listingId]);
 
   useEffect(() => {
     const handleKey = (e) => { if (e.key === 'Escape') onClose(); };
@@ -198,8 +207,17 @@ const ListingPanel = ({ listingId, onClose }) => {
   const todayStr = new Date().toISOString().slice(0, 10);
   const upcomingSlots = agentAvailability.filter(s => s.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
 
+  const allImages = listing?.images?.filter(Boolean) || [];
+
   return (
     <>
+      {lightboxIndex !== null && allImages.length > 0 && (
+        <ImageLightbox
+          images={allImages}
+          startIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+        />
+      )}
       <motion.div
         className="listing-panel-backdrop"
         initial={{ opacity: 0 }}
@@ -234,7 +252,7 @@ const ListingPanel = ({ listingId, onClose }) => {
             <div className="listing-panel-hero">
               <div className="listing-panel-main-img-wrap">
                 {gallery[0]
-                  ? <img src={gallery[0]} alt={listing.address} className="listing-panel-main-img" referrerPolicy="no-referrer" />
+                  ? <img src={gallery[0]} alt={listing.address} className="listing-panel-main-img listing-panel-img-clickable" referrerPolicy="no-referrer" onClick={() => setLightboxIndex(0)} />
                   : <div className="listing-panel-no-img">No image</div>
                 }
                 {listing.status && listing.status !== 'active' && (
@@ -246,7 +264,7 @@ const ListingPanel = ({ listingId, onClose }) => {
                 {Array.from({ length: 5 }).map((_, i) => (
                   <div key={i} className="listing-panel-thumb">
                     {gallery[i + 1]
-                      ? <img src={gallery[i + 1]} alt={`${listing.address} - Photo ${i + 2}`} referrerPolicy="no-referrer" />
+                      ? <img src={gallery[i + 1]} alt={`${listing.address} - Photo ${i + 2}`} referrerPolicy="no-referrer" className="listing-panel-img-clickable" onClick={() => setLightboxIndex(i + 1)} />
                       : <div className="listing-panel-no-img" />
                     }
                   </div>
@@ -295,10 +313,7 @@ const ListingPanel = ({ listingId, onClose }) => {
                     {listing.description ? (
                       <p>{listing.description}</p>
                     ) : (
-                      <>
-                        <p>Welcome to this property located at {listing.address}. This beautifully maintained property offers {listing.squareFeet?.toLocaleString()} square feet of living space. The property is currently {listing.status} and is priced at ${listing.price?.toLocaleString()}.</p>
-                        <p>Located in the {listing.zipCode} area, this property offers convenient access to local amenities and is perfect for those looking for quality living space. Don&apos;t miss your chance to make this exceptional property your new home.</p>
-                      </>
+                      <p style={{ color: 'var(--color-muted)', fontStyle: 'italic' }}>No description provided.</p>
                     )}
                   </section>
 
@@ -346,6 +361,18 @@ const ListingPanel = ({ listingId, onClose }) => {
                     <p className="listing-panel-agent-label">
                       Agent: {listing.createdBy?.name || 'Listed by Agent'}
                     </p>
+                    <Link
+                      to={`/property/${listingId}`}
+                      className="listing-panel-view-full-btn"
+                      onClick={onClose}
+                    >
+                      View Full Listing
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                        <polyline points="15 3 21 3 21 9"/>
+                        <line x1="10" y1="14" x2="21" y2="3"/>
+                      </svg>
+                    </Link>
                   </div>
 
                   {/* Owner controls */}

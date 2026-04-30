@@ -15,7 +15,7 @@ const SignIn = () => {
   const [loading, setLoading] = useState(false);
   const [dir, setDir] = useState(1); // 1 = forward (→ right enters), -1 = back (← left enters)
 
-  const { login, mockLogin } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -24,22 +24,11 @@ const SignIn = () => {
     if (!email.trim()) { setError('Please enter your email address.'); return; }
     if (!password) { setError('Please enter your password.'); return; }
     setLoading(true);
-    if (userType === 'user') {
-      if (email.trim() === 'alex.johnson@example.com' && password === 'password123') {
-        mockLogin({ name: 'Alex Johnson', email: 'alex.johnson@example.com', type: 'user' });
-        setSuccess('Welcome, Alex!');
-        setTimeout(() => navigate('/listings'), 800);
-      } else {
-        setError('Invalid email or password.');
-      }
-      setLoading(false);
-      return;
-    }
     try {
       const result = await login(email.trim(), password);
       if (result.success) {
         const dest = result.agent?.role === 'manager' ? '/reports' : '/listings';
-        setSuccess(`Welcome back, ${result.agent?.name || 'Agent'}.`);
+        setSuccess(`Welcome back, ${result.agent?.name || 'there'}.`);
         setTimeout(() => navigate(dest), 800);
       } else {
         setError(result.error || 'Invalid email or password.');

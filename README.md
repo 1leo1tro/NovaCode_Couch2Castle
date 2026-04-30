@@ -82,14 +82,6 @@ npm run seed:showings # showings with past/future dates
 
 Each script clears its collection before inserting.
 
-**Demo logins:**
-
-| Role | Email | Password |
-|------|-------|----------|
-| Home Buyer | `alex.johnson@example.com` | `password123` |
-| Agent | `derek.fountain@novarealty.com` | `password123` |
-| Manager | `margaret.holloway@novarealty.com` | `password123` |
-
 ## Key Features
 
 - **Interactive map** — Mapbox GL with clustering, city boundary outlines, and real-time bounds-based listing filtering

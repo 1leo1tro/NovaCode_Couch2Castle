@@ -521,6 +521,27 @@ body {
   padding: 0;
 }
 
+.listings-reset-map-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.65rem;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-accent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.listings-reset-map-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
 .listings-view-toggle {
   display: flex;
   gap: 0.25rem;
