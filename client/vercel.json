@@ -7,6 +7,10 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://novacode-couch2castle.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
